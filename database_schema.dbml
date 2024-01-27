@@ -1,0 +1,64 @@
+Table identities {
+  userid text [primary key]
+  public_key text
+  trusting integer [not null, default: 1]
+}
+
+Table eintrag {
+  id integer [primary key]
+  beginn timestamp [not null]
+  ende timestamp [not null]
+  kategorie_id integer [ref: < kategorien.id]
+  thema text
+  ort text
+  raum text
+  dienstverlauf text
+  besonderheiten text
+}
+
+Table eintrag_verbindungen {
+  eintrag_a integer [ref: < eintrag.id]
+  eintrag_b integer [ref: < eintrag.id]
+}
+
+Table eintrag_zu_betreuer {
+  eintrag_id integer [ref: < eintrag.id]
+  betreuer_id integer [ref: < betreuer.id]
+}
+
+Table betreuer {
+  id integer [primary key]
+  name text [not null]
+}
+
+Table signatures {
+  eintrag_id integer [ref: < eintrag.id]
+  userid text [ref: < identities.userid]
+  signed_at timestamp [not null]
+}
+
+Table kategorien {
+  id integer [primary key]
+  name text [not null]
+}
+
+Table eintrag_zu_jugendliche {
+  eintrag_id integer [ref: < eintrag.id]
+  jugendliche_id integer [ref: < jugendliche.id]
+  anmerkung text
+}
+
+Table jugendliche {
+  id integer [primary key]
+  name text [not null]
+  passnummer text
+  geburtstag timestamp [not null]
+  eintrittsdatum timestamp [not null]
+  austrittsdatum timestamp
+  austrittsgrund text
+}
+
+Table info {
+  field text [primary key]
+  value text [not null]
+}
