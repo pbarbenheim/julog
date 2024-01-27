@@ -1,0 +1,38 @@
+{
+    "id": 1,
+    "beginn": 1298478932784,
+    "ende": 289347389247,
+    "kategorieId": 3,
+    "thema": "Üben für die Jugendflamme Stufe 1 & 2",
+    "ort": "Feuerwehrhaus Musterhausen",
+    "raum": "Schulungsraum",
+    "dienstverlauf": "-",
+    "besonderheiten": "-",
+    "links": [],
+    "betreuer": [
+        {
+            "id": 2,
+            "name": "Max"
+        },
+        {
+            "id": 1,
+            "name": "Enola"
+        }
+    ],
+    "jugendliche": [
+        {
+            "id": 1,
+            "name": "Josi"
+        },
+        {
+            "id": 2,
+            "name": "Ivan"
+        },
+        {
+            "id": 3,
+            "name": "Ester",
+            "anmerkung": "entschuldigt"
+        }
+    ],
+    "signee": "Max (stv. Jfw) <max@jfw-musterhausen.de>"
+}
