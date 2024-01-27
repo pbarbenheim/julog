@@ -35,6 +35,7 @@ Table signatures {
   eintrag_id integer [ref: < eintrag.id]
   userid text [ref: < identities.userid]
   signed_at timestamp [not null]
+  sign_version integer [not null, default: 1]
 }
 
 Table kategorien {
