@@ -1,11 +1,19 @@
+import 'dart:convert';
+
 import 'package:dart_pg/dart_pg.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqlite3/sqlite3.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Repository {
   final Database _database;
   final String filename;
   late final String domainSetting;
   late final String dbVersion;
+  late final SharedPreferences? prefs;
+  static const String _prefsPattern = "_userid_";
+  final Codec<String, String> _userIdCodec = utf8.fuse(base64Url);
 
   PreparedStatement? _getAllIdentities;
   PreparedStatement? _getOneIdentity;
@@ -13,14 +21,19 @@ class Repository {
   Repository._(this.filename, String domainName)
       : _database = sqlite3.open(filename) {
     _init(domainName: domainName);
+    _initPrefs();
   }
 
-  factory Repository(String filename) {
+  factory Repository._default(String filename) {
     return Repository._(filename, "dienstbuch.example.org");
   }
 
-  factory Repository.create(String filename, String domainName) {
+  factory Repository._create(String filename, String domainName) {
     return Repository._(filename, domainName);
+  }
+
+  void _initPrefs() async {
+    prefs = await SharedPreferences.getInstance();
   }
 
   void _init({String? domainName}) {
@@ -166,20 +179,124 @@ class Repository {
         key: result["public_key"],
         database: _database);
   }
+
+  List<String> getSigningUserIds() {
+    final pref = prefs!;
+
+    return pref
+        .getKeys()
+        .where((element) => element.startsWith(_prefsPattern))
+        .map((e) => e.substring(_prefsPattern.length))
+        .map((e) => _userIdCodec.decode(e))
+        .toList();
+  }
+
+  Future<String> signWithIdentity(
+      String message, String userId, String password) async {
+    final pref = prefs!;
+
+    final armored = pref.getString(_prefsPattern + _userIdCodec.encode(userId));
+    if (armored == null) {
+      throw Exception("SigningIdentity not found");
+    }
+
+    final privateKey = await OpenPGP.decryptPrivateKey(armored, password);
+    final signature = await OpenPGP.signDetached(message, [privateKey]);
+    return signature.armor();
+  }
+
+  Future<Identity> addSigningIdentity(
+      String password, String name, String? comment) async {
+    final identities = getIdentities();
+    bool firstSigning = identities.isEmpty;
+    final emails =
+        identities.map((e) => userIdToComponents(e.userId).$3).toList();
+    final emailBase = comment != null ? "$name $comment" : name;
+    final email =
+        "${emailBase.split(" ").map((e) => e.toLowerCase()).join(".")}@$domainSetting";
+
+    final index = emails.indexOf(email);
+    if (index != -1) {
+      identities[index].setTrusting(0);
+      throw Exception(
+          "UserId bereits vorhanden. Keine neue Signatur erstellt. Die andere Signatur wurde auf nicht vertrauen gesetzt.");
+    }
+
+    final userId = [name, if (comment != null) "($comment)", email].join(" ");
+    final privateKey = await compute(
+        (message) async => await OpenPGP.generateKey(
+              [userId],
+              password,
+              type: KeyGenerationType.rsa,
+              rsaKeySize: RSAKeySize.s4096,
+            ),
+        null);
+
+    final publicArmored = privateKey.toPublic.armor();
+    final privateArmored = privateKey.armor();
+
+    final pref = prefs!;
+    final result = await pref.setString(
+        _prefsPattern + _userIdCodec.encode(userId), privateArmored);
+    if (!result) {
+      throw Exception(
+          "Die Signatur konnte nicht abgespeichert werden. Es wurde keine Signatur erstellt");
+    }
+
+    final trusting = firstSigning ? 3 : 1;
+
+    _database.execute('''
+      insert into identities 
+        (userid, public_key, trusting)
+      values
+        (?, ?, ?)
+    ''', [userId, publicArmored, trusting]);
+
+    return Identity._(
+      userId: userId,
+      trusting: trusting,
+      database: _database,
+      key: privateKey.toPublic,
+    );
+  }
+
+  static (String, String, String) userIdToComponents(String userId) {
+    var result = ("", "", "");
+    var cstart = userId.indexOf("(");
+
+    if (cstart == -1) {
+      cstart = userId.indexOf("<");
+    } else {
+      final cend = userId.indexOf(")");
+      result =
+          (result.$1, userId.substring(cstart + 1, cend).trim(), result.$3);
+    }
+    final estart = userId.indexOf("<");
+    result = (
+      userId.substring(0, cstart).trim(),
+      result.$2,
+      userId.substring(estart + 1, userId.length - 2)
+    );
+
+    return result;
+  }
 }
 
 class Identity {
   final String userId;
   PublicKey? key;
-  final int trusting;
+  int _trusting;
   final Database _database;
 
   Identity._({
     required this.userId,
     this.key,
-    required this.trusting,
+    required int trusting,
     required Database database,
-  }) : _database = database;
+  })  : _database = database,
+        _trusting = trusting;
+
+  int get trusting => _trusting;
 
   PublicKey loadPublicKey() {
     final armored = _database
@@ -190,4 +307,37 @@ class Identity {
     key = PublicKey.fromArmored(armored);
     return key!;
   }
+
+  void setTrusting(int newTrusting) {
+    _database.execute("update identities set trusting = ? where userid = ?",
+        [newTrusting, userId]);
+    _trusting = newTrusting;
+  }
 }
+
+class RepositoryNotifier extends Notifier<Repository?> {
+  @override
+  Repository? build() {
+    return null;
+  }
+
+  bool get isSet => state != null;
+
+  void dispose() {
+    state?.dispose();
+  }
+
+  openFile(String file) {
+    state = Repository._default(file);
+  }
+
+  newFile(String file, domain) {
+    state = Repository._create(file, "jf-dienstbuch-software.$domain");
+  }
+}
+
+final repositoryProvider = NotifierProvider<RepositoryNotifier, Repository?>(
+  () {
+    return RepositoryNotifier();
+  },
+);

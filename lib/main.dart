@@ -37,8 +37,9 @@ class DienstbuchApp extends StatelessWidget {
                   (await getApplicationDocumentsDirectory()).absolute.path,
             );
             final file = result!.path;
-            final repo = Repository.create(file, "jf-test.example.org");
-            repo.dispose();
+            // War ein test
+            //final repo = Repository.create(file, "jf-test.example.org");
+            //repo.dispose();
             exit(0);
           },
           child: const Text("Neue Datei erstellen"),
