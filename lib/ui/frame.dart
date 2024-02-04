@@ -12,7 +12,13 @@ abstract class Item extends StatelessWidget {
 class ItemList<T extends Item> extends StatelessWidget {
   final List<T> items;
   final ValueChanged<T> onChanged;
-  const ItemList({super.key, required this.items, required this.onChanged});
+  final T? selected;
+  const ItemList({
+    super.key,
+    this.selected,
+    required this.items,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +28,7 @@ class ItemList<T extends Item> extends StatelessWidget {
                 title: Text(item.title),
                 subtitle: Text(item.subtitle ?? ""),
                 onTap: () => onChanged(item),
+                selected: item == selected,
               ))
           .toList(),
     );
@@ -67,13 +74,14 @@ class ListDetail<T extends Item> extends StatelessWidget {
 
   Widget _buildMobileLayout() {
     if (selectedItem == null) {
-      return DienstplanScaffold(
+      return DienstbuchScaffold(
         appBar: AppBar(
           title: Text(listHeader),
         ),
         body: ItemList(
           items: items,
           onChanged: onChanged,
+          selected: selectedItem,
         ),
         destination: destination,
         floatingActionButton: floatingActionButton,
@@ -85,23 +93,32 @@ class ListDetail<T extends Item> extends StatelessWidget {
   }
 
   Widget _buildTabletLayout() {
-    return DienstplanScaffold(
+    return Scaffold(
       body: Row(
         children: [
-          Flexible(
-            flex: 1,
-            child: ItemList(items: items, onChanged: onChanged),
+          Container(
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: DienstbuchScaffold(
+              body: ItemList(
+                items: items,
+                onChanged: onChanged,
+                selected: selectedItem,
+              ),
+              destination: destination,
+              floatingActionButton: floatingActionButton,
+              appBar: AppBar(
+                title: Text(listHeader),
+              ),
+            ),
           ),
-          Flexible(
-            flex: 3,
+          const VerticalDivider(),
+          Expanded(
             child: ItemDetail(
               item: selectedItem,
             ),
           ),
         ],
       ),
-      destination: destination,
-      floatingActionButton: floatingActionButton,
     );
   }
 
@@ -118,12 +135,12 @@ class ListDetail<T extends Item> extends StatelessWidget {
   }
 }
 
-class DienstplanScaffold extends StatelessWidget {
+class DienstbuchScaffold extends StatelessWidget {
   final AppBar? appBar;
   final Widget body;
   final Destination destination;
   final Widget? floatingActionButton;
-  const DienstplanScaffold({
+  const DienstbuchScaffold({
     super.key,
     this.appBar,
     required this.body,
@@ -133,8 +150,16 @@ class DienstplanScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget child;
+    if (appBar != null) {
+      child = Scaffold(
+        appBar: appBar,
+        body: body,
+      );
+    } else {
+      child = body;
+    }
     return Scaffold(
-      appBar: appBar,
       body: Row(
         children: [
           NavigationRail(
@@ -145,9 +170,10 @@ class DienstplanScaffold extends StatelessWidget {
               final newDest = Destination.values[value];
               context.goNamed(newDest.routeName);
             },
+            labelType: NavigationRailLabelType.all,
           ),
           const VerticalDivider(),
-          Expanded(child: body),
+          Expanded(child: child),
         ],
       ),
       floatingActionButton: floatingActionButton,
@@ -156,6 +182,11 @@ class DienstplanScaffold extends StatelessWidget {
 }
 
 enum Destination {
+  dashboard(
+    NavigationRailDestination(
+        icon: Icon(Icons.dashboard), label: Text("Dashboard")),
+    "dashboard",
+  ),
   dienstbuch(
     NavigationRailDestination(
       icon: Icon(Icons.book),
@@ -173,7 +204,7 @@ enum Destination {
   identities(
     NavigationRailDestination(
       icon: Icon(Symbols.signature),
-      label: Text("Signature"),
+      label: Text("Identitäten"),
     ),
     "identities",
   ),

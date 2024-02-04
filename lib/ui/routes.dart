@@ -1,11 +1,31 @@
+import 'package:dienstbuch/repository/repository.dart';
+import 'package:dienstbuch/ui/screens/dashboard.dart';
 import 'package:dienstbuch/ui/screens/identities.dart';
+import 'package:dienstbuch/ui/screens/select_file.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 part 'routes.g.dart';
 
+abstract class DienstbuchBaseRoute extends GoRouteData {
+  const DienstbuchBaseRoute();
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return NoTransitionPage(child: build(context, state));
+  }
+}
+
+@TypedGoRoute<DashboardRoute>(path: "/dashboard", name: "dashboard")
+class DashboardRoute extends DienstbuchBaseRoute {
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const DashboardScreen();
+  }
+}
+
 @TypedGoRoute<DienstbuchRoute>(path: '/dienstbuch', name: 'dienstbuch')
-class DienstbuchRoute extends GoRouteData {
+class DienstbuchRoute extends DienstbuchBaseRoute {
   const DienstbuchRoute();
 
   @override
@@ -15,8 +35,14 @@ class DienstbuchRoute extends GoRouteData {
   }
 }
 
-@TypedGoRoute<IdentitiesRoute>(path: '/identities', name: "identities")
-class IdentitiesRoute extends GoRouteData {
+@TypedGoRoute<IdentitiesRoute>(
+  path: '/identities',
+  name: "identities",
+  routes: [
+    TypedGoRoute<AddIdentityRoute>(path: "add", name: "add"),
+  ],
+)
+class IdentitiesRoute extends DienstbuchBaseRoute {
   final String? userId;
   const IdentitiesRoute(this.userId);
 
@@ -27,3 +53,57 @@ class IdentitiesRoute extends GoRouteData {
     );
   }
 }
+
+class AddIdentityRoute extends DienstbuchBaseRoute {
+  const AddIdentityRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const AddIdentityScreen();
+  }
+}
+
+@TypedGoRoute<SelectFileRoute>(path: "/select-file", name: "selectFile")
+class SelectFileRoute extends DienstbuchBaseRoute {
+  const SelectFileRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const SelectFileScreen();
+  }
+}
+
+class ErrorRoute extends GoRouteData {
+  ErrorRoute({required this.error});
+  final GoException error;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    // TODO: implement build
+    return super.build(context, state);
+  }
+}
+
+final routerProvider = Provider((ref) {
+  return GoRouter(
+    routes: $appRoutes,
+    initialLocation: "/dashboard",
+    redirect: (context, state) {
+      final repo = ref.read(repositoryProvider);
+
+      if (state.path == "/select-file") {
+        if (repo != null) {
+          return "/dashboard";
+        }
+        return null;
+      }
+
+      if (repo == null) {
+        return "/select-file";
+      }
+      return null;
+    },
+    errorBuilder: (context, state) =>
+        ErrorRoute(error: state.error!).build(context, state),
+  );
+});

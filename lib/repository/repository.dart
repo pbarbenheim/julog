@@ -11,29 +11,31 @@ class Repository {
   final String filename;
   late final String domainSetting;
   late final String dbVersion;
-  late final SharedPreferences? prefs;
   static const String _prefsPattern = "_userid_";
-  final Codec<String, String> _userIdCodec = utf8.fuse(base64Url);
+  static const String _lastOpenFileKey = "app_last_open_file";
+  static final Codec<String, String> _userIdCodec = utf8.fuse(base64Url);
+  final SharedPreferences prefs;
 
   PreparedStatement? _getAllIdentities;
   PreparedStatement? _getOneIdentity;
 
-  Repository._(this.filename, String domainName)
+  Repository._(this.prefs, this.filename, String domainName)
       : _database = sqlite3.open(filename) {
     _init(domainName: domainName);
     _initPrefs();
   }
 
-  factory Repository._default(String filename) {
-    return Repository._(filename, "dienstbuch.example.org");
+  factory Repository._default(SharedPreferences prefs, String filename) {
+    return Repository._(prefs, filename, "dienstbuch.example.org");
   }
 
-  factory Repository._create(String filename, String domainName) {
-    return Repository._(filename, domainName);
+  factory Repository._create(
+      SharedPreferences prefs, String filename, String domainName) {
+    return Repository._(prefs, filename, domainName);
   }
 
   void _initPrefs() async {
-    prefs = await SharedPreferences.getInstance();
+    prefs.setString(_lastOpenFileKey, _userIdCodec.encode(filename));
   }
 
   void _init({String? domainName}) {
@@ -62,7 +64,7 @@ class Repository {
         value text not null
       );
 
-      create table if not exists identites (
+      create table if not exists identities (
         userid text primary key,
         public_key text,
         trusting integer not null default 1
@@ -181,7 +183,7 @@ class Repository {
   }
 
   List<String> getSigningUserIds() {
-    final pref = prefs!;
+    final pref = prefs;
 
     return pref
         .getKeys()
@@ -193,7 +195,7 @@ class Repository {
 
   Future<String> signWithIdentity(
       String message, String userId, String password) async {
-    final pref = prefs!;
+    final pref = prefs;
 
     final armored = pref.getString(_prefsPattern + _userIdCodec.encode(userId));
     if (armored == null) {
@@ -235,7 +237,7 @@ class Repository {
     final publicArmored = privateKey.toPublic.armor();
     final privateArmored = privateKey.armor();
 
-    final pref = prefs!;
+    final pref = prefs;
     final result = await pref.setString(
         _prefsPattern + _userIdCodec.encode(userId), privateArmored);
     if (!result) {
@@ -280,6 +282,14 @@ class Repository {
 
     return result;
   }
+
+  static String? getLastOpenFile(SharedPreferences prefs) {
+    final value = prefs.getString(_lastOpenFileKey);
+    if (value == null) {
+      return null;
+    }
+    return _userIdCodec.decode(value);
+  }
 }
 
 class Identity {
@@ -316,8 +326,15 @@ class Identity {
 }
 
 class RepositoryNotifier extends Notifier<Repository?> {
+  final String? _filename;
+  RepositoryNotifier({String? filename}) : _filename = filename;
+
   @override
   Repository? build() {
+    if (_filename != null) {
+      final prefs = ref.watch(sharedPreferencesProvider);
+      return Repository._default(prefs, _filename);
+    }
     return null;
   }
 
@@ -327,12 +344,14 @@ class RepositoryNotifier extends Notifier<Repository?> {
     state?.dispose();
   }
 
-  openFile(String file) {
-    state = Repository._default(file);
+  void openFile(String file) {
+    final prefs = ref.watch(sharedPreferencesProvider);
+    state = Repository._default(prefs, file);
   }
 
-  newFile(String file, domain) {
-    state = Repository._create(file, "jf-dienstbuch-software.$domain");
+  void newFile(String file, String domain) {
+    final prefs = ref.watch(sharedPreferencesProvider);
+    state = Repository._create(prefs, file, domain);
   }
 }
 
@@ -341,3 +360,6 @@ final repositoryProvider = NotifierProvider<RepositoryNotifier, Repository?>(
     return RepositoryNotifier();
   },
 );
+
+final sharedPreferencesProvider =
+    Provider<SharedPreferences>((ref) => throw UnimplementedError());

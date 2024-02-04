@@ -1,50 +1,64 @@
-import 'dart:io';
+import 'dart:ui';
 
 import 'package:dienstbuch/repository/repository.dart';
-import 'package:file_selector/file_selector.dart';
+import 'package:dienstbuch/ui/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main(List<String> args) {
+void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  final prefs = await SharedPreferences.getInstance();
 
   String? file;
   if (args.isNotEmpty) {
     file = args.last;
+  } else {
+    file = Repository.getLastOpenFile(prefs);
   }
 
   runApp(ProviderScope(
-    child: DienstbuchApp(file),
+    overrides: [
+      if (file != null)
+        repositoryProvider
+            .overrideWith(() => RepositoryNotifier(filename: file)),
+      sharedPreferencesProvider.overrideWithValue(prefs),
+    ],
+    child: const DienstbuchApp(),
   ));
 }
 
-class DienstbuchApp extends StatelessWidget {
-  final String? fileUri;
-  const DienstbuchApp(this.fileUri, {super.key});
+class DienstbuchApp extends ConsumerStatefulWidget {
+  const DienstbuchApp({super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() => _DienstbuchAppState();
+}
+
+class _DienstbuchAppState extends ConsumerState<DienstbuchApp> {
+  // ignore: unused_field
+  late final AppLifecycleListener _lifecycleListener;
+
+  @override
+  void initState() {
+    _lifecycleListener = AppLifecycleListener(
+      onDetach: _handleShutdown,
+      onExitRequested: _handleShutdown,
+    );
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: ElevatedButton(
-          onPressed: () async {
-            final result = await getSaveLocation(
-              acceptedTypeGroups: [
-                XTypeGroup(extensions: ["dienstbuch"], label: "Dienstbuch")
-              ],
-              initialDirectory:
-                  (await getApplicationDocumentsDirectory()).absolute.path,
-            );
-            final file = result!.path;
-            // War ein test
-            //final repo = Repository.create(file, "jf-test.example.org");
-            //repo.dispose();
-            exit(0);
-          },
-          child: const Text("Neue Datei erstellen"),
-        ),
-      ),
+    final router = ref.watch(routerProvider);
+    return MaterialApp.router(
+      routerConfig: router,
     );
+  }
+
+  Future<AppExitResponse> _handleShutdown() async {
+    ref.read(repositoryProvider.notifier).dispose();
+    return AppExitResponse.exit;
   }
 }
