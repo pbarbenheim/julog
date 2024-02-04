@@ -21,6 +21,7 @@ class Repository {
   PreparedStatement? _getAllBetreuer;
   PreparedStatement? _getAllJugendliche;
   PreparedStatement? _getOneJugendliche;
+  PreparedStatement? _getAllKategorien;
 
   Repository._(this.prefs, this.filename, String domainName)
       : _database = sqlite3.open(filename) {
@@ -156,6 +157,12 @@ class Repository {
   }
 
   void dispose() {
+    _getAllIdentities?.dispose();
+    _getOneIdentity?.dispose();
+    _getAllBetreuer?.dispose();
+    _getAllJugendliche?.dispose();
+    _getOneJugendliche?.dispose();
+    _getAllKategorien?.dispose();
     _database.dispose();
   }
 
@@ -392,6 +399,35 @@ class Repository {
     ]).first;
     return result["id"];
   }
+
+  List<Kategorie> getAllKategorien() {
+    _getAllKategorien ??=
+        _database.prepare("select * from kategorien", persistent: true);
+
+    return _getAllKategorien!
+        .select()
+        .map((row) => Kategorie(id: row["id"], name: row["name"]))
+        .toList();
+  }
+
+  Kategorie addKategorie(String name) {
+    final names = getAllKategorien().map((e) => e.name);
+
+    if (names.contains(name)) {
+      throw Exception("Name bereits vorhanden");
+    }
+
+    final result = _database.select(
+        "insert into kategorien (name) values (?) returning *", [name]).first;
+    return Kategorie(id: result["id"], name: result["name"]);
+  }
+}
+
+class Kategorie {
+  final int id;
+  final String name;
+
+  const Kategorie({required this.id, required this.name});
 }
 
 class Jugendlicher {

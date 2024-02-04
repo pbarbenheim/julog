@@ -214,6 +214,13 @@ enum Destination {
       label: Text("Betreuer"),
     ),
     "betreuer",
+  ),
+  kategorien(
+    NavigationRailDestination(
+      icon: Icon(Icons.label),
+      label: Text("Kategorien"),
+    ),
+    "kategorien",
   );
 
   const Destination(this.railDestination, this.routeName);

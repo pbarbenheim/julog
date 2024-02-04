@@ -3,6 +3,7 @@ import 'package:dienstbuch/ui/screens/betreuer.dart';
 import 'package:dienstbuch/ui/screens/dashboard.dart';
 import 'package:dienstbuch/ui/screens/identities.dart';
 import 'package:dienstbuch/ui/screens/jugendliche.dart';
+import 'package:dienstbuch/ui/screens/kategorien.dart';
 import 'package:dienstbuch/ui/screens/select_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +16,32 @@ abstract class DienstbuchBaseRoute extends GoRouteData {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return NoTransitionPage(child: build(context, state));
+  }
+}
+
+@TypedGoRoute<KategorienRoute>(
+  path: "/kategorien",
+  name: "kategorien",
+  routes: [
+    TypedGoRoute<AddKategorienRoute>(path: "add"),
+  ],
+)
+class KategorienRoute extends DienstbuchBaseRoute {
+  final int? kategorieId;
+  const KategorienRoute(this.kategorieId);
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return KategorienScreen(id: kategorieId);
+  }
+}
+
+class AddKategorienRoute extends DienstbuchBaseRoute {
+  const AddKategorienRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const AddKategorieScreen();
   }
 }
 

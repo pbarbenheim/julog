@@ -7,6 +7,7 @@ part of 'routes.dart';
 // **************************************************************************
 
 List<RouteBase> get $appRoutes => [
+      $kategorienRoute,
       $jugendlicheRoute,
       $betreuerRoute,
       $dashboardRoute,
@@ -14,6 +15,67 @@ List<RouteBase> get $appRoutes => [
       $identitiesRoute,
       $selectFileRoute,
     ];
+
+RouteBase get $kategorienRoute => GoRouteData.$route(
+      path: '/kategorien',
+      name: 'kategorien',
+      factory: $KategorienRouteExtension._fromState,
+      routes: [
+        GoRouteData.$route(
+          path: 'add',
+          factory: $AddKategorienRouteExtension._fromState,
+        ),
+      ],
+    );
+
+extension $KategorienRouteExtension on KategorienRoute {
+  static KategorienRoute _fromState(GoRouterState state) => KategorienRoute(
+        _$convertMapValue('kategorie-id', state.uri.queryParameters, int.parse),
+      );
+
+  String get location => GoRouteData.$location(
+        '/kategorien',
+        queryParams: {
+          if (kategorieId != null) 'kategorie-id': kategorieId!.toString(),
+        },
+      );
+
+  void go(BuildContext context) => context.go(location);
+
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  void replace(BuildContext context) => context.replace(location);
+}
+
+extension $AddKategorienRouteExtension on AddKategorienRoute {
+  static AddKategorienRoute _fromState(GoRouterState state) =>
+      const AddKategorienRoute();
+
+  String get location => GoRouteData.$location(
+        '/kategorien/add',
+      );
+
+  void go(BuildContext context) => context.go(location);
+
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  void replace(BuildContext context) => context.replace(location);
+}
+
+T? _$convertMapValue<T>(
+  String key,
+  Map<String, String> map,
+  T Function(String) converter,
+) {
+  final value = map[key];
+  return value == null ? null : converter(value);
+}
 
 RouteBase get $jugendlicheRoute => GoRouteData.$route(
       path: '/jugendliche',
@@ -67,15 +129,6 @@ extension $AddJugendlicheRouteExtension on AddJugendlicheRoute {
       context.pushReplacement(location);
 
   void replace(BuildContext context) => context.replace(location);
-}
-
-T? _$convertMapValue<T>(
-  String key,
-  Map<String, String> map,
-  T Function(String) converter,
-) {
-  final value = map[key];
-  return value == null ? null : converter(value);
 }
 
 RouteBase get $betreuerRoute => GoRouteData.$route(
