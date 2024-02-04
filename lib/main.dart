@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:dienstbuch/repository/repository.dart';
@@ -5,6 +6,8 @@ import 'package:dienstbuch/ui/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path/path.dart' as path;
+import 'package:window_size/window_size.dart';
 
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,8 +55,21 @@ class _DienstbuchAppState extends ConsumerState<DienstbuchApp> {
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
+    final filename =
+        ref.watch(repositoryProvider.select((value) => value?.filename));
+    final file = filename != null ? path.basename(filename) : null;
+    final String title;
+    if (file == null) {
+      title = "JF-Dienstbuch";
+    } else {
+      title = "$file - JF-Dienstbuch";
+    }
+    if (Platform.isLinux || Platform.isMacOS || Platform.isLinux) {
+      setWindowTitle(title);
+    }
     return MaterialApp.router(
       routerConfig: router,
+      title: title,
     );
   }
 

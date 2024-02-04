@@ -18,6 +18,9 @@ class Repository {
 
   PreparedStatement? _getAllIdentities;
   PreparedStatement? _getOneIdentity;
+  PreparedStatement? _getAllBetreuer;
+  PreparedStatement? _getAllJugendliche;
+  PreparedStatement? _getOneJugendliche;
 
   Repository._(this.prefs, this.filename, String domainName)
       : _database = sqlite3.open(filename) {
@@ -95,7 +98,8 @@ class Repository {
 
       create table if not exists betreuer (
         id integer primary key autoincrement,
-        name text not null
+        name text not null,
+        geschlecht integer not null
       );
 
       create table if not exists eintrag_zu_betreuer (
@@ -120,7 +124,8 @@ class Repository {
         geburtstag integer not null,
         eintrittsdatum integer not null,
         austrittsdatum integer,
-        austrittsgrund text
+        austrittsgrund text,
+        geschlecht integer not null
       );
 
       create table if not exists eintrag_zu_jugendliche (
@@ -289,6 +294,166 @@ class Repository {
       return null;
     }
     return _userIdCodec.decode(value);
+  }
+
+  List<Betreuer> getAllBetreuer() {
+    _getAllBetreuer ??=
+        _database.prepare("select * from betreuer", persistent: true);
+
+    final result = _getAllBetreuer!.select();
+    final List<Betreuer> betreuer = [];
+    for (var row in result) {
+      betreuer.add(Betreuer(
+        id: row["id"],
+        name: row["name"],
+        geschlecht: Geschlecht.fromNumber(row["geschlecht"]),
+      ));
+    }
+    return betreuer;
+  }
+
+  Betreuer addBetreuer(String name, Geschlecht geschlecht) {
+    final names = getAllBetreuer().map((e) => e.name);
+    if (names.any((element) => element == name)) {
+      throw Exception("Der Name ist bereits vorhanden");
+    }
+    final result = _database.select('''
+      insert into betreuer 
+        (name, geschlecht)
+      values
+        (?, ?)
+      returning *
+    ''', [name, geschlecht.toNumber()]).first;
+
+    return Betreuer(
+      id: result["id"],
+      name: result["name"],
+      geschlecht: Geschlecht.fromNumber(result["geschlecht"]),
+    );
+  }
+
+  static bool checkString(String s) {
+    return !s.contains(RegExp(r'[\.\\\/\,\(\)\[\]\{\}\<\>\|]'));
+  }
+
+  Map<int, String> getAllJugendliche() {
+    _getAllJugendliche ??= _database.prepare('''
+      select id, name from jugendliche
+    ''', persistent: true);
+
+    final result = _getAllJugendliche!.select().map<MapEntry<int, String>>(
+        (element) => MapEntry(element["id"], element["name"]));
+    return Map.fromEntries(result);
+  }
+
+  Jugendlicher getJugendlicher(int id) {
+    _getOneJugendliche ??= _database.prepare('''
+      select *
+      from jugendliche
+      where id = ?
+    ''', persistent: true);
+
+    final result = _getOneJugendliche!.select([id]).first;
+    final austrittsdatum = result["austrittsdatum"];
+    return Jugendlicher(
+      id: id,
+      name: result["name"],
+      passnummer: result["passnummer"],
+      geburtstag: DateTime.fromMillisecondsSinceEpoch(result["geburtstag"]),
+      eintrittsdatum:
+          DateTime.fromMillisecondsSinceEpoch(result["eintrittsdatum"]),
+      austrittsdatum: austrittsdatum != null
+          ? DateTime.fromMillisecondsSinceEpoch(austrittsdatum)
+          : null,
+      austrittsgrund: result["austrittsgrund"],
+      geschlecht: Geschlecht.fromNumber(result["geschlecht"]),
+    );
+  }
+
+  int addJugendlicher({
+    required String name,
+    required DateTime geburtstag,
+    required DateTime eintrittsdatum,
+    required Geschlecht geschlecht,
+    String? passnummer,
+  }) {
+    final result = _database.select('''
+      insert into jugendliche
+        (name, passnummer, geburtstag, eintrittsdatum, geschlecht)
+      values
+        (?, ?, ?, ?, ?)
+      returning id
+    ''', [
+      name,
+      passnummer,
+      geburtstag.millisecondsSinceEpoch,
+      eintrittsdatum.millisecondsSinceEpoch,
+      geschlecht.toNumber(),
+    ]).first;
+    return result["id"];
+  }
+}
+
+class Jugendlicher {
+  final int id;
+  final String name;
+  final String? passnummer;
+  final DateTime geburtstag;
+  final DateTime eintrittsdatum;
+  final DateTime? austrittsdatum;
+  final String? austrittsgrund;
+  final Geschlecht geschlecht;
+
+  Jugendlicher({
+    required this.id,
+    required this.name,
+    required this.passnummer,
+    required this.geburtstag,
+    required this.eintrittsdatum,
+    required this.austrittsdatum,
+    required this.austrittsgrund,
+    required this.geschlecht,
+  });
+}
+
+class Betreuer {
+  final int id;
+  final String name;
+  final Geschlecht geschlecht;
+
+  Betreuer({required this.id, required this.name, required this.geschlecht});
+}
+
+enum Geschlecht {
+  maennlich(0, "Männlich"),
+  weiblich(1, "Weiblich"),
+  divers(2, "Divers");
+
+  final int id;
+  final String text;
+
+  const Geschlecht(this.id, this.text);
+
+  int toNumber() {
+    return id;
+  }
+
+  @override
+  String toString() {
+    return text;
+  }
+
+  static Geschlecht fromNumber(int number) {
+    switch (number) {
+      case 0:
+        return Geschlecht.maennlich;
+      case 1:
+        return Geschlecht.weiblich;
+      case 2:
+        return Geschlecht.divers;
+      default:
+        throw Exception("Unzulässige Zahl");
+    }
   }
 }
 

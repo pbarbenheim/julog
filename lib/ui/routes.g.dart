@@ -7,11 +7,128 @@ part of 'routes.dart';
 // **************************************************************************
 
 List<RouteBase> get $appRoutes => [
+      $jugendlicheRoute,
+      $betreuerRoute,
       $dashboardRoute,
       $dienstbuchRoute,
       $identitiesRoute,
       $selectFileRoute,
     ];
+
+RouteBase get $jugendlicheRoute => GoRouteData.$route(
+      path: '/jugendliche',
+      name: 'jugendliche',
+      factory: $JugendlicheRouteExtension._fromState,
+      routes: [
+        GoRouteData.$route(
+          path: 'add',
+          factory: $AddJugendlicheRouteExtension._fromState,
+        ),
+      ],
+    );
+
+extension $JugendlicheRouteExtension on JugendlicheRoute {
+  static JugendlicheRoute _fromState(GoRouterState state) => JugendlicheRoute(
+        _$convertMapValue(
+            'jugendlicher-id', state.uri.queryParameters, int.parse),
+      );
+
+  String get location => GoRouteData.$location(
+        '/jugendliche',
+        queryParams: {
+          if (jugendlicherId != null)
+            'jugendlicher-id': jugendlicherId!.toString(),
+        },
+      );
+
+  void go(BuildContext context) => context.go(location);
+
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  void replace(BuildContext context) => context.replace(location);
+}
+
+extension $AddJugendlicheRouteExtension on AddJugendlicheRoute {
+  static AddJugendlicheRoute _fromState(GoRouterState state) =>
+      const AddJugendlicheRoute();
+
+  String get location => GoRouteData.$location(
+        '/jugendliche/add',
+      );
+
+  void go(BuildContext context) => context.go(location);
+
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  void replace(BuildContext context) => context.replace(location);
+}
+
+T? _$convertMapValue<T>(
+  String key,
+  Map<String, String> map,
+  T Function(String) converter,
+) {
+  final value = map[key];
+  return value == null ? null : converter(value);
+}
+
+RouteBase get $betreuerRoute => GoRouteData.$route(
+      path: '/betreuer',
+      name: 'betreuer',
+      factory: $BetreuerRouteExtension._fromState,
+      routes: [
+        GoRouteData.$route(
+          path: 'add',
+          factory: $AddBetreuerRouteExtension._fromState,
+        ),
+      ],
+    );
+
+extension $BetreuerRouteExtension on BetreuerRoute {
+  static BetreuerRoute _fromState(GoRouterState state) => BetreuerRoute(
+        _$convertMapValue('betreuer-id', state.uri.queryParameters, int.parse),
+      );
+
+  String get location => GoRouteData.$location(
+        '/betreuer',
+        queryParams: {
+          if (betreuerId != null) 'betreuer-id': betreuerId!.toString(),
+        },
+      );
+
+  void go(BuildContext context) => context.go(location);
+
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  void replace(BuildContext context) => context.replace(location);
+}
+
+extension $AddBetreuerRouteExtension on AddBetreuerRoute {
+  static AddBetreuerRoute _fromState(GoRouterState state) =>
+      const AddBetreuerRoute();
+
+  String get location => GoRouteData.$location(
+        '/betreuer/add',
+      );
+
+  void go(BuildContext context) => context.go(location);
+
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  void replace(BuildContext context) => context.replace(location);
+}
 
 RouteBase get $dashboardRoute => GoRouteData.$route(
       path: '/dashboard',
@@ -67,7 +184,6 @@ RouteBase get $identitiesRoute => GoRouteData.$route(
       routes: [
         GoRouteData.$route(
           path: 'add',
-          name: 'add',
           factory: $AddIdentityRouteExtension._fromState,
         ),
       ],

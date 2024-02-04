@@ -1,6 +1,8 @@
 import 'package:dienstbuch/repository/repository.dart';
+import 'package:dienstbuch/ui/screens/betreuer.dart';
 import 'package:dienstbuch/ui/screens/dashboard.dart';
 import 'package:dienstbuch/ui/screens/identities.dart';
+import 'package:dienstbuch/ui/screens/jugendliche.dart';
 import 'package:dienstbuch/ui/screens/select_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,6 +15,59 @@ abstract class DienstbuchBaseRoute extends GoRouteData {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return NoTransitionPage(child: build(context, state));
+  }
+}
+
+@TypedGoRoute<JugendlicheRoute>(
+    path: "/jugendliche",
+    name: "jugendliche",
+    routes: [
+      TypedGoRoute<AddJugendlicheRoute>(path: "add"),
+    ])
+class JugendlicheRoute extends DienstbuchBaseRoute {
+  final int? jugendlicherId;
+  const JugendlicheRoute(this.jugendlicherId);
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return JugendlicheScreen(id: jugendlicherId);
+  }
+}
+
+class AddJugendlicheRoute extends DienstbuchBaseRoute {
+  const AddJugendlicheRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const AddJugendlicheScreen();
+  }
+}
+
+@TypedGoRoute<BetreuerRoute>(
+  path: "/betreuer",
+  name: "betreuer",
+  routes: [
+    TypedGoRoute<AddBetreuerRoute>(path: "add"),
+  ],
+)
+class BetreuerRoute extends DienstbuchBaseRoute {
+  final int? betreuerId;
+  const BetreuerRoute(this.betreuerId);
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return BetreuerScreen(
+      selectedId: betreuerId,
+    );
+  }
+}
+
+class AddBetreuerRoute extends DienstbuchBaseRoute {
+  const AddBetreuerRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const AddBetreuerScreen();
   }
 }
 
@@ -39,7 +94,7 @@ class DienstbuchRoute extends DienstbuchBaseRoute {
   path: '/identities',
   name: "identities",
   routes: [
-    TypedGoRoute<AddIdentityRoute>(path: "add", name: "add"),
+    TypedGoRoute<AddIdentityRoute>(path: "add"),
   ],
 )
 class IdentitiesRoute extends DienstbuchBaseRoute {
