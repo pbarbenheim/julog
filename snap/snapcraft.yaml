@@ -4,7 +4,7 @@ summary: Dienstbuch
 description: App zur Fuehrung eines Jugendfeuerwehr-Dienstbuches
 confinement: strict
 base: core22
-grade: devel
+grade: stable
 apps:
   dienstbuch:
     command: dienstbuch
