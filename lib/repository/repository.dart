@@ -249,7 +249,8 @@ class Repository {
           "UserId bereits vorhanden. Keine neue Signatur erstellt. Die andere Signatur wurde auf nicht vertrauen gesetzt.");
     }
 
-    final userId = [name, if (comment != null) "($comment)", email].join(" ");
+    final userId =
+        [name, if (comment != null) "($comment)", "<$email>"].join(" ");
     final privateKey = await compute(
         (message) async => await OpenPGP.generateKey(
               [userId],
@@ -662,9 +663,9 @@ class Eintrag {
             'raum', e.raum,
             'dienstverlauf', e.dienstverlauf,
             'besonderheiten', e.besonderheiten,
-            'betreuer', json_betreuer.betreu,
-            'jugendliche', json_jugend.jugend,
-            'signatures', json_signatures.sign
+            'betreuer', json(json_betreuer.betreu),
+            'jugendliche', json(json_jugend.jugend),
+            'signatures', json(json_signatures.sign)
           ) as json
         from 
           (
