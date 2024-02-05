@@ -1,5 +1,6 @@
 import 'package:dienstbuch/repository/repository.dart';
 import 'package:flutter/material.dart';
+import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 
 void showDienstbuchAbout({
   required BuildContext context,
@@ -48,6 +49,54 @@ class GeschlechtDropDown extends StatelessWidget {
         }
         return null;
       },
+    );
+  }
+}
+
+class DateTimeField extends StatelessWidget {
+  final DateTime? initialValue;
+  final ValueChanged<DateTime?> onChanged;
+  final String labelText;
+  final FormFieldValidator<DateTime?>? validator;
+  const DateTimeField({
+    super.key,
+    this.initialValue,
+    required this.onChanged,
+    required this.labelText,
+    this.validator,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FormField<DateTime?>(
+      builder: (field) {
+        return Row(
+          children: [
+            Text(labelText),
+            const Padding(padding: EdgeInsets.only(left: 5)),
+            TextButton.icon(
+              onPressed: () async {
+                final dateTime = await showOmniDateTimePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  is24HourMode: true,
+                  isShowSeconds: false,
+                  minutesInterval: 1,
+                  barrierDismissible: true,
+                  lastDate: DateTime.now(),
+                );
+
+                field.didChange(dateTime);
+                onChanged(dateTime);
+              },
+              icon: const Icon(Icons.calendar_today),
+              label: Text(field.value?.toString() ?? "Datum auswählen"),
+            ),
+          ],
+        );
+      },
+      initialValue: initialValue,
+      validator: validator,
     );
   }
 }

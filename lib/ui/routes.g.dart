@@ -210,6 +210,22 @@ RouteBase get $dienstbuchRoute => GoRouteData.$route(
       path: '/dienstbuch',
       name: 'dienstbuch',
       factory: $DienstbuchRouteExtension._fromState,
+      routes: [
+        GoRouteData.$route(
+          path: 'add-eintrag',
+          factory: $AddDienstbuchEintragRouteExtension._fromState,
+        ),
+        GoRouteData.$route(
+          path: ':id',
+          factory: $EintragRouteExtension._fromState,
+          routes: [
+            GoRouteData.$route(
+              path: 'sign',
+              factory: $SignEintragRouteExtension._fromState,
+            ),
+          ],
+        ),
+      ],
     );
 
 extension $DienstbuchRouteExtension on DienstbuchRoute {
@@ -218,6 +234,62 @@ extension $DienstbuchRouteExtension on DienstbuchRoute {
 
   String get location => GoRouteData.$location(
         '/dienstbuch',
+      );
+
+  void go(BuildContext context) => context.go(location);
+
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  void replace(BuildContext context) => context.replace(location);
+}
+
+extension $AddDienstbuchEintragRouteExtension on AddDienstbuchEintragRoute {
+  static AddDienstbuchEintragRoute _fromState(GoRouterState state) =>
+      const AddDienstbuchEintragRoute();
+
+  String get location => GoRouteData.$location(
+        '/dienstbuch/add-eintrag',
+      );
+
+  void go(BuildContext context) => context.go(location);
+
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  void replace(BuildContext context) => context.replace(location);
+}
+
+extension $EintragRouteExtension on EintragRoute {
+  static EintragRoute _fromState(GoRouterState state) => EintragRoute(
+        int.parse(state.pathParameters['id']!),
+      );
+
+  String get location => GoRouteData.$location(
+        '/dienstbuch/${Uri.encodeComponent(id.toString())}',
+      );
+
+  void go(BuildContext context) => context.go(location);
+
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  void replace(BuildContext context) => context.replace(location);
+}
+
+extension $SignEintragRouteExtension on SignEintragRoute {
+  static SignEintragRoute _fromState(GoRouterState state) => SignEintragRoute(
+        int.parse(state.pathParameters['id']!),
+      );
+
+  String get location => GoRouteData.$location(
+        '/dienstbuch/${Uri.encodeComponent(id.toString())}/sign',
       );
 
   void go(BuildContext context) => context.go(location);

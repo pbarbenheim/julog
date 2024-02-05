@@ -136,10 +136,9 @@ class _AddIdentityFormState extends ConsumerState<AddIdentityForm> {
               border: OutlineInputBorder(),
             ),
             validator: (value) {
-              if (value == null || value.isEmpty) {
-                return "Das Feld darf nicht leer sein";
+              if (value == null) {
+                return null;
               }
-
               if (value.contains(RegExp(
                   r'[\(\)\.\[\]\/\{\}\\\$\!&%<>@"`' '^°=,:;|#+*~]',
                   caseSensitive: false))) {

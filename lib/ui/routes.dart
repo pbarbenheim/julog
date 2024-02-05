@@ -1,6 +1,8 @@
 import 'package:dienstbuch/repository/repository.dart';
+import 'package:dienstbuch/ui/frame.dart';
 import 'package:dienstbuch/ui/screens/betreuer.dart';
 import 'package:dienstbuch/ui/screens/dashboard.dart';
+import 'package:dienstbuch/ui/screens/dienstbuch.dart';
 import 'package:dienstbuch/ui/screens/identities.dart';
 import 'package:dienstbuch/ui/screens/jugendliche.dart';
 import 'package:dienstbuch/ui/screens/kategorien.dart';
@@ -106,14 +108,58 @@ class DashboardRoute extends DienstbuchBaseRoute {
   }
 }
 
-@TypedGoRoute<DienstbuchRoute>(path: '/dienstbuch', name: 'dienstbuch')
+@TypedGoRoute<DienstbuchRoute>(
+  path: '/dienstbuch',
+  name: 'dienstbuch',
+  routes: [
+    TypedGoRoute<AddDienstbuchEintragRoute>(path: "add-eintrag"),
+    TypedGoRoute<EintragRoute>(
+      path: ":id",
+      routes: [
+        TypedGoRoute<SignEintragRoute>(path: "sign"),
+      ],
+    ),
+  ],
+)
 class DienstbuchRoute extends DienstbuchBaseRoute {
   const DienstbuchRoute();
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    // TODO: implement build
-    return super.build(context, state);
+    return const DienstbuchScreen();
+  }
+}
+
+class EintragRoute extends DienstbuchBaseRoute {
+  final int id;
+
+  EintragRoute(this.id);
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return DienstbuchScreen(
+      id: id,
+    );
+  }
+}
+
+class SignEintragRoute extends DienstbuchBaseRoute {
+  final int id;
+
+  SignEintragRoute(this.id);
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return SignEintragScreen(id: id);
+  }
+}
+
+class AddDienstbuchEintragRoute extends DienstbuchBaseRoute {
+  const AddDienstbuchEintragRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const AddDienstbuchEintragScreen();
   }
 }
 
@@ -161,8 +207,21 @@ class ErrorRoute extends GoRouteData {
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    // TODO: implement build
-    return super.build(context, state);
+    return DienstbuchScaffold(
+      body: Center(
+        child: Column(
+          children: [
+            const Text(
+                "Irgendetwas ist schiefgelaufen. Wir konnten die angeforderten Informationen nicht finden."),
+            TextButton(
+              onPressed: () => DashboardRoute().go(context),
+              child: const Text("Zurück zum Dashboard"),
+            ),
+          ],
+        ),
+      ),
+      destination: Destination.dashboard,
+    );
   }
 }
 

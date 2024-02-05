@@ -50,6 +50,11 @@ dependencies:
       url: https://github.com/google/flutter-desktop-embedding.git
       path: plugins/window_size
       ref: 17d4710c17f4913137e7ec931f6e71eaef443363
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+  dropdown_search: ^5.0.6
+  omni_datetime_picker: ^1.0.9
 
 dev_dependencies:
   flutter_test:

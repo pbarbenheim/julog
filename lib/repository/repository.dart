@@ -22,6 +22,11 @@ class Repository {
   PreparedStatement? _getAllJugendliche;
   PreparedStatement? _getOneJugendliche;
   PreparedStatement? _getAllKategorien;
+  PreparedStatement? _getAllEintrage;
+  PreparedStatement? _getOneEintrag;
+  PreparedStatement? _getSignaturesFromEintrag;
+  PreparedStatement? _getJugendlicheFromEintrag;
+  PreparedStatement? _getBetreuerFromEintrag;
 
   Repository._(this.prefs, this.filename, String domainName)
       : _database = sqlite3.open(filename) {
@@ -112,6 +117,7 @@ class Repository {
       create table if not exists signatures (
         eintrag_id integer references eintrag (id),
         userid text references identities (userid),
+        signature text not null,
         signed_at integer not null,
         sign_version integer not null default 1,
         primary key (eintrag_id, userid),
@@ -163,6 +169,11 @@ class Repository {
     _getAllJugendliche?.dispose();
     _getOneJugendliche?.dispose();
     _getAllKategorien?.dispose();
+    _getAllEintrage?.dispose();
+    _getOneEintrag?.dispose();
+    _getSignaturesFromEintrag?.dispose();
+    _getJugendlicheFromEintrag?.dispose();
+    _getBetreuerFromEintrag?.dispose();
     _database.dispose();
   }
 
@@ -190,7 +201,7 @@ class Repository {
     return Identity._(
         userId: result["userid"],
         trusting: result["trusting"],
-        key: result["public_key"],
+        key: PublicKey.fromArmored(result["public_key"]),
         database: _database);
   }
 
@@ -205,7 +216,7 @@ class Repository {
         .toList();
   }
 
-  Future<String> signWithIdentity(
+  Future<(String, DateTime)> _signWithIdentity(
       String message, String userId, String password) async {
     final pref = prefs;
 
@@ -215,8 +226,10 @@ class Repository {
     }
 
     final privateKey = await OpenPGP.decryptPrivateKey(armored, password);
-    final signature = await OpenPGP.signDetached(message, [privateKey]);
-    return signature.armor();
+    final DateTime date = DateTime.now();
+    final signature =
+        await OpenPGP.signDetached(message, [privateKey], date: date);
+    return (signature.armor(), date);
   }
 
   Future<Identity> addSigningIdentity(
@@ -420,6 +433,366 @@ class Repository {
     final result = _database.select(
         "insert into kategorien (name) values (?) returning *", [name]).first;
     return Kategorie(id: result["id"], name: result["name"]);
+  }
+
+  Map<int, (DateTime, String)> getAllEintrage() {
+    _getAllEintrage ??= _database.prepare('''
+      select 
+        e.id as id, 
+        e.beginn as beginn,
+        k.name as kat
+      from
+        eintrag as e,
+        kategorien as k
+      where
+        e.kategorie_id = k.id 
+    ''', persistent: true);
+
+    final results = _getAllEintrage!
+        .select()
+        .map((element) => MapEntry<int, (DateTime, String)>(
+              element["id"],
+              (
+                DateTime.fromMillisecondsSinceEpoch(element["beginn"]),
+                element["kat"],
+              ),
+            ));
+    return Map.fromEntries(results);
+  }
+
+  Eintrag getEintrag(int id) {
+    _getOneEintrag ??= _database.prepare('''
+      select
+        e.id as id,
+        e.beginn as beginn,
+        e.ende as ende,
+        k.id as kat_id,
+        k.name as kat_name,
+        e.thema as thema,
+        e.ort as ort,
+        e.raum as raum,
+        e.dienstverlauf as dienstverlauf,
+        e.besonderheiten as besonderheiten
+      from eintrag as e, kategorien as k
+      where e.kategorie_id = k.id and e.id = ?
+    ''', persistent: true);
+
+    _getSignaturesFromEintrag ??= _database.prepare('''
+      select *
+      from signatures
+      where eintrag_id = ?
+    ''', persistent: true);
+
+    _getJugendlicheFromEintrag ??= _database.prepare('''
+      select j.id as id, j.name as name, je.anmerkung as anmerkung
+      from jugendliche as j, eintrag_zu_jugendliche as je
+      where j.id = je.jugendliche_id and je.eintrag_id = ?
+    ''', persistent: true);
+
+    _getBetreuerFromEintrag ??= _database.prepare('''
+      select b.id as id, b.name as name, b.geschlecht as geschlecht
+      from betreuer as b, eintrag_zu_betreuer as be
+      where be.betreuer_id = b.id and be.eintrag_id = ?
+    ''', persistent: true);
+
+    final List<(int, String, String?)> jugendliche = _getJugendlicheFromEintrag!
+        .select([id])
+        .map<(int, String, String?)>(
+            (row) => (row["id"], row["name"], row["anmerkung"]))
+        .toList();
+
+    final List<Betreuer> betreuer = _getBetreuerFromEintrag!
+        .select([id])
+        .map<Betreuer>(
+          (row) => Betreuer(
+              id: row["id"],
+              name: row["name"],
+              geschlecht: Geschlecht.fromNumber(row["geschlecht"])),
+        )
+        .toList();
+
+    final List<Signatur> signaturen = _getSignaturesFromEintrag!
+        .select([id])
+        .map((row) => Signatur._(
+              eintragId: id,
+              userId: row["userid"],
+              signVersion: row["sign_version"],
+              signedAt: DateTime.fromMillisecondsSinceEpoch(row["signed_at"]),
+              signature: row["signature"],
+              repo: this,
+            ))
+        .toList();
+
+    final row = _getOneEintrag!.select([id]).first;
+
+    final Kategorie kategorie =
+        Kategorie(id: row["kat_id"], name: row["kat_name"]);
+
+    return Eintrag(
+      id: id,
+      beginn: DateTime.fromMillisecondsSinceEpoch(row["beginn"]),
+      ende: DateTime.fromMillisecondsSinceEpoch(row["ende"]),
+      kategorie: kategorie,
+      thema: row["thema"],
+      ort: row["ort"],
+      raum: row["raum"],
+      dienstverlauf: row["dienstverlauf"],
+      besonderheiten: row["besonderheiten"],
+      signaturen: signaturen,
+      betreuer: betreuer,
+      jugendliche: jugendliche,
+      repo: this,
+    );
+  }
+
+  String _getValueMatrix(int row, int columns) {
+    List<String> res = [];
+    for (var i = 0; i < row; i++) {
+      List<String> werte = [];
+      for (var j = 0; j < columns; j++) {
+        werte.add("?");
+      }
+      res.add("(${werte.join(", ")})");
+    }
+    return res.join(", ");
+  }
+
+  int addEintrag({
+    required DateTime beginn,
+    required DateTime ende,
+    int? kategorieId,
+    String? thema,
+    String? ort,
+    String? raum,
+    String? dienstverlauf,
+    String? besonderheiten,
+    List<int> betreuerIds = const [],
+    List<(int, String?)> jugendlicheIds = const [],
+  }) {
+    final id = _database.select('''
+      insert into eintrag
+        (beginn, ende, kategorie_id, thema, ort, raum, dienstverlauf, besonderheiten)
+      values 
+        (?, ?, ?, ?, ?, ?, ?, ?)
+      returning id
+    ''', [
+      beginn.millisecondsSinceEpoch,
+      ende.millisecondsSinceEpoch,
+      kategorieId,
+      thema,
+      ort,
+      raum,
+      dienstverlauf,
+      besonderheiten,
+    ]).first["id"];
+
+    final List<int> betreuerOpts = betreuerIds
+        .map<List<int>>((e) => [id, e])
+        .expand((element) => element)
+        .toList();
+
+    _database.execute('''
+      insert into eintrag_zu_betreuer 
+        (eintrag_id, betreuer_id) 
+      values ${_getValueMatrix(betreuerIds.length, 2)}
+    ''', betreuerOpts);
+
+    List<dynamic> jugendlicheOpts = jugendlicheIds
+        .map<List<dynamic>>((e) => [id, e.$1, e.$2])
+        .expand((element) => element)
+        .toList();
+
+    _database.execute('''
+      insert into eintrag_zu_jugendliche
+        (eintrag_id, jugendliche_id, anmerkung)
+      values ${_getValueMatrix(jugendlicheIds.length, 3)}
+    ''', jugendlicheOpts);
+
+    return id;
+  }
+}
+
+class Eintrag {
+  final int id;
+  final DateTime beginn;
+  final DateTime ende;
+  final Kategorie? kategorie;
+  final String? thema;
+  final String? ort;
+  final String? raum;
+  final String? dienstverlauf;
+  final String? besonderheiten;
+  final List<Signatur> signaturen;
+  final List<Betreuer> betreuer;
+  final List<(int, String, String?)> jugendliche;
+  final Repository _repo;
+
+  Eintrag({
+    required this.id,
+    required this.beginn,
+    required this.ende,
+    required this.kategorie,
+    required this.thema,
+    required this.ort,
+    required this.raum,
+    required this.dienstverlauf,
+    required this.besonderheiten,
+    required this.signaturen,
+    required this.betreuer,
+    required this.jugendliche,
+    required Repository repo,
+  }) : _repo = repo;
+
+  Future<Signatur> sign(String userId, String password) async {
+    final Signatur signatur = await _sign_v1(userId, password, id, _repo);
+    signaturen.add(signatur);
+    return signatur;
+  }
+
+  // ignore: constant_identifier_names
+  static const String _signQuery_v1 = '''
+        select
+          json_object(
+            'id', e.id,
+            'beginn', e.beginn,
+            'ende', e.ende,
+            'kategorie', json_object('id', k.id, 'name', k.name),
+            'thema', e.thema,
+            'ort', e.ort,
+            'raum', e.raum,
+            'dienstverlauf', e.dienstverlauf,
+            'besonderheiten', e.besonderheiten,
+            'betreuer', json_betreuer.betreu,
+            'jugendliche', json_jugend.jugend,
+            'signatures', json_signatures.sign
+          ) as json
+        from 
+          (
+            select
+              json_group_array(json_object('id', j.id, 'name', j.name, 'anmerkung', je.anmerkung)) as jugend
+            from jugendliche as j, eintrag_zu_jugendliche as je
+            where j.id = je.jugendliche_id and je.eintrag_id = ?
+          ) as json_jugend,
+          (
+            select
+              json_group_array(json_object('id', b.id, 'name', b.name)) as betreu
+            from betreuer as b, eintrag_zu_betreuer as be
+            where b.id = be.betreuer_id and be.eintrag_id = ?
+          ) as json_betreuer,
+          (
+            select
+              json_group_array(json_object(
+                'userid', s.userid,
+                'signature', s.signature,
+                'signed_at', s.signed_at,
+                'sign_version', s.sign_version
+              )) as sign
+            from signatures as s
+            where s.eintrag_id = ? and s.signed_at < ?
+          ) as json_signatures,
+          eintrag as e,
+          kategorien as k
+        where e.kategorie_id = k.id
+          and e.id = ?
+      ''';
+
+  // ignore: non_constant_identifier_names
+  static Future<Signatur> _sign_v1(
+      String userId, String password, int eintragId, Repository repo) async {
+    final opts = [
+      eintragId,
+      eintragId,
+      eintragId,
+      DateTime.now().millisecondsSinceEpoch,
+      eintragId
+    ];
+
+    final String eintrag =
+        repo._database.select(_signQuery_v1, opts).first["json"];
+
+    final (signature, date) =
+        await repo._signWithIdentity(eintrag, userId, password);
+
+    repo._database.execute('''
+      insert into signatures
+        (eintrag_id, userid, signature, signed_at, sign_version)
+      values
+        (?, ?, ?, ?, ?)
+    ''', [eintragId, userId, signature, date.millisecondsSinceEpoch, 1]);
+
+    return Signatur._(
+      userId: userId,
+      signature: signature,
+      signedAt: date,
+      signVersion: 1,
+      eintragId: eintragId,
+      repo: repo,
+    );
+  }
+}
+
+class Signatur {
+  final String userId;
+  final String signature;
+  final DateTime signedAt;
+  final int signVersion;
+  final int eintragId;
+  final Repository _repo;
+
+  Signatur._({
+    required this.userId,
+    required this.signature,
+    required this.signedAt,
+    required this.signVersion,
+    required this.eintragId,
+    required Repository repo,
+  }) : _repo = repo;
+
+  Future<bool> verify() async {
+    switch (signVersion) {
+      case 1:
+        return await _verify_v1(userId, eintragId, signedAt, signature, _repo);
+      default:
+        return false;
+    }
+  }
+
+  // ignore: non_constant_identifier_names
+  static Future<bool> _verify_v1(
+    String userId,
+    int eintragId,
+    DateTime signedAt,
+    String signature,
+    Repository repo,
+  ) async {
+    final opts = [
+      eintragId,
+      eintragId,
+      eintragId,
+      signedAt.millisecondsSinceEpoch,
+      eintragId,
+    ];
+    final String eintrag =
+        repo._database.select(Eintrag._signQuery_v1, opts).first["json"];
+
+    final PublicKey publicKey = repo.getIdentity(userId).loadPublicKey();
+
+    try {
+      final msg = await OpenPGP.verifyDetached(
+        eintrag,
+        signature,
+        [publicKey],
+        date: signedAt,
+      );
+      for (var verification in msg.verifications) {
+        if (!verification.verified) {
+          return false;
+        }
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }
 
