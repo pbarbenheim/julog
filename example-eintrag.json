@@ -1,38 +1,35 @@
 {
-    "id": 1,
-    "beginn": 1298478932784,
-    "ende": 289347389247,
-    "kategorieId": 3,
-    "thema": "Üben für die Jugendflamme Stufe 1 & 2",
-    "ort": "Feuerwehrhaus Musterhausen",
-    "raum": "Schulungsraum",
-    "dienstverlauf": "-",
-    "besonderheiten": "-",
-    "links": [],
-    "betreuer": [
-        {
-            "id": 2,
-            "name": "Max"
-        },
-        {
-            "id": 1,
-            "name": "Enola"
-        }
-    ],
-    "jugendliche": [
-        {
-            "id": 1,
-            "name": "Josi"
-        },
-        {
-            "id": 2,
-            "name": "Ivan"
-        },
-        {
-            "id": 3,
-            "name": "Ester",
-            "anmerkung": "entschuldigt"
-        }
-    ],
-    "signee": "Max (stv. Jfw) <max@jfw-musterhausen.de>"
+  "id": 1,
+  "beginn": 1707141600000,
+  "ende": 1707148800000,
+  "kategorie": { "id": 1, "name": "Feuerwehrtechnik" },
+  "thema": "Üben Jugendflamm Stufe 1",
+  "ort": "Feuerwehrhaus Musterhausen",
+  "raum": "Fahrzeughalle",
+  "dienstverlauf": "-",
+  "besonderheiten": "-",
+  "betreuer": [
+    { "id": 1, "name": "Max" },
+    { "id": 3, "name": "Jürgen" },
+    { "id": 4, "name": "Franz" }
+  ],
+  "jugendliche": [
+    { "id": 1, "name": "Jens", "anmerkung": "anwesend" },
+    { "id": 2, "name": "Mia", "anmerkung": "anwesend" },
+    { "id": 3, "name": "Peter", "anmerkung": "entschuldigt" }
+  ],
+  "signatures": [
+    {
+      "userid": "Max (stv Jfw) paul.stv.jfw@jf-dienstbuch.ffw-musterhausen.de",
+      "signature": "-----BEGIN PGP SIGNATURE-----...-----END PGP SIGNATURE-----\n",
+      "signed_at": 1707151722452,
+      "sign_version": 1
+    },
+    {
+      "userid": "Franz framz@jf-dienstbuch.ffw-musterhausen.de",
+      "signature": "-----BEGIN PGP SIGNATURE-----...-----END PGP SIGNATURE-----\n",
+      "signed_at": 1707151905838,
+      "sign_version": 1
+    }
+  ]
 }
