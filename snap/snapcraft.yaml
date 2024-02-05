@@ -1,0 +1,16 @@
+name: dienstbuch
+version: 0.1.0
+summary: Dienstbuch
+description: App zur Fuehrung eines Jugendfeuerwehr-Dienstbuches
+confinement: strict
+base: core22
+grade: beta
+apps:
+  dienstbuch:
+    command: dienstbuch
+    extensions: [gnome]
+parts:
+  dienstbuch:
+    source: .
+    plugin: flutter
+    flutter-target: lib/main.dart
