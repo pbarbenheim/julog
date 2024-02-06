@@ -1,0 +1,25 @@
+name: Build Windows
+
+on:
+  workflow_dispatch:
+    inputs:
+      releaseName:
+        required: true
+        type: string
+      releaseBody:
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: Levi-Lesches/Flutter-MSIX@v0.1
+        with:
+          base64-certificate: ${{ secrets.PFX_CERT }}
+          certificate-path: domain.pfx
+          release-name: ${{ inputs.releaseName }}
+          release-body: ${{ inputs.releaseBody }}
+          generate-release-notes: true
+          release-is-draft: true
+          msix-path: .\dienstbuch_win

@@ -44,3 +44,5 @@ app.*.map.json
 
 #all built snaps
 *.snap
+
+domain*
