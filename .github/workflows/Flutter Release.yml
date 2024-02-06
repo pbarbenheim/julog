@@ -5,7 +5,7 @@ on:
     tags:
       - v**
 env:
-  flutterversion: "e.16.x"
+  flutterversion: "3.16.x"
 jobs:
   build-and-release-linux:
     runs-on: ubuntu-latest
