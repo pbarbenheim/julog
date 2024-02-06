@@ -125,3 +125,4 @@ msix_config:
   output_name: dienstbuch_win
   sign_msix: false
   install_certificate: false
+  publisher: CN=Paul Barbenheim, O=Paul Barbenheim, C=DE
