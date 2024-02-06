@@ -71,7 +71,6 @@ dev_dependencies:
   build_runner: ^2.4.8
   build_verify: ^3.1.0
   flutter_launcher_icons: ^0.13.1
-  msix: ^3.16.7
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -113,16 +112,3 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
-
-msix_config:
-  display_name: Dienstbuch
-  publisher_display_name: Paul Barbenheim
-  identity_name: de.barbenheim.dienstbuch
-  msix: 1.0.0.0
-  capabilities: removableStorage, documentsLibrary
-  file_extension: .jfdb, .jfdienstbuch, .dienstbuch
-  output_path: .
-  output_name: dienstbuch_win
-  sign_msix: false
-  install_certificate: false
-  publisher: CN=Paul Barbenheim, O=Paul Barbenheim, C=DE
