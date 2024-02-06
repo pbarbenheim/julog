@@ -122,5 +122,6 @@ msix_config:
   capabilities: removableStorage, documentsLibrary
   file_extension: .jfdb, .jfdienstbuch, .dienstbuch
   certificate_path: domain.pfx
+  certificate_password: ""
   output_path: .
   output_name: dienstbuch_win
