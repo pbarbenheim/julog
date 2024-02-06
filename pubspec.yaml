@@ -125,3 +125,4 @@ msix_config:
   certificate_password: "poMMes13"
   output_path: .
   output_name: dienstbuch_win
+  install_certificate: false
