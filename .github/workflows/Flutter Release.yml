@@ -30,22 +30,21 @@ jobs:
         uses: thedoctor0/zip-release@main
         with:
           type: "tar"
-          filename: dienstbuch-${{github.ref_name}}-linux.tar.gz
+          filename: github-release/dienstbuch-${{github.ref_name}}-linux.tar.gz
           directory: build/linux/x64/release/bundle
+          exclusions: "github-release .git"
       - name: Linux Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: build/linux/x64/release/bundle/dienstbuch-${{github.ref_name}}-linux.tar.gz
+          files: build/linux/x64/release/bundle/github-release/dienstbuch-${{github.ref_name}}-linux.tar.gz
       - name: Snapcraft Build
         uses: snapcore/action-build@v1
         id: build
       - name: Publish in Snapstore
         uses: snapcore/action-publish@v1
-        env:
-          SNAPCRAFT_STROE_CREDENTIALS: ${{ secrets.SNAPSTORE_LOGIN }}
         with:
           snap: ${{ steps.build.outputs.snap }}
           release: release
@@ -72,14 +71,12 @@ jobs:
         with:
           type: "zip"
           filename: dienstbuch-${{github.ref_name}}-windows.zip
-          directory: build/windows/runner/Release
+          directory: build/windows/x64/runner/Release
       - name: Windows Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: build/windows/runner/Release/dienstbuch-${{github.ref_name}}-windows.zip
+          files: build/windows/x64/runner/Release/dienstbuch-${{github.ref_name}}-windows.zip
 
   build-and-release-macos:
     runs-on: macos-latest
@@ -107,7 +104,5 @@ jobs:
       - name: macOS Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: build/macos/Build/Products/Release/dienstbuch-${{github.ref_name}}-macos.zip
