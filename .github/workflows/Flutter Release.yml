@@ -45,14 +45,6 @@ jobs:
         with:
           files: build/linux/x64/release/bundle/github-release/dienstbuch-${{github.ref_name}}-linux.tar.gz
           draft: true
-      - name: Snapcraft Build
-        uses: snapcore/action-build@v1
-        id: build
-      - name: Publish in Snapstore
-        uses: snapcore/action-publish@v1
-        with:
-          snap: ${{ steps.build.outputs.snap }}
-          release: release
 
   build-and-release-windows:
     runs-on: windows-latest
