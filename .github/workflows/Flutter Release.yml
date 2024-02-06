@@ -27,10 +27,10 @@ jobs:
       - name: Build artifacts
         run: flutter build linux --release
       - name: Archive Release
-        uses: thedoctor0/zip-release@master
+        uses: thedoctor0/zip-release@main
         with:
-          type: "zip"
-          filename: MacRecoveryX-${{github.ref_name}}-linux.zip
+          type: "tar"
+          filename: dienstbuch-${{github.ref_name}}-linux.tar.gz
           directory: build/linux/x64/release/bundle
       - name: Linux Release
         uses: softprops/action-gh-release@v1
@@ -38,7 +38,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: build/linux/x64/release/bundle/MacRecoveryX-${{github.ref_name}}-linux.zip
+          files: build/linux/x64/release/bundle/dienstbuch-${{github.ref_name}}-linux.tar.gz
       - name: Snapcraft Build
         uses: snapcore/action-build@v1
         id: build
@@ -68,10 +68,10 @@ jobs:
       - name: Build artifacts
         run: flutter build windows --release
       - name: Archive Release
-        uses: thedoctor0/zip-release@master
+        uses: thedoctor0/zip-release@main
         with:
           type: "zip"
-          filename: MacRecoveryX-${{github.ref_name}}-windows.zip
+          filename: dienstbuch-${{github.ref_name}}-windows.zip
           directory: build/windows/runner/Release
       - name: Windows Release
         uses: softprops/action-gh-release@v1
@@ -79,7 +79,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: build/windows/runner/Release/MacRecoveryX-${{github.ref_name}}-windows.zip
+          files: build/windows/runner/Release/dienstbuch-${{github.ref_name}}-windows.zip
 
   build-and-release-macos:
     runs-on: macos-latest
@@ -99,10 +99,10 @@ jobs:
       - name: Build artifacts
         run: flutter build macos --release
       - name: Archive Release
-        uses: thedoctor0/zip-release@master
+        uses: thedoctor0/zip-release@main
         with:
           type: "zip"
-          filename: MacRecoveryX-${{github.ref_name}}-macos.zip
+          filename: dienstbuch-${{github.ref_name}}-macos.zip
           directory: build/macos/Build/Products/Release
       - name: macOS Release
         uses: softprops/action-gh-release@v1
@@ -110,4 +110,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: build/macos/Build/Products/Release/MacRecoveryX-${{github.ref_name}}-macos.zip
+          files: build/macos/Build/Products/Release/dienstbuch-${{github.ref_name}}-macos.zip
