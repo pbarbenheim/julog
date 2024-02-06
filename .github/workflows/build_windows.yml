@@ -22,4 +22,4 @@ jobs:
           release-body: ${{ inputs.releaseBody }}
           generate-release-notes: true
           release-is-draft: true
-          msix-path: .\dienstbuch_win
+          msix-path: .\dienstbuch_win.msix
