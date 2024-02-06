@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - v**
+permissions:
+  contents: write
 env:
   flutterversion: "3.16.x"
 jobs:
@@ -26,6 +28,8 @@ jobs:
         run: flutter config --enable-linux-desktop
       - name: Build artifacts
         run: flutter build linux --release
+      - name: Create Archive folder
+        run: mkdir -p build/linux/x64/release/bundle/github-release
       - name: Archive Release
         uses: thedoctor0/zip-release@main
         with:
@@ -40,6 +44,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: build/linux/x64/release/bundle/github-release/dienstbuch-${{github.ref_name}}-linux.tar.gz
+          draft: true
       - name: Snapcraft Build
         uses: snapcore/action-build@v1
         id: build
@@ -77,6 +82,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: build/windows/x64/runner/Release/dienstbuch-${{github.ref_name}}-windows.zip
+          draft: true
 
   build-and-release-macos:
     runs-on: macos-latest
@@ -106,3 +112,4 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: build/macos/Build/Products/Release/dienstbuch-${{github.ref_name}}-macos.zip
+          draft: true
