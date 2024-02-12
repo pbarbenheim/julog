@@ -55,6 +55,8 @@ dependencies:
   intl: any
   dropdown_search: ^5.0.6
   omni_datetime_picker: ^1.0.9
+  pdf: ^3.10.7
+  printing: ^5.11.1
 
 dev_dependencies:
   flutter_test:
