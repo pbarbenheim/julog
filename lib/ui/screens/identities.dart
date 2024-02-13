@@ -185,6 +185,35 @@ class _AddIdentityFormState extends ConsumerState<AddIdentityForm> {
           const Padding(padding: EdgeInsets.only(top: 10)),
           ElevatedButton(
             onPressed: () async {
+              showAdaptiveDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => const PopScope(
+                  canPop: false,
+                  child: SimpleDialog(
+                    backgroundColor: Colors.white,
+                    children: [
+                      Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Padding(
+                              padding:
+                                  EdgeInsets.only(left: 16, top: 16, right: 16),
+                              child: CircularProgressIndicator.adaptive(),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Text(
+                                  "Bitte warte einen Moment während wir den Schlüssel für dich erstellen"),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              );
               final repo = ref.read(repositoryProvider);
               if (_formKey.currentState!.validate()) {
                 String? comment;
@@ -198,6 +227,8 @@ class _AddIdentityFormState extends ConsumerState<AddIdentityForm> {
                 );
 
                 if (mounted) {
+                  Navigator.of(context).pop();
+
                   IdentitiesRoute(result.userId).go(context);
                 }
               }
