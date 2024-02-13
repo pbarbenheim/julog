@@ -146,6 +146,7 @@ class Repository {
       ('domainName', '$domain');
 
       pragma application_id = 448493213;
+      pragma user_version = 1;
     ''';
 
   bool _isInstalled() {
