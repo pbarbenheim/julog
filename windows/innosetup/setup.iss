@@ -1,5 +1,5 @@
 [Files]
-Source: "build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: recursesubdirs
+Source: "..\..\build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: recursesubdirs
 Source: "..\..\LICENSE"; DestDir: "{app}"; Flags: isreadme
 Source: "..\..\README.md"; DestDir: "{app}"; Flags: isreadme
 
