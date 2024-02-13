@@ -1,3 +1,4 @@
+import 'package:dienstbuch/pubspec.g.dart';
 import 'package:dienstbuch/repository/repository.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
@@ -39,7 +40,7 @@ extension EintragPdfGeneration on Eintrag {
           }
           return pw.Padding(
             padding: const pw.EdgeInsets.symmetric(vertical: 10),
-            child: pw.Text("am ${e.signedAt.toString()} gez. $name."),
+            child: pw.Text("am ${e.signedAt.toString()},\n\t\t\tgez. $name"),
           );
         }))
       ],
@@ -81,7 +82,8 @@ class DienstbuchPdf {
 
   static Future<pw.Widget Function(pw.Context)> getDocFooter() async {
     final now = DateTime.now().toString();
-    return (context) => pw.Text("Auszug generiert am $now von Dienstbuch");
+    return (context) => pw.Text(
+        "Auszug generiert am $now von Dienstbuch v${Pubspec.versionSmall}");
   }
 
   static Future<pw.PageTheme> getDocTheme(PdfPageFormat format) async {
