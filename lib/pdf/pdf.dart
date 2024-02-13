@@ -1,5 +1,5 @@
-import 'package:dienstbuch/pubspec.g.dart';
-import 'package:dienstbuch/repository/repository.dart';
+import 'package:julog/pubspec.g.dart';
+import 'package:julog/repository/repository.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -10,9 +10,9 @@ extension EintragPdfGeneration on Eintrag {
     final doc = pw.Document();
 
     doc.addPage(pw.MultiPage(
-      header: await DienstbuchPdf.getDocHeader(),
-      footer: await DienstbuchPdf.getDocFooter(),
-      pageTheme: await DienstbuchPdf.getDocTheme(format),
+      header: await JulogPdf.getDocHeader(),
+      footer: await JulogPdf.getDocFooter(),
+      pageTheme: await JulogPdf.getDocTheme(format),
       build: (context) => [
         pw.Padding(padding: const pw.EdgeInsets.only(top: 10)),
         pw.Text("Eintrag #$id"),
@@ -50,7 +50,7 @@ extension EintragPdfGeneration on Eintrag {
   }
 }
 
-class DienstbuchPdf {
+class JulogPdf {
   static Future<pw.Widget Function(pw.Context)> getDocHeader() async {
     String logo = await rootBundle.loadString("assets/logo.svg");
 
@@ -82,8 +82,8 @@ class DienstbuchPdf {
 
   static Future<pw.Widget Function(pw.Context)> getDocFooter() async {
     final now = DateTime.now().toString();
-    return (context) => pw.Text(
-        "Auszug generiert am $now von Dienstbuch v${Pubspec.versionSmall}");
+    return (context) =>
+        pw.Text("Auszug generiert am $now von Julog v${Pubspec.versionSmall}");
   }
 
   static Future<pw.PageTheme> getDocTheme(PdfPageFormat format) async {

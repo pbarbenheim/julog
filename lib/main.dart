@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:dienstbuch/repository/repository.dart';
-import 'package:dienstbuch/ui/routes.dart';
+import 'package:julog/repository/repository.dart';
+import 'package:julog/ui/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,18 +29,18 @@ void main(List<String> args) async {
             .overrideWith(() => RepositoryNotifier(filename: file)),
       sharedPreferencesProvider.overrideWithValue(prefs),
     ],
-    child: const DienstbuchApp(),
+    child: const JulogApp(),
   ));
 }
 
-class DienstbuchApp extends ConsumerStatefulWidget {
-  const DienstbuchApp({super.key});
+class JulogApp extends ConsumerStatefulWidget {
+  const JulogApp({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _DienstbuchAppState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _JulogAppState();
 }
 
-class _DienstbuchAppState extends ConsumerState<DienstbuchApp> {
+class _JulogAppState extends ConsumerState<JulogApp> {
   // ignore: unused_field
   late final AppLifecycleListener _lifecycleListener;
 
@@ -61,9 +61,9 @@ class _DienstbuchAppState extends ConsumerState<DienstbuchApp> {
     final file = filename != null ? path.basename(filename) : null;
     final String title;
     if (file == null) {
-      title = "JF-Dienstbuch";
+      title = "julog";
     } else {
-      title = "$file - JF-Dienstbuch";
+      title = "$file - julog";
     }
     if (Platform.isLinux || Platform.isMacOS || Platform.isLinux) {
       setWindowTitle(title);

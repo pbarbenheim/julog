@@ -1,6 +1,6 @@
-import 'package:dienstbuch/repository/repository.dart';
-import 'package:dienstbuch/ui/frame.dart';
-import 'package:dienstbuch/ui/util.dart';
+import 'package:julog/repository/repository.dart';
+import 'package:julog/ui/frame.dart';
+import 'package:julog/ui/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,13 +11,13 @@ class DashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final filename =
         ref.watch(repositoryProvider.select((value) => value?.filename));
-    return DienstbuchScaffold(
+    return JulogScaffold(
       destination: Destination.dashboard,
       appBar: AppBar(
         title: const Text("Dashboard"),
         actions: [
           IconButton(
-            onPressed: () => showDienstbuchAbout(context: context),
+            onPressed: () => showJulogAbout(context: context),
             icon: const Icon(Icons.more_vert),
           ),
         ],

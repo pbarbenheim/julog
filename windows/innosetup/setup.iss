@@ -4,17 +4,17 @@ Source: "..\..\LICENSE"; DestDir: "{app}"; Flags: isreadme
 Source: "..\..\README.md"; DestDir: "{app}"; Flags: isreadme
 
 [Setup]
-AppName=Dienstbuch
-AppVerName=Dienstbuch 0.7
-DefaultDirName={pf}\Dienstbuch
-DefaultGroupName=Dienstbuch
+AppName=Julog
+AppVerName=Julog 0.7
+DefaultDirName={pf}\Julog
+DefaultGroupName=Julog
 ChangesAssociations=yes
 ArchitecturesAllowed=x64
 ArchitecturesInstallIn64BitMode=x64
 
 [Icons]
-Name: "{group}\Dienstbuch"; Filename: "{app}\dienstbuch.exe"; WorkingDir: "{app}"
-Name: "{userdesktop}\Dienstbuch"; Filename: "{app}\dienstbuch.exe"; WorkingDir: "{app}"
+Name: "{group}\Julog"; Filename: "{app}\julog.exe"; WorkingDir: "{app}"
+Name: "{userdesktop}\Julog"; Filename: "{app}\julog.exe"; WorkingDir: "{app}"
 
 [Languages]
 Name: "de"; MessagesFile: "compiler:languages\German.isl"
@@ -24,13 +24,13 @@ Name: "en"; MessagesFile: "compiler:Default.isl"
 Root: HKCR; Subkey: ".jfdb"; ValueType: string; ValueName: ""; \
   ValueData: "JFDB.File"; Flags: uninsdeletevalue
 Root: HKCR; Subkey: "JFDB.File"; ValueType: string; ValueName: ""; \
-  ValueData: "Ein Jugendfeuerwehr Dienstbuch"; Flags: uninsdeletekey
+  ValueData: "Ein Jugendfeuerwehr Julog"; Flags: uninsdeletekey
 Root: HKCR; Subkey: "JFDB.File\DefaultIcon"; ValueType: string; \
-  ValueName: ""; ValueData: "{app}\dienstbuch.exe,0"
+  ValueName: ""; ValueData: "{app}\julog.exe,0"
 Root: HKCR; Subkey: "JFDB.File\shell\open\command"; \
   ValueType: string; ValueName: ""; \
-  ValueData: """{app}\dienstbuch.exe"" ""%1"""
+  ValueData: """{app}\julog.exe"" ""%1"""
 Root: HKCR; Subkey: "JFDB.File\shell\open"; ValueType: string; \
-  ValueName: ""; ValueData: "Mit Dienstbuch öffnen"
+  ValueName: ""; ValueData: "Mit Julog öffnen"
 Root: HKCR; Subkey: "JFDB.File\shell"; ValueType: string; \
   ValueName: ""; ValueData: "open"

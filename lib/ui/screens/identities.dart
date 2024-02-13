@@ -1,6 +1,6 @@
-import 'package:dienstbuch/repository/repository.dart';
-import 'package:dienstbuch/ui/frame.dart';
-import 'package:dienstbuch/ui/routes.dart';
+import 'package:julog/repository/repository.dart';
+import 'package:julog/ui/frame.dart';
+import 'package:julog/ui/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -246,7 +246,7 @@ class AddIdentityScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DienstbuchScaffold(
+    return JulogScaffold(
       body: const Center(
         child: AddIdentityForm(),
       ),

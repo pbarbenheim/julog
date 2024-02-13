@@ -35,7 +35,7 @@ class Repository {
   }
 
   factory Repository._default(SharedPreferences prefs, String filename) {
-    return Repository._(prefs, filename, "dienstbuch.example.org");
+    return Repository._(prefs, filename, "julog.example.org");
   }
 
   factory Repository._create(
@@ -49,7 +49,7 @@ class Repository {
 
   void _init({String? domainName}) {
     if (!_isInstalled()) {
-      _database.execute(_getInitScript(domainName ?? "dienstbuch.example.org"));
+      _database.execute(_getInitScript(domainName ?? "julog.example.org"));
     }
     final statement = _database.prepare("select * from info");
     final result = statement.select();

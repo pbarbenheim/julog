@@ -1,8 +1,8 @@
-import 'package:dienstbuch/repository/repository.dart';
-import 'package:dienstbuch/ui/frame.dart';
-import 'package:dienstbuch/ui/routes.dart';
-import 'package:dienstbuch/ui/util.dart';
-import 'package:dienstbuch/pdf/pdf.dart';
+import 'package:julog/repository/repository.dart';
+import 'package:julog/ui/frame.dart';
+import 'package:julog/ui/routes.dart';
+import 'package:julog/ui/util.dart';
+import 'package:julog/pdf/pdf.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,7 +41,7 @@ class DienstbuchScreen extends ConsumerWidget {
         EintragRoute(value.id).go(context);
       },
       listHeader: "Dienstbuch-Einträge",
-      destination: Destination.dienstbuch,
+      destination: Destination.julog,
       selectedItem: selectedItem,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -230,14 +230,14 @@ class AddDienstbuchEintragScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DienstbuchScaffold(
+    return JulogScaffold(
       body: const Center(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 15),
           child: AddDienstbuchEintragForm(),
         ),
       ),
-      destination: Destination.dienstbuch,
+      destination: Destination.julog,
       appBar: AppBar(
         title: const Text("Eintrag hinzufügen"),
       ),
@@ -636,8 +636,8 @@ class SignEintragScreen extends ConsumerWidget {
       );
     }).toList();
 
-    return DienstbuchScaffold(
-      destination: Destination.dienstbuch,
+    return JulogScaffold(
+      destination: Destination.julog,
       appBar: AppBar(
         title: const Text("Eintrag unterschreiben"),
       ),
