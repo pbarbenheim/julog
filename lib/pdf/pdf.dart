@@ -12,7 +12,37 @@ extension EintragPdfGeneration on Eintrag {
       header: await DienstbuchPdf.getDocHeader(),
       footer: await DienstbuchPdf.getDocFooter(),
       pageTheme: await DienstbuchPdf.getDocTheme(format),
-      build: (context) => [pw.Text("Test")],
+      build: (context) => [
+        pw.Padding(padding: const pw.EdgeInsets.only(top: 10)),
+        pw.Text("Eintrag #$id"),
+        pw.Text("Beginn: ${beginn.toString()}"),
+        pw.Text("Ende: ${ende.toString()}"),
+        pw.Text("Kategorie: #${kategorie?.id} ${kategorie?.name}"),
+        pw.Text("Thema: $thema"),
+        pw.Text("Ort: $ort"),
+        pw.Text("Raum: $raum"),
+        pw.Text("Dienstverlauf: $dienstverlauf"),
+        pw.Text("Besonderheiten: $besonderheiten"),
+        pw.Padding(padding: const pw.EdgeInsets.only(top: 20)),
+        pw.Text("Betreuer:"),
+        ...(betreuer.map((e) => pw.Text("\t\t\t\t- #${e.id} ${e.name}"))),
+        pw.Padding(padding: const pw.EdgeInsets.only(top: 20)),
+        pw.Text("Jugendliche:"),
+        ...(jugendliche
+            .map((e) => pw.Text("\t\t\t\t- #${e.$1} ${e.$2} \t\t(${e.$3})"))),
+        pw.Padding(padding: const pw.EdgeInsets.only(top: 40)),
+        ...(signaturen.map((e) {
+          final userc = Repository.userIdToComponents(e.userId);
+          String name = userc.$1;
+          if (userc.$2.isNotEmpty) {
+            name = "$name, ${userc.$2}";
+          }
+          return pw.Padding(
+            padding: const pw.EdgeInsets.symmetric(vertical: 10),
+            child: pw.Text("am ${e.signedAt.toString()} gez. $name."),
+          );
+        }))
+      ],
     ));
 
     return doc.save();
@@ -32,7 +62,7 @@ class DienstbuchPdf {
             children: [
               pw.Expanded(
                 child: pw.Text(
-                  "Auszug aus dem Dienstbuch der\n    JF Darscheid",
+                  "Auszug aus dem Dienstbuch",
                   style: pw.TextStyle(
                       fontWeight: pw.FontWeight.bold, fontSize: 20),
                 ),
@@ -50,7 +80,8 @@ class DienstbuchPdf {
   }
 
   static Future<pw.Widget Function(pw.Context)> getDocFooter() async {
-    return (context) => pw.Text("Footer");
+    final now = DateTime.now().toString();
+    return (context) => pw.Text("Auszug generiert am $now von Dienstbuch");
   }
 
   static Future<pw.PageTheme> getDocTheme(PdfPageFormat format) async {
