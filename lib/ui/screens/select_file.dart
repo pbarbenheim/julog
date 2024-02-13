@@ -14,7 +14,7 @@ class SelectFileScreen extends ConsumerWidget {
     return () async {
       const XTypeGroup typeGroup = XTypeGroup(
         label: 'Dienstbuch',
-        extensions: ["jfdb", 'julog', "jfjulog"],
+        extensions: ["jfdb"],
         mimeTypes: ["application/x.de.barbenheim.julog+sqlite3"],
       );
 
@@ -76,10 +76,10 @@ class SelectFileScreen extends ConsumerWidget {
   Future<bool> Function() _getCreateFile(
       BuildContext context, RepositoryNotifier notifier) {
     return () async {
-      const String fileName = "julog.jfdb";
+      const String fileName = "dienstbuch.jfdb";
       const XTypeGroup typeGroup = XTypeGroup(
         label: 'Dienstbuch',
-        extensions: ["jfdb", 'julog', "jfjulog"],
+        extensions: ["jfdb"],
         mimeTypes: ["application/x.de.barbenheim.julog+sqlite3"],
       );
       final domainName = await _getDomainName(context);
