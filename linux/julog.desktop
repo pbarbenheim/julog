@@ -2,7 +2,7 @@
 Name=Julog
 Comment=Jugendfeuerwehr Dienstbuch digital
 Exec=julog %u
-Icon=${SNAP}/meta/gui/julog.png
+Icon=data/flutter_assest/assets/icon/icon.png
 Terminal=false
 Type=Application
 Categories=Office;Database;

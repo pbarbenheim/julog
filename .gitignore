@@ -45,4 +45,7 @@ app.*.map.json
 #all built snaps
 *.snap
 
+# generated files
+*.g.dart
+
 domain*
