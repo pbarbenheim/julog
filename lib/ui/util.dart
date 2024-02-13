@@ -1,3 +1,4 @@
+import 'package:dienstbuch/pubspec.g.dart';
 import 'package:dienstbuch/repository/repository.dart';
 import 'package:dienstbuch/ui/widgets/logo.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,7 @@ void showDienstbuchAbout({
     context: context,
     anchorPoint: anchorPoint,
     applicationName: "Dienstbuch",
-    applicationVersion: "1.0.0",
+    applicationVersion: Pubspec.version,
     applicationLegalese: "© Paul Barbenheim 2024",
     applicationIcon: ConstrainedBox(
       constraints: BoxConstraints(maxWidth: 80),
