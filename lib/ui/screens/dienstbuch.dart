@@ -2,10 +2,13 @@ import 'package:dienstbuch/repository/repository.dart';
 import 'package:dienstbuch/ui/frame.dart';
 import 'package:dienstbuch/ui/routes.dart';
 import 'package:dienstbuch/ui/util.dart';
+import 'package:dienstbuch/pdf/pdf.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 
 class DienstbuchScreen extends ConsumerWidget {
   final int? id;
@@ -46,6 +49,30 @@ class DienstbuchScreen extends ConsumerWidget {
         },
         child: const Icon(Icons.add),
       ),
+      itemActions: [
+        //if (selectedItem != null)
+        IconButton(
+          onPressed: () {
+            showAdaptiveDialog(
+              context: context,
+              builder: (context) => Dialog.fullscreen(
+                child: PdfPreview(
+                  allowPrinting: true,
+                  allowSharing: true,
+                  canChangeOrientation: false,
+                  canChangePageFormat: false,
+                  initialPageFormat: PdfPageFormat.a4,
+                  //Change that
+                  canDebug: true,
+                  build: (format) =>
+                      selectedItem!.getEintrag().buildPdf(format),
+                ),
+              ),
+            );
+          },
+          icon: const Icon(Icons.picture_as_pdf),
+        ),
+      ],
     );
   }
 }

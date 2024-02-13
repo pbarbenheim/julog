@@ -37,13 +37,15 @@ class ItemList<T extends Item> extends StatelessWidget {
 
 class ItemDetail<T extends Item> extends StatelessWidget {
   final T? item;
-  const ItemDetail({super.key, this.item});
+  final List<Widget>? actions;
+  const ItemDetail({super.key, this.item, this.actions});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(item?.title ?? "Details"),
+        actions: actions,
       ),
       body: Center(
         child: item ??
@@ -62,6 +64,8 @@ class ListDetail<T extends Item> extends StatelessWidget {
   final String listHeader;
   final Destination destination;
   final Widget? floatingActionButton;
+  final List<Widget>? itemActions;
+
   const ListDetail({
     super.key,
     this.selectedItem,
@@ -70,6 +74,7 @@ class ListDetail<T extends Item> extends StatelessWidget {
     required this.listHeader,
     required this.destination,
     this.floatingActionButton,
+    this.itemActions,
   });
 
   Widget _buildMobileLayout() {
@@ -89,6 +94,7 @@ class ListDetail<T extends Item> extends StatelessWidget {
     }
     return ItemDetail(
       item: selectedItem,
+      actions: itemActions,
     );
   }
 
@@ -115,6 +121,7 @@ class ListDetail<T extends Item> extends StatelessWidget {
           Expanded(
             child: ItemDetail(
               item: selectedItem,
+              actions: itemActions,
             ),
           ),
         ],
