@@ -9,6 +9,8 @@ AppVerName=Dienstbuch 0.7
 DefaultDirName={pf}\Dienstbuch
 DefaultGroupName=Dienstbuch
 ChangesAssociations=yes
+ArchitecturesAllowed=x64
+ArchitecturesInstallIn64BitMode=x64
 
 [Icons]
 Name: "{group}\Dienstbuch"; Filename: "{app}\dienstbuch.exe"; WorkingDir: "{app}"
