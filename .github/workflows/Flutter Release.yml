@@ -37,7 +37,7 @@ jobs:
         uses: thedoctor0/zip-release@main
         with:
           type: "tar"
-          filename: github-release/julog-${{github.ref_name}}-linux.tar.gz
+          filename: github-release/julog-${{github.ref_name}}-linux-x64.tar.gz
           directory: build/linux/x64/release/bundle
           exclusions: "github-release .git"
       - name: Linux Release
@@ -70,7 +70,7 @@ jobs:
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.4
         with:
           path: windows/innosetup/setup.iss
-          options: /O+ /F"julog-windows-setup"
+          options: /O+ /F"julog-windows-x64-setup"
       - name: Windows Release setup.exe
         uses: softprops/action-gh-release@4634c16e79c963813287e889244c50009e7f0981
         if: startsWith(github.ref, 'refs/tags/')
@@ -99,7 +99,7 @@ jobs:
         uses: thedoctor0/zip-release@main
         with:
           type: "zip"
-          filename: julog-${{github.ref_name}}-macos.zip
+          filename: julog-${{github.ref_name}}-macos-x64.zip
           directory: build/macos/Build/Products/Release
       - name: macOS Release
         uses: softprops/action-gh-release@4634c16e79c963813287e889244c50009e7f0981
