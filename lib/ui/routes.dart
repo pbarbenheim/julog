@@ -1,20 +1,20 @@
-import 'package:dienstbuch/repository/repository.dart';
-import 'package:dienstbuch/ui/frame.dart';
-import 'package:dienstbuch/ui/screens/betreuer.dart';
-import 'package:dienstbuch/ui/screens/dashboard.dart';
-import 'package:dienstbuch/ui/screens/dienstbuch.dart';
-import 'package:dienstbuch/ui/screens/identities.dart';
-import 'package:dienstbuch/ui/screens/jugendliche.dart';
-import 'package:dienstbuch/ui/screens/kategorien.dart';
-import 'package:dienstbuch/ui/screens/select_file.dart';
+import 'package:julog/repository/repository.dart';
+import 'package:julog/ui/frame.dart';
+import 'package:julog/ui/screens/betreuer.dart';
+import 'package:julog/ui/screens/dashboard.dart';
+import 'package:julog/ui/screens/dienstbuch.dart';
+import 'package:julog/ui/screens/identities.dart';
+import 'package:julog/ui/screens/jugendliche.dart';
+import 'package:julog/ui/screens/kategorien.dart';
+import 'package:julog/ui/screens/select_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 part 'routes.g.dart';
 
-abstract class DienstbuchBaseRoute extends GoRouteData {
-  const DienstbuchBaseRoute();
+abstract class JulogBaseRoute extends GoRouteData {
+  const JulogBaseRoute();
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return NoTransitionPage(child: build(context, state));
@@ -28,7 +28,7 @@ abstract class DienstbuchBaseRoute extends GoRouteData {
     TypedGoRoute<AddKategorienRoute>(path: "add"),
   ],
 )
-class KategorienRoute extends DienstbuchBaseRoute {
+class KategorienRoute extends JulogBaseRoute {
   final int? kategorieId;
   const KategorienRoute(this.kategorieId);
 
@@ -38,7 +38,7 @@ class KategorienRoute extends DienstbuchBaseRoute {
   }
 }
 
-class AddKategorienRoute extends DienstbuchBaseRoute {
+class AddKategorienRoute extends JulogBaseRoute {
   const AddKategorienRoute();
 
   @override
@@ -53,7 +53,7 @@ class AddKategorienRoute extends DienstbuchBaseRoute {
     routes: [
       TypedGoRoute<AddJugendlicheRoute>(path: "add"),
     ])
-class JugendlicheRoute extends DienstbuchBaseRoute {
+class JugendlicheRoute extends JulogBaseRoute {
   final int? jugendlicherId;
   const JugendlicheRoute(this.jugendlicherId);
 
@@ -63,7 +63,7 @@ class JugendlicheRoute extends DienstbuchBaseRoute {
   }
 }
 
-class AddJugendlicheRoute extends DienstbuchBaseRoute {
+class AddJugendlicheRoute extends JulogBaseRoute {
   const AddJugendlicheRoute();
 
   @override
@@ -79,7 +79,7 @@ class AddJugendlicheRoute extends DienstbuchBaseRoute {
     TypedGoRoute<AddBetreuerRoute>(path: "add"),
   ],
 )
-class BetreuerRoute extends DienstbuchBaseRoute {
+class BetreuerRoute extends JulogBaseRoute {
   final int? betreuerId;
   const BetreuerRoute(this.betreuerId);
 
@@ -91,7 +91,7 @@ class BetreuerRoute extends DienstbuchBaseRoute {
   }
 }
 
-class AddBetreuerRoute extends DienstbuchBaseRoute {
+class AddBetreuerRoute extends JulogBaseRoute {
   const AddBetreuerRoute();
 
   @override
@@ -101,7 +101,7 @@ class AddBetreuerRoute extends DienstbuchBaseRoute {
 }
 
 @TypedGoRoute<DashboardRoute>(path: "/dashboard", name: "dashboard")
-class DashboardRoute extends DienstbuchBaseRoute {
+class DashboardRoute extends JulogBaseRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return const DashboardScreen();
@@ -109,8 +109,8 @@ class DashboardRoute extends DienstbuchBaseRoute {
 }
 
 @TypedGoRoute<DienstbuchRoute>(
-  path: '/dienstbuch',
-  name: 'dienstbuch',
+  path: '/julog',
+  name: 'julog',
   routes: [
     TypedGoRoute<AddDienstbuchEintragRoute>(path: "add-eintrag"),
     TypedGoRoute<EintragRoute>(
@@ -121,7 +121,7 @@ class DashboardRoute extends DienstbuchBaseRoute {
     ),
   ],
 )
-class DienstbuchRoute extends DienstbuchBaseRoute {
+class DienstbuchRoute extends JulogBaseRoute {
   const DienstbuchRoute();
 
   @override
@@ -130,7 +130,7 @@ class DienstbuchRoute extends DienstbuchBaseRoute {
   }
 }
 
-class EintragRoute extends DienstbuchBaseRoute {
+class EintragRoute extends JulogBaseRoute {
   final int id;
 
   EintragRoute(this.id);
@@ -143,7 +143,7 @@ class EintragRoute extends DienstbuchBaseRoute {
   }
 }
 
-class SignEintragRoute extends DienstbuchBaseRoute {
+class SignEintragRoute extends JulogBaseRoute {
   final int id;
 
   SignEintragRoute(this.id);
@@ -154,7 +154,7 @@ class SignEintragRoute extends DienstbuchBaseRoute {
   }
 }
 
-class AddDienstbuchEintragRoute extends DienstbuchBaseRoute {
+class AddDienstbuchEintragRoute extends JulogBaseRoute {
   const AddDienstbuchEintragRoute();
 
   @override
@@ -170,7 +170,7 @@ class AddDienstbuchEintragRoute extends DienstbuchBaseRoute {
     TypedGoRoute<AddIdentityRoute>(path: "add"),
   ],
 )
-class IdentitiesRoute extends DienstbuchBaseRoute {
+class IdentitiesRoute extends JulogBaseRoute {
   final String? userId;
   const IdentitiesRoute(this.userId);
 
@@ -182,7 +182,7 @@ class IdentitiesRoute extends DienstbuchBaseRoute {
   }
 }
 
-class AddIdentityRoute extends DienstbuchBaseRoute {
+class AddIdentityRoute extends JulogBaseRoute {
   const AddIdentityRoute();
 
   @override
@@ -192,7 +192,7 @@ class AddIdentityRoute extends DienstbuchBaseRoute {
 }
 
 @TypedGoRoute<SelectFileRoute>(path: "/select-file", name: "selectFile")
-class SelectFileRoute extends DienstbuchBaseRoute {
+class SelectFileRoute extends JulogBaseRoute {
   const SelectFileRoute();
 
   @override
@@ -207,7 +207,7 @@ class ErrorRoute extends GoRouteData {
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return DienstbuchScaffold(
+    return JulogScaffold(
       body: Center(
         child: Column(
           children: [

@@ -1,9 +1,9 @@
 [Desktop Entry]
-Name=Dienstbuch
+Name=Julog
 Comment=Jugendfeuerwehr Dienstbuch digital
-Exec=dienstbuch %u
-Icon=${SNAP}/meta/gui/dienstbuch.png
+Exec=julog %u
+Icon=${SNAP}/meta/gui/julog.png
 Terminal=false
 Type=Application
 Categories=Office;Database;
-MimeType=application/x.de.barbenheim.dienstbuch+sqlite3;
+MimeType=application/x.de.barbenheim.julog+sqlite3;

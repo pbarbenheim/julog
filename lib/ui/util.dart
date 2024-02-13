@@ -1,22 +1,22 @@
-import 'package:dienstbuch/pubspec.g.dart';
-import 'package:dienstbuch/repository/repository.dart';
-import 'package:dienstbuch/ui/widgets/logo.dart';
+import 'package:julog/pubspec.g.dart';
+import 'package:julog/repository/repository.dart';
+import 'package:julog/ui/widgets/logo.dart';
 import 'package:flutter/material.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 
-void showDienstbuchAbout({
+void showJulogAbout({
   required BuildContext context,
   Offset? anchorPoint,
 }) {
   return showAboutDialog(
     context: context,
     anchorPoint: anchorPoint,
-    applicationName: "Dienstbuch",
+    applicationName: "Julog",
     applicationVersion: Pubspec.version,
     applicationLegalese: "© Paul Barbenheim 2024",
     applicationIcon: ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: 80),
-      child: DienstbuchLogo(),
+      constraints: const BoxConstraints(maxWidth: 80),
+      child: const JulogLogo(),
     ),
   );
 }

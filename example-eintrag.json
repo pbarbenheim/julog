@@ -20,13 +20,13 @@
   ],
   "signatures": [
     {
-      "userid": "Max (stv Jfw) paul.stv.jfw@jf-dienstbuch.ffw-musterhausen.de",
+      "userid": "Max (stv Jfw) paul.stv.jfw@jf-julog.ffw-musterhausen.de",
       "signature": "-----BEGIN PGP SIGNATURE-----...-----END PGP SIGNATURE-----\n",
       "signed_at": 1707151722452,
       "sign_version": 1
     },
     {
-      "userid": "Franz framz@jf-dienstbuch.ffw-musterhausen.de",
+      "userid": "Franz framz@jf-julog.ffw-musterhausen.de",
       "signature": "-----BEGIN PGP SIGNATURE-----...-----END PGP SIGNATURE-----\n",
       "signed_at": 1707151905838,
       "sign_version": 1

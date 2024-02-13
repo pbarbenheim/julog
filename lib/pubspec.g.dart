@@ -5,7 +5,7 @@
 mixin Pubspec {
   static final buildDate = DateTime.utc(2024, 2, 13, 18, 46, 21);
 
-  static const name = 'dienstbuch';
+  static const name = 'julog';
 
   static const description = 'A new Flutter project.';
 

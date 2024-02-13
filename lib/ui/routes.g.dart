@@ -11,7 +11,7 @@ List<RouteBase> get $appRoutes => [
       $jugendlicheRoute,
       $betreuerRoute,
       $dashboardRoute,
-      $dienstbuchRoute,
+      $julogRoute,
       $identitiesRoute,
       $selectFileRoute,
     ];
@@ -206,9 +206,9 @@ extension $DashboardRouteExtension on DashboardRoute {
   void replace(BuildContext context) => context.replace(location);
 }
 
-RouteBase get $dienstbuchRoute => GoRouteData.$route(
-      path: '/dienstbuch',
-      name: 'dienstbuch',
+RouteBase get $julogRoute => GoRouteData.$route(
+      path: '/julog',
+      name: 'julog',
       factory: $DienstbuchRouteExtension._fromState,
       routes: [
         GoRouteData.$route(
@@ -233,7 +233,7 @@ extension $DienstbuchRouteExtension on DienstbuchRoute {
       const DienstbuchRoute();
 
   String get location => GoRouteData.$location(
-        '/dienstbuch',
+        '/julog',
       );
 
   void go(BuildContext context) => context.go(location);
@@ -251,7 +251,7 @@ extension $AddDienstbuchEintragRouteExtension on AddDienstbuchEintragRoute {
       const AddDienstbuchEintragRoute();
 
   String get location => GoRouteData.$location(
-        '/dienstbuch/add-eintrag',
+        '/julog/add-eintrag',
       );
 
   void go(BuildContext context) => context.go(location);
@@ -270,7 +270,7 @@ extension $EintragRouteExtension on EintragRoute {
       );
 
   String get location => GoRouteData.$location(
-        '/dienstbuch/${Uri.encodeComponent(id.toString())}',
+        '/julog/${Uri.encodeComponent(id.toString())}',
       );
 
   void go(BuildContext context) => context.go(location);
@@ -289,7 +289,7 @@ extension $SignEintragRouteExtension on SignEintragRoute {
       );
 
   String get location => GoRouteData.$location(
-        '/dienstbuch/${Uri.encodeComponent(id.toString())}/sign',
+        '/julog/${Uri.encodeComponent(id.toString())}/sign',
       );
 
   void go(BuildContext context) => context.go(location);

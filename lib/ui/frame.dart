@@ -79,7 +79,7 @@ class ListDetail<T extends Item> extends StatelessWidget {
 
   Widget _buildMobileLayout() {
     if (selectedItem == null) {
-      return DienstbuchScaffold(
+      return JulogScaffold(
         appBar: AppBar(
           title: Text(listHeader),
         ),
@@ -104,7 +104,7 @@ class ListDetail<T extends Item> extends StatelessWidget {
         children: [
           Container(
             constraints: const BoxConstraints(maxWidth: 400),
-            child: DienstbuchScaffold(
+            child: JulogScaffold(
               body: ItemList(
                 items: items,
                 onChanged: onChanged,
@@ -142,12 +142,12 @@ class ListDetail<T extends Item> extends StatelessWidget {
   }
 }
 
-class DienstbuchScaffold extends StatelessWidget {
+class JulogScaffold extends StatelessWidget {
   final AppBar? appBar;
   final Widget body;
   final Destination destination;
   final Widget? floatingActionButton;
-  const DienstbuchScaffold({
+  const JulogScaffold({
     super.key,
     this.appBar,
     required this.body,
@@ -194,12 +194,12 @@ enum Destination {
         icon: Icon(Icons.dashboard), label: Text("Dashboard")),
     "dashboard",
   ),
-  dienstbuch(
+  julog(
     NavigationRailDestination(
       icon: Icon(Icons.book),
       label: Text("Dienstbuch"),
     ),
-    "dienstbuch",
+    "julog",
   ),
   jugendliche(
     NavigationRailDestination(

@@ -1,16 +1,16 @@
-name: dienstbuch
+name: julog
 version: 0.1.0
-summary: Dienstbuch
+summary: Julog
 description: App zur Fuehrung eines Jugendfeuerwehr-Dienstbuches
 confinement: strict
 base: core22
 grade: stable
 apps:
-  dienstbuch:
-    command: dienstbuch
+  julog:
+    command: julog
     extensions: [gnome]
 parts:
-  dienstbuch:
+  julog:
     source: .
     plugin: flutter
     flutter-target: lib/main.dart

@@ -1,6 +1,6 @@
-import 'package:dienstbuch/repository/repository.dart';
-import 'package:dienstbuch/ui/routes.dart';
-import 'package:dienstbuch/ui/util.dart';
+import 'package:julog/repository/repository.dart';
+import 'package:julog/ui/routes.dart';
+import 'package:julog/ui/util.dart';
 import 'package:flutter/material.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,8 +14,8 @@ class SelectFileScreen extends ConsumerWidget {
     return () async {
       const XTypeGroup typeGroup = XTypeGroup(
         label: 'Dienstbuch',
-        extensions: ["jfdb", 'dienstbuch', "jfdienstbuch"],
-        mimeTypes: ["application/x.de.barbenheim.dienstbuch+sqlite3"],
+        extensions: ["jfdb", 'julog', "jfjulog"],
+        mimeTypes: ["application/x.de.barbenheim.julog+sqlite3"],
       );
 
       final file = await openFile(
@@ -76,11 +76,11 @@ class SelectFileScreen extends ConsumerWidget {
   Future<bool> Function() _getCreateFile(
       BuildContext context, RepositoryNotifier notifier) {
     return () async {
-      const String fileName = "dienstbuch.jfdb";
+      const String fileName = "julog.jfdb";
       const XTypeGroup typeGroup = XTypeGroup(
         label: 'Dienstbuch',
-        extensions: ["jfdb", 'dienstbuch', "jfdienstbuch"],
-        mimeTypes: ["application/x.de.barbenheim.dienstbuch+sqlite3"],
+        extensions: ["jfdb", 'julog', "jfjulog"],
+        mimeTypes: ["application/x.de.barbenheim.julog+sqlite3"],
       );
       final domainName = await _getDomainName(context);
       if (domainName == null) {
@@ -113,7 +113,7 @@ class SelectFileScreen extends ConsumerWidget {
         title: const Text("Datei auswählen"),
         actions: [
           IconButton(
-            onPressed: () => showDienstbuchAbout(context: context),
+            onPressed: () => showJulogAbout(context: context),
             icon: const Icon(Icons.more_vert),
           ),
         ],
