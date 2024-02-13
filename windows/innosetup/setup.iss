@@ -15,8 +15,8 @@ Name: "{group}\Dienstbuch"; Filename: "{app}\dienstbuch.exe"; WorkingDir: "{app}
 Name: "{userdesktop}\Dienstbuch"; Filename: "{app}\dienstbuch.exe"; WorkingDir: "{app}"
 
 [Languages]
-Name: "de", MessagesFile: "compiler:languages\German.isl"
-Name: "en", MessagesFile: "compiler:Default.isl"
+Name: "de"; MessagesFile: "compiler:languages\German.isl"
+Name: "en"; MessagesFile: "compiler:Default.isl"
 
 [Registry]
 Root: HKCR; Subkey: ".jfdb"; ValueType: string; ValueName: ""; \
