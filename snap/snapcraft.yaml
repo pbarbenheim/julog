@@ -9,6 +9,10 @@ apps:
   julog:
     command: julog
     extensions: [gnome]
+    plugs:
+      - network
+      - home
+      - desktop
 parts:
   julog:
     source: .
