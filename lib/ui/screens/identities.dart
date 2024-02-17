@@ -155,7 +155,7 @@ class _AddIdentityFormState extends ConsumerState<AddIdentityForm> {
             keyboardType: TextInputType.visiblePassword,
             decoration: const InputDecoration(
               labelText: "Passwort",
-              hintText: "Dein PAsswort",
+              hintText: "Dein Passwort",
               border: OutlineInputBorder(),
             ),
             validator: (value) {
@@ -185,37 +185,37 @@ class _AddIdentityFormState extends ConsumerState<AddIdentityForm> {
           const Padding(padding: EdgeInsets.only(top: 10)),
           ElevatedButton(
             onPressed: () async {
-              showAdaptiveDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (context) => const PopScope(
-                  canPop: false,
-                  child: SimpleDialog(
-                    backgroundColor: Colors.white,
-                    children: [
-                      Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Padding(
-                              padding:
-                                  EdgeInsets.only(left: 16, top: 16, right: 16),
-                              child: CircularProgressIndicator.adaptive(),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.all(16),
-                              child: Text(
-                                  "Bitte warte einen Moment während wir den Schlüssel für dich erstellen"),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              );
               final repo = ref.read(repositoryProvider);
               if (_formKey.currentState!.validate()) {
+                showAdaptiveDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) => const PopScope(
+                    canPop: false,
+                    child: SimpleDialog(
+                      backgroundColor: Colors.white,
+                      children: [
+                        Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(
+                                    left: 16, top: 16, right: 16),
+                                child: CircularProgressIndicator.adaptive(),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.all(16),
+                                child: Text(
+                                    "Bitte warte einen Moment während wir den Schlüssel für dich erstellen"),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                );
                 String? comment;
                 if (_commentController.text.isNotEmpty) {
                   comment = _commentController.text;
