@@ -183,6 +183,25 @@ class _AddIdentityFormState extends ConsumerState<AddIdentityForm> {
             },
           ),
           const Padding(padding: EdgeInsets.only(top: 10)),
+          TextFormField(
+            obscureText: true,
+            keyboardType: TextInputType.visiblePassword,
+            decoration: const InputDecoration(
+              labelText: "Passwort wiederholen",
+              hintText: "Wiederhole dein Passwort",
+              border: OutlineInputBorder(),
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return "Das Feld darf nicht leer sein";
+              }
+              if (value != _passwordController.text) {
+                return "Die Passwörter stimmen nicht überein";
+              }
+              return null;
+            },
+          ),
+          const Padding(padding: EdgeInsets.only(top: 10)),
           ElevatedButton(
             onPressed: () async {
               final repo = ref.read(repositoryProvider);
