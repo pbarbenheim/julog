@@ -82,6 +82,7 @@ class _AddIdentityFormState extends ConsumerState<AddIdentityForm> {
   late final TextEditingController _passwordController;
   late final TextEditingController _nameController;
   late final TextEditingController _commentController;
+  bool _passwordObscured = true;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
@@ -151,12 +152,22 @@ class _AddIdentityFormState extends ConsumerState<AddIdentityForm> {
           const Padding(padding: EdgeInsets.only(top: 10)),
           TextFormField(
             controller: _passwordController,
-            obscureText: true,
+            obscureText: _passwordObscured,
             keyboardType: TextInputType.visiblePassword,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: "Passwort",
               hintText: "Dein Passwort",
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
+              suffixIcon: IconButton(
+                icon: Icon(_passwordObscured
+                    ? Icons.visibility
+                    : Icons.visibility_off),
+                onPressed: () {
+                  setState(() {
+                    _passwordObscured = !_passwordObscured;
+                  });
+                },
+              ),
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -179,6 +190,25 @@ class _AddIdentityFormState extends ConsumerState<AddIdentityForm> {
                 return "Das Passwort muss mindestens eine Ziffer enthalten";
               }
 
+              return null;
+            },
+          ),
+          const Padding(padding: EdgeInsets.only(top: 10)),
+          TextFormField(
+            obscureText: true,
+            keyboardType: TextInputType.visiblePassword,
+            decoration: const InputDecoration(
+              labelText: "Passwort wiederholen",
+              hintText: "Wiederhole dein Passwort",
+              border: OutlineInputBorder(),
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return "Das Feld darf nicht leer sein";
+              }
+              if (value != _passwordController.text) {
+                return "Die Passwörter stimmen nicht überein";
+              }
               return null;
             },
           ),
