@@ -155,7 +155,7 @@ class _AddIdentityFormState extends ConsumerState<AddIdentityForm> {
             keyboardType: TextInputType.visiblePassword,
             decoration: const InputDecoration(
               labelText: "Passwort",
-              hintText: "Dein PAsswort",
+              hintText: "Dein Passwort",
               border: OutlineInputBorder(),
             ),
             validator: (value) {
