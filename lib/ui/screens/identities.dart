@@ -178,7 +178,7 @@ class _AddIdentityFormState extends ConsumerState<AddIdentityForm> {
               }
               if (!value.contains(RegExp(
                   r'[\!\"\§\$\%\&\/\(\)\=\{\}\[\]\\\+\-\*\#\_\.\,\;\:]'))) {
-                return "Das Passwort muss mindestens eins der folgenden Sonderzeichen enthalten: \n!, \", §, \$, %, &, /, (, ), [, ], {, }, \\, ,, ., ;, :, +, -, _, *, #";
+                return "Das Passwort muss mindestens eins der folgenden Sonderzeichen enthalten: \n! \" § \$ % & / ( ) [ ] { } \\ , . ; : + - _ * #";
               }
               if (!value.contains(RegExp(r'[A-ZÖÄÜ]'))) {
                 return "Das Passwort muss mindestens einen Großbuchstaben enthalten";
