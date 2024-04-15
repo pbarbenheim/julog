@@ -44,7 +44,7 @@ dependencies:
   path: ^1.8.3
   path_provider: ^2.1.2
   file_selector: ^1.0.2
-  material_symbols_icons: ^4.2719.1
+  material_symbols_icons: ^4.2719.3
   window_size:
     git:
       url: https://github.com/google/flutter-desktop-embedding.git
