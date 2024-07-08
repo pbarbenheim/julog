@@ -54,7 +54,7 @@ dependencies:
     sdk: flutter
   intl: any
   dropdown_search: ^5.0.6
-  omni_datetime_picker: ^1.1.0
+  omni_datetime_picker: ^2.0.3
   pdf: ^3.11.0
   printing: ^5.12.0
 
