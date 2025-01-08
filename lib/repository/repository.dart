@@ -229,7 +229,7 @@ class Repository {
     final privateKey = await OpenPGP.decryptPrivateKey(armored, password);
     final DateTime date = DateTime.now();
     final signature =
-        await OpenPGP.signDetached(message, [privateKey], date: date);
+        OpenPGP.signDetachedCleartext(message, [privateKey], time: date);
     return (signature.armor(), date);
   }
 
@@ -256,12 +256,12 @@ class Repository {
         (message) async => await OpenPGP.generateKey(
               [userId],
               password,
-              type: KeyGenerationType.rsa,
-              rsaKeySize: RSAKeySize.s4096,
+              type: KeyType.rsa,
+              rsaKeySize: RSAKeySize.ultraHigh,
             ),
         null);
 
-    final publicArmored = privateKey.toPublic.armor();
+    final publicArmored = privateKey.publicKey.armor();
     final privateArmored = privateKey.armor();
 
     final pref = prefs;
@@ -285,7 +285,7 @@ class Repository {
       userId: userId,
       trusting: trusting,
       database: _database,
-      key: privateKey.toPublic,
+      key: PublicKey(privateKey.publicKey.packetList),
     );
   }
 
@@ -784,10 +784,10 @@ class Signatur {
         eintrag,
         signature,
         [publicKey],
-        date: signedAt,
+        signedAt,
       );
-      for (var verification in msg.verifications) {
-        if (!verification.verified) {
+      for (var verification in msg) {
+        if (!verification.isVerified) {
           return false;
         }
       }

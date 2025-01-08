@@ -394,7 +394,7 @@ class _AddDienstbuchEintragFormState
             ),
             const Padding(padding: EdgeInsets.only(top: 12)),
             DropdownSearch<Kategorie>(
-              items: kategorien,
+              items: (filter, loadProps) => kategorien,
               compareFn: (item1, item2) => item1.id == item2.id,
               itemAsString: (item) => item.name,
               filterFn: (item, filter) => item.name.contains(filter),
@@ -410,8 +410,8 @@ class _AddDienstbuchEintragFormState
                   _kategorie = value;
                 });
               },
-              dropdownDecoratorProps: const DropDownDecoratorProps(
-                dropdownSearchDecoration: InputDecoration(
+              decoratorProps: const DropDownDecoratorProps(
+                decoration: InputDecoration(
                   labelText: "Kategorie",
                   border: OutlineInputBorder(),
                 ),
@@ -419,7 +419,7 @@ class _AddDienstbuchEintragFormState
             ),
             const Padding(padding: EdgeInsets.only(top: 12)),
             DropdownSearch<Betreuer>.multiSelection(
-              items: betreuer,
+              items: (filter, loadProps) => betreuer,
               compareFn: (item1, item2) => item1.id == item2.id,
               itemAsString: (item) => item.name,
               filterFn: (item, filter) => item.name.contains(filter),
@@ -454,8 +454,8 @@ class _AddDienstbuchEintragFormState
                   autofocus: true,
                 ),
               ),
-              dropdownDecoratorProps: const DropDownDecoratorProps(
-                dropdownSearchDecoration: InputDecoration(
+              decoratorProps: const DropDownDecoratorProps(
+                decoration: InputDecoration(
                   labelText: "Betreuer",
                   border: OutlineInputBorder(),
                 ),
