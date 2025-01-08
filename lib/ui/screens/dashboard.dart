@@ -1,8 +1,9 @@
-import 'package:julog/repository/repository.dart';
-import 'package:julog/ui/frame.dart';
-import 'package:julog/ui/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../repository/repository.dart';
+import '../frame.dart';
+import '../widgets/util.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});

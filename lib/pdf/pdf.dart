@@ -1,9 +1,10 @@
-import 'package:julog/pubspec.g.dart';
-import 'package:julog/repository/repository.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+
+import '../pubspec.g.dart';
+import '../repository/repository.dart';
 
 extension EintragPdfGeneration on Eintrag {
   Future<Uint8List> buildPdf(PdfPageFormat format) async {

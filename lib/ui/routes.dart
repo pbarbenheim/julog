@@ -1,15 +1,16 @@
-import 'package:julog/repository/repository.dart';
-import 'package:julog/ui/frame.dart';
-import 'package:julog/ui/screens/betreuer.dart';
-import 'package:julog/ui/screens/dashboard.dart';
-import 'package:julog/ui/screens/dienstbuch.dart';
-import 'package:julog/ui/screens/identities.dart';
-import 'package:julog/ui/screens/jugendliche.dart';
-import 'package:julog/ui/screens/kategorien.dart';
-import 'package:julog/ui/screens/select_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import '../repository/repository.dart';
+import 'frame.dart';
+import 'screens/betreuer.dart';
+import 'screens/dashboard.dart';
+import 'screens/dienstbuch.dart';
+import 'screens/identities.dart';
+import 'screens/jugendliche.dart';
+import 'screens/kategorien.dart';
+import 'screens/select_file.dart';
 
 part 'routes.g.dart';
 

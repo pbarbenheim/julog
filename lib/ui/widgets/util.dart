@@ -1,8 +1,9 @@
-import 'package:julog/pubspec.g.dart';
-import 'package:julog/repository/repository.dart';
-import 'package:julog/ui/widgets/logo.dart';
 import 'package:flutter/material.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
+
+import '../../pubspec.g.dart';
+import '../../repository/repository.dart';
+import 'logo.dart';
 
 void showJulogAbout({
   required BuildContext context,

@@ -1,14 +1,15 @@
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:julog/repository/repository.dart';
-import 'package:julog/ui/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path/path.dart' as path;
 import 'package:window_size/window_size.dart';
+
+import 'repository/repository.dart';
+import 'ui/routes.dart';
 
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
