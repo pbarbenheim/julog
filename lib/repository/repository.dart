@@ -76,7 +76,6 @@ class Repository {
       create table if not exists identities (
         userid text primary key,
         public_key text,
-        trusting integer not null default 1
       );
 
       create table if not exists kategorien (
