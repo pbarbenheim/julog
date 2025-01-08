@@ -22,7 +22,7 @@ class DienstbuchScreen extends ConsumerWidget {
           (e) => EintragItem(
             id: e.key,
             beginn: e.value.$1,
-            kategorie: e.value.$2,
+            thema: e.value.$2,
             getEintrag: () => ref.read(repositoryProvider)!.getEintrag(e.key),
           ),
         )

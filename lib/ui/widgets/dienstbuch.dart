@@ -11,15 +11,15 @@ import 'util.dart';
 class EintragItem extends Item {
   final int id;
   final DateTime beginn;
-  final String kategorie;
+  final String thema;
   final Eintrag Function() getEintrag;
   EintragItem({
     super.key,
     required this.id,
     required this.beginn,
-    required this.kategorie,
+    required this.thema,
     required this.getEintrag,
-  }) : super(title: kategorie, subtitle: beginn.toString());
+  }) : super(title: thema, subtitle: beginn.toString());
 
   @override
   Widget build(BuildContext context) {

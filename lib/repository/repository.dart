@@ -442,12 +442,9 @@ class Repository {
       select 
         e.id as id, 
         e.beginn as beginn,
-        k.name as kat
+        e.thema as thema
       from
-        eintrag as e,
-        kategorien as k
-      where
-        e.kategorie_id = k.id 
+        eintrag as e
     ''', persistent: true);
 
     final results = _getAllEintrage!
@@ -456,7 +453,7 @@ class Repository {
               element["id"],
               (
                 DateTime.fromMillisecondsSinceEpoch(element["beginn"]),
-                element["kat"],
+                element["thema"],
               ),
             ));
     return Map.fromEntries(results);
