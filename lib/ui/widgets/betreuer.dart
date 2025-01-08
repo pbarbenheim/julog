@@ -10,7 +10,7 @@ class BetreuerItem extends Item {
   final String name;
   final int id;
   final Geschlecht geschlecht;
-  const BetreuerItem({
+  BetreuerItem({
     required this.geschlecht,
     super.key,
     required this.name,

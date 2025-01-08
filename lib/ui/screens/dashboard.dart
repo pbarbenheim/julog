@@ -25,7 +25,7 @@ class DashboardScreen extends ConsumerWidget {
       ),
       body: Center(
         child: Text(
-          "Herzlich Willkommen im Dienstbuch der Jugendfeuerwehr. Die geöffnete Datei ist ${filename ?? "FEHLER"}. Viel Spaß",
+          "Herzlich Willkommen im Dienstbuch der Jugendfeuerwehr. Die geöffnete Datei ist ${filename ?? "FEHLER"}. Viel Spaß\n\nHier: ${Localizations.localeOf(context).languageCode}",
           softWrap: true,
         ),
       ),

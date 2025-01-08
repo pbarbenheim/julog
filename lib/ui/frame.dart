@@ -1,12 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 abstract class Item extends StatelessWidget {
   final String title;
-  final String? subtitle;
+  late final String? Function(BuildContext context) getSubtitle;
 
-  const Item({super.key, required this.title, this.subtitle});
+  Item(
+      {super.key,
+      required this.title,
+      String? subtitle,
+      String? Function(BuildContext context)? getSubtitle}) {
+    assert(subtitle == null || getSubtitle == null);
+
+    if (getSubtitle != null) {
+      this.getSubtitle = getSubtitle;
+    } else {
+      this.getSubtitle = (context) => subtitle;
+    }
+  }
 }
 
 class ItemList<T extends Item> extends StatelessWidget {
@@ -26,7 +39,7 @@ class ItemList<T extends Item> extends StatelessWidget {
       children: items
           .map((item) => ListTile(
                 title: Text(item.title),
-                subtitle: Text(item.subtitle ?? ""),
+                subtitle: Text(item.getSubtitle(context) ?? ""),
                 onTap: () => onChanged(item),
                 selected: item == selected,
               ))
@@ -44,13 +57,14 @@ class ItemDetail<T extends Item> extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(item?.title ?? "Details"),
+        title:
+            Text(item?.title ?? AppLocalizations.of(context)!.itemDetailDetail),
         actions: actions,
       ),
       body: Center(
         child: item ??
-            const Text(
-              "Klicke ein Listenelement links an, um dir die Details anzusehen.",
+            Text(
+              AppLocalizations.of(context)!.itemDetailEmptyHint,
             ),
       ),
     );

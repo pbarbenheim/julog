@@ -1,6 +1,7 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 import '../../repository/repository.dart';
@@ -19,7 +20,13 @@ class EintragItem extends Item {
     required this.beginn,
     required this.thema,
     required this.getEintrag,
-  }) : super(title: thema, subtitle: beginn.toString());
+  }) : super(
+          title: thema,
+          getSubtitle: (context) =>
+              Intl(Localizations.localeOf(context).toLanguageTag())
+                  .date('dd.MM.yy')
+                  .format(beginn),
+        );
 
   @override
   Widget build(BuildContext context) {
@@ -61,14 +68,20 @@ class EintragItem extends Item {
           ),
           Row(
             children: [
-              const Text("Beginn:"),
-              Text(e.beginn.toString()),
+              const Text("Beginn: "),
+              DateTimeValue(
+                dateTime: e.beginn,
+                withTime: true,
+              )
             ],
           ),
           Row(
             children: [
-              const Text("Ende:"),
-              Text(e.ende.toString()),
+              const Text("Ende: "),
+              DateTimeValue(
+                dateTime: e.ende,
+                withTime: true,
+              )
             ],
           ),
           Row(
@@ -128,11 +141,15 @@ class SignaturTile extends StatelessWidget {
   final Signatur signatur;
   const SignaturTile({super.key, required this.signatur});
 
-  Widget _getTile(bool? verified) {
+  Widget _getTile(BuildContext context, bool? verified) {
     final (name, comment, _) = Repository.userIdToComponents(signatur.userId);
     return ListTile(
       title: Text("gez. $name, $comment"),
-      subtitle: Text(signatur.signedAt.toString()),
+      subtitle: DateTimeValue(
+        dateTime: signatur.signedAt,
+        withTime: true,
+        prefix: "am ",
+      ),
       leading: verified == null
           ? const Icon(Icons.question_mark)
           : (verified
@@ -148,9 +165,9 @@ class SignaturTile extends StatelessWidget {
       initialData: null,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          return _getTile(snapshot.data!);
+          return _getTile(context, snapshot.data!);
         }
-        return _getTile(null);
+        return _getTile(context, null);
       },
     );
   }

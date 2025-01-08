@@ -10,7 +10,7 @@ class SignIdentityItem extends Item {
   final String? comment;
   final String email;
   final String userId;
-  const SignIdentityItem({
+  SignIdentityItem({
     super.key,
     required this.name,
     this.comment,

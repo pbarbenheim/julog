@@ -11,7 +11,7 @@ class JugendlicheItem extends Item {
   final String name;
   final WidgetRef ref;
 
-  const JugendlicheItem({
+  JugendlicheItem({
     super.key,
     required this.id,
     required this.name,
@@ -29,9 +29,23 @@ class JugendlicheItem extends Item {
         Text("Name: ${ju.name}"),
         Text("Geschlecht: ${ju.geschlecht}"),
         Text("Passnummer: ${ju.passnummer ?? '-'}"),
-        Text("Geburtstag: ${ju.geburtstag}"),
-        Text("Eintrittsdatum: ${ju.eintrittsdatum}"),
-        Text("Austrittsdatum: ${ju.austrittsdatum ?? '-'}"),
+        DateTimeValue(
+          dateTime: ju.geburtstag,
+          withTime: false,
+          prefix: "Geburtstag: ",
+        ),
+        DateTimeValue(
+          dateTime: ju.eintrittsdatum,
+          withTime: false,
+          prefix: "Eintrittsdatum: ",
+        ),
+        ju.austrittsdatum != null
+            ? DateTimeValue(
+                dateTime: ju.austrittsdatum!,
+                withTime: false,
+                prefix: "Austrittsdatum: ",
+              )
+            : const Text("Austrittsdatum: -"),
         Text("Austrittsgrund: ${ju.austrittsgrund ?? '-'}"),
       ],
     );

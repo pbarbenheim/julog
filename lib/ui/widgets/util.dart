@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 
 import '../../pubspec.g.dart';
@@ -105,5 +106,28 @@ class DateTimeField extends StatelessWidget {
       initialValue: initialValue,
       validator: validator,
     );
+  }
+}
+
+class DateTimeValue extends StatelessWidget {
+  final DateTime dateTime;
+  final bool withTime;
+  final String? prefix;
+  final String? suffix;
+  const DateTimeValue({
+    super.key,
+    required this.dateTime,
+    this.withTime = true,
+    this.prefix,
+    this.suffix,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text((prefix ?? "") +
+        Intl(Localizations.localeOf(context).toLanguageTag())
+            .date(withTime ? "dd.MM.yy HH:mm" : "dd.MM.yy")
+            .format(dateTime) +
+        (suffix ?? ""));
   }
 }
