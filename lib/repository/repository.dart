@@ -226,7 +226,7 @@ class Repository {
       throw Exception("SigningIdentity not found");
     }
 
-    final privateKey = await OpenPGP.decryptPrivateKey(armored, password);
+    final privateKey = OpenPGP.decryptPrivateKey(armored, password);
     final DateTime date = DateTime.now();
     final signature =
         OpenPGP.signDetachedCleartext(message, [privateKey], time: date);
@@ -253,7 +253,7 @@ class Repository {
     final userId =
         [name, if (comment != null) "($comment)", "<$email>"].join(" ");
     final privateKey = await compute(
-        (message) async => await OpenPGP.generateKey(
+        (message) async => OpenPGP.generateKey(
               [userId],
               password,
               type: KeyType.rsa,
@@ -780,7 +780,7 @@ class Signatur {
     final PublicKey publicKey = repo.getIdentity(userId).loadPublicKey();
 
     try {
-      final msg = await OpenPGP.verifyDetached(
+      final msg = OpenPGP.verifyDetached(
         eintrag,
         signature,
         [publicKey],

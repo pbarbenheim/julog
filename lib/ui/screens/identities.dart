@@ -256,7 +256,7 @@ class _AddIdentityFormState extends ConsumerState<AddIdentityForm> {
                   comment,
                 );
 
-                if (mounted) {
+                if (context.mounted) {
                   Navigator.of(context).pop();
 
                   IdentitiesRoute(result.userId).go(context);
