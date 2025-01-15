@@ -1,7 +1,6 @@
 Table identities {
   userid text [primary key]
   public_key text
-  trusting integer [not null, default: 1]
 }
 
 Table eintrag {
@@ -29,11 +28,13 @@ Table eintrag_zu_betreuer {
 Table betreuer {
   id integer [primary key]
   name text [not null]
+  geschlecht integer [not null]
 }
 
 Table signatures {
   eintrag_id integer [ref: < eintrag.id]
   userid text [ref: < identities.userid]
+  signature text [not null]
   signed_at timestamp [not null]
   sign_version integer [not null, default: 1]
 }
@@ -45,18 +46,20 @@ Table kategorien {
 
 Table eintrag_zu_jugendliche {
   eintrag_id integer [ref: < eintrag.id]
-  jugendliche_id integer [ref: < jugendliche.id]
-  anmerkung text
+  jugendliche_id integer [ref: < jugendlicher.id]
+  anmerkung integer
 }
 
-Table jugendliche {
+Table jugendlicher {
   id integer [primary key]
   name text [not null]
+  geschlecht integer [not null]
   passnummer text
   geburtstag timestamp [not null]
   eintrittsdatum timestamp [not null]
   austrittsdatum timestamp
-  austrittsgrund text
+  austrittsgrund integer
+  ersetzt_durch integer [null, ref: - jugendlicher.id]
 }
 
 Table info {
