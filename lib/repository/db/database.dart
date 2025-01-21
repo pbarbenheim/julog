@@ -1,20 +1,46 @@
+import 'package:julog/repository/betreuer/repository.dart';
 import 'package:julog/repository/db/migrations.dart';
+import 'package:julog/repository/eintrag/repository.dart';
+import 'package:julog/repository/identity/repository.dart';
+import 'package:julog/repository/identity/signing_userids.dart';
+import 'package:julog/repository/jugendliche/repository.dart';
+import 'package:julog/repository/kategorien/repository.dart';
+import 'package:julog/repository/signatures/repository.dart';
+import 'package:julog/repository/util/global_settings.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 class JulogDatabase {
   final String filename;
   late Database _database;
+  final GlobalSettings globalSettings;
 
-  JulogDatabase({required this.filename}) {
-    init();
+  late final SignatureRepository signatureRepository;
+  late final SigningUseridsRepository signingUseridsRepository;
+  late final KategorieRepository kategorieRepository;
+  late final JugendlicherRepository jugendlicherRepository;
+  late final IdentityRepository identityRepository;
+  late final EintragRepository eintragRepository;
+  late final BetreuerRepository betreuerRepository;
+
+  JulogDatabase({
+    required this.filename,
+    required this.globalSettings,
+  }) {
+    _init();
+    _dependencyBuild();
   }
 
-  JulogDatabase.create({required this.filename, required String domain}) {
-    init();
+  JulogDatabase.create({
+    required this.filename,
+    required String domain,
+    required this.globalSettings,
+  }) {
+    _init();
     _setDomainSetting(domain);
+    _dependencyBuild();
   }
 
-  void init() {
+  void _init() {
     _database = sqlite3.open(filename, mode: OpenMode.readWriteCreate);
     final installed = _isInstalled();
     if (installed && (!isCompatible)) {
@@ -23,7 +49,33 @@ class JulogDatabase {
     migrate(installed);
   }
 
+  void _dependencyBuild() {
+    betreuerRepository = BetreuerRepository(database: this);
+    identityRepository = IdentityRepository(database: this);
+    kategorieRepository = KategorieRepository(database: this);
+    jugendlicherRepository = JugendlicherRepository(database: this);
+    eintragRepository = EintragRepository(database: this);
+    signingUseridsRepository = SigningUseridsRepository(
+      database: this,
+      prefs: globalSettings.sharedPreferences,
+      identityRepository: identityRepository,
+    );
+    signatureRepository = SignatureRepository(
+      database: this,
+      useridsRepository: signingUseridsRepository,
+      identityRepository: identityRepository,
+    );
+  }
+
   void dispose() {
+    signatureRepository.dispose();
+    signingUseridsRepository.dispose();
+    eintragRepository.dispose();
+    jugendlicherRepository.dispose();
+    kategorieRepository.dispose();
+    identityRepository.dispose();
+    betreuerRepository.dispose();
+
     _database.dispose();
   }
 
@@ -89,6 +141,10 @@ class JulogDatabase {
 
     final stmt = "insert into info (field, value) values (?, ?)";
     _database.execute(stmt, ["domainName", domain]);
+  }
+
+  PreparedStatement getPreparedPersistent(String sql) {
+    return _database.prepare(sql, persistent: true);
   }
 }
 

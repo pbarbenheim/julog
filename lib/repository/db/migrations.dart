@@ -31,7 +31,7 @@ class DatabaseMigrations {
       id integer primary key autoincrement,
       beginn integer not null,
       ende integer not null,
-      kategorie_id integer references kategorien (id),
+      kategorie_id integer not null references kategorien (id),
       thema text,
       ort text,
       raum text,
@@ -84,6 +84,6 @@ class DatabaseMigrations {
     );
 
     pragma application_id = 448493213;
-    pragma user_version 2;
+    pragma user_version = 2;
   """;
 }
