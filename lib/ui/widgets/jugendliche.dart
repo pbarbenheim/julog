@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:julog/repository/util/geschlecht.dart';
+import 'package:julog/repository/util/util.dart';
 
 import '../../repository/repository.dart';
 import '../frame.dart';
@@ -20,8 +22,8 @@ class JugendlicheItem extends Item {
 
   @override
   Widget build(BuildContext context) {
-    final repo = ref.watch(repositoryProvider);
-    final ju = repo!.getJugendlicher(id);
+    final db = ref.watch(repositoryProvider)!;
+    final ju = db.jugendlicherRepository.getJugendlicher(id);
 
     return Column(
       children: [
@@ -101,7 +103,7 @@ class _AddJugendlicheFormState extends ConsumerState<AddJugendlicheForm> {
               if (value == null || value.isEmpty) {
                 return "Der Name kann nicht leer sein.";
               }
-              if (!Repository.checkString(value)) {
+              if (!Util.checkString(value)) {
                 return "Der Name enthält verbotene Zeichen.";
               }
               return null;
@@ -126,7 +128,7 @@ class _AddJugendlicheFormState extends ConsumerState<AddJugendlicheForm> {
               border: OutlineInputBorder(),
             ),
             validator: (value) {
-              if (!Repository.checkString(value ?? "")) {
+              if (!Util.checkString(value ?? "")) {
                 return "Die Passnummer enthält verbotene Zeichen.";
               }
               return null;
@@ -209,12 +211,12 @@ class _AddJugendlicheFormState extends ConsumerState<AddJugendlicheForm> {
           ElevatedButton(
             onPressed: () {
               if (_formKey.currentState!.validate()) {
-                final repo = ref.read(repositoryProvider)!;
+                final db = ref.read(repositoryProvider)!;
                 String? passnummer;
                 if (_passnummerController.text.isNotEmpty) {
                   passnummer = _passnummerController.text;
                 }
-                final id = repo.addJugendlicher(
+                final id = db.jugendlicherRepository.addJugendlicher(
                     name: _nameController.text,
                     geburtstag: _geburtstagKey.currentState!.value!,
                     eintrittsdatum: _eintrittKey.currentState!.value!,

@@ -172,7 +172,7 @@ class _AddIdentityFormState extends ConsumerState<AddIdentityForm> {
           const Padding(padding: EdgeInsets.only(top: 10)),
           ElevatedButton(
             onPressed: () async {
-              final repo = ref.read(repositoryProvider);
+              final db = ref.read(repositoryProvider)!;
               if (_formKey.currentState!.validate()) {
                 showAdaptiveDialog(
                   context: context,
@@ -207,10 +207,11 @@ class _AddIdentityFormState extends ConsumerState<AddIdentityForm> {
                 if (_commentController.text.isNotEmpty) {
                   comment = _commentController.text;
                 }
-                final result = await repo!.addSigningIdentity(
+                final result =
+                    await db.signingUseridsRepository.addSigningIdentity(
                   _passwordController.text,
                   _nameController.text,
-                  comment,
+                  comment: comment,
                 );
 
                 if (context.mounted) {

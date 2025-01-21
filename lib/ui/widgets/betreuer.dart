@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:julog/repository/util/geschlecht.dart';
+import 'package:julog/repository/util/util.dart';
 
 import '../../repository/repository.dart';
 import '../frame.dart';
@@ -65,7 +67,7 @@ class _AddBetreuerFormState extends ConsumerState<AddBetreuerForm> {
               if (value == null || value.isEmpty) {
                 return "Der Name darf nicht leer sein";
               }
-              if (!Repository.checkString(value)) {
+              if (!Util.checkString(value)) {
                 return "Der Name enthält verbotene Zeichen";
               }
               return null;
@@ -86,6 +88,7 @@ class _AddBetreuerFormState extends ConsumerState<AddBetreuerForm> {
               if (_formKey.currentState!.validate()) {
                 final betreuer = ref
                     .read(repositoryProvider)!
+                    .betreuerRepository
                     .addBetreuer(_nameController.text, _geschlecht!);
                 BetreuerRoute(betreuer.id).go(context);
               }

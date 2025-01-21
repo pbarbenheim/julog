@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:julog/repository/util/util.dart';
 
 import '../../repository/repository.dart';
 import '../frame.dart';
@@ -11,7 +12,7 @@ class SignIdentitiesScreen extends ConsumerWidget {
   const SignIdentitiesScreen({super.key, this.userId});
 
   SignIdentityItem _userIdToItem(String userId) {
-    final (name, comment, email) = Repository.userIdToComponents(userId);
+    final (name, comment, email) = Util.userIdToComponents(userId);
     return SignIdentityItem(
       name: name,
       email: email,
@@ -22,9 +23,11 @@ class SignIdentitiesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final repo = ref.watch(repositoryProvider);
-    final items =
-        repo!.getSigningUserIds().map((e) => _userIdToItem(e)).toList();
+    final db = ref.watch(repositoryProvider)!;
+    final items = db.signingUseridsRepository
+        .getSigningUserIds()
+        .map((e) => _userIdToItem(e.userId))
+        .toList();
     SignIdentityItem? selectedItem;
     try {
       selectedItem = items.firstWhere((element) => element.userId == userId);

@@ -2,6 +2,13 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:julog/repository/betreuer/betreuer.dart';
+import 'package:julog/repository/eintrag/eintrag.dart';
+import 'package:julog/repository/eintrag/repository.dart';
+import 'package:julog/repository/jugendliche/jugendlicher.dart';
+import 'package:julog/repository/kategorien/kategorie.dart';
+import 'package:julog/repository/signatures/signatur.dart';
+import 'package:julog/repository/util/util.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 import '../../repository/repository.dart';
@@ -44,10 +51,10 @@ class EintragItem extends Item {
     final List<Widget> jugendliche = e.jugendliche
         .map(
           (e) => ListTile(
-            title: Text(e.$2),
-            subtitle: e.$3 != null ? Text(e.$3!) : null,
+            title: Text(e.jugendlicher.name),
+            subtitle: Text(e.anmerkung.text),
             onTap: () {
-              JugendlicheRoute(e.$1).go(context);
+              JugendlicheRoute(e.jugendlicher.id).go(context);
             },
           ),
         )
@@ -87,13 +94,13 @@ class EintragItem extends Item {
           Row(
             children: [
               const Text("Kategorie:"),
-              Text(e.kategorie?.name ?? "-"),
+              Text(e.kategorie.name),
             ],
           ),
           Row(
             children: [
               const Text("Thema:"),
-              Text(e.thema ?? "-"),
+              Text(e.thema),
             ],
           ),
           Row(
@@ -137,16 +144,39 @@ class EintragItem extends Item {
   }
 }
 
-class SignaturTile extends StatelessWidget {
+class SignaturTile extends ConsumerStatefulWidget {
   final Signatur signatur;
   const SignaturTile({super.key, required this.signatur});
 
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() => _SignaturTileState();
+}
+
+class _SignaturTileState extends ConsumerState<SignaturTile> {
+  bool _verified = false;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final v = ref
+        .read(repositoryProvider)!
+        .signatureRepository
+        .verifySignature(widget.signatur);
+    setState(() {
+      _verified = v;
+      _loading = false;
+    });
+  }
+
   Widget _getTile(BuildContext context, bool? verified) {
-    final (name, comment, _) = Repository.userIdToComponents(signatur.userId);
+    final (name, comment, _) =
+        Util.userIdToComponents(widget.signatur.identity.userId);
     return ListTile(
       title: Text("gez. $name, $comment"),
       subtitle: DateTimeValue(
-        dateTime: signatur.signedAt,
+        dateTime: widget.signatur.signedAt,
         withTime: true,
         prefix: "am ",
       ),
@@ -160,16 +190,10 @@ class SignaturTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<bool>(
-      future: signatur.verify(),
-      initialData: null,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return _getTile(context, snapshot.data!);
-        }
-        return _getTile(context, null);
-      },
-    );
+    if (_loading) {
+      return _getTile(context, null);
+    }
+    return _getTile(context, _verified);
   }
 }
 
@@ -191,7 +215,8 @@ class _AddDienstbuchEintragFormState
   late final TextEditingController _besonderheitenController;
   Kategorie? _kategorie;
   final Set<Betreuer> _betreuer = {};
-  final Map<int, String> _jugendlicheAnmerkungen = {};
+  final RotatingJugendlicheInEintrag _jugendlicheAnmerkungen =
+      RotatingJugendlicheInEintrag();
   DateTime? _beginn;
   DateTime? _ende;
 
@@ -215,7 +240,7 @@ class _AddDienstbuchEintragFormState
     super.dispose();
   }
 
-  int _saveToDb(Repository repo) {
+  int _saveToDb(EintragRepository repo) {
     return repo.addEintrag(
       beginn: _beginn!,
       ende: _ende!,
@@ -224,19 +249,18 @@ class _AddDienstbuchEintragFormState
       dienstverlauf: _dienstverlaufController.text,
       ort: _ortController.text,
       raum: _raumController.text,
-      betreuerIds: _betreuer.map((e) => e.id).toList(),
-      kategorieId: _kategorie!.id,
-      jugendlicheIds:
-          _jugendlicheAnmerkungen.entries.map((e) => (e.key, e.value)).toList(),
+      betreuers: _betreuer.toList(),
+      kategorie: _kategorie!,
+      jugendliche: _jugendlicheAnmerkungen.toEintragList(),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final repo = ref.watch(repositoryProvider)!;
-    final betreuer = repo.getAllBetreuer();
-    final kategorien = repo.getAllKategorien();
-    final jugendliche = repo.getAllJugendliche();
+    final db = ref.watch(repositoryProvider)!;
+    final betreuer = db.betreuerRepository.getAllBetreuer();
+    final kategorien = db.kategorieRepository.getAllKategorien();
+    final jugendliche = db.jugendlicherRepository.getAllJugendliche();
 
     return Form(
       key: _formKey,
@@ -258,6 +282,7 @@ class _AddDienstbuchEintragFormState
                 return null;
               },
             ),
+            //TODO change input field to more suitable one in desktop
             const Padding(padding: EdgeInsets.only(top: 12)),
             DateTimeField(
               onChanged: (value) {
@@ -402,8 +427,8 @@ class _AddDienstbuchEintragFormState
               children: [
                 ElevatedButton.icon(
                   onPressed: () {
-                    final repo = ref.read(repositoryProvider);
-                    final id = _saveToDb(repo!);
+                    final db = ref.read(repositoryProvider)!;
+                    final id = _saveToDb(db.eintragRepository);
                     SignEintragRoute(id).go(context);
                   },
                   icon: const Icon(Symbols.signature),
@@ -411,8 +436,8 @@ class _AddDienstbuchEintragFormState
                 ),
                 TextButton(
                   onPressed: () {
-                    final repo = ref.read(repositoryProvider)!;
-                    final id = _saveToDb(repo);
+                    final db = ref.read(repositoryProvider)!;
+                    final id = _saveToDb(db.eintragRepository);
                     EintragRoute(id).go(context);
                   },
                   child: const Text("Speichern"),
@@ -427,8 +452,8 @@ class _AddDienstbuchEintragFormState
 }
 
 class JugendlicheForm extends StatelessWidget {
-  final Map<int, String> jugendliche;
-  final Map<int, String> anmerkungen;
+  final List<JugendlicherHeader> jugendliche;
+  final RotatingJugendlicheInEintrag anmerkungen;
   final void Function() didChange;
   const JugendlicheForm({
     super.key,
@@ -447,36 +472,20 @@ class JugendlicheForm extends StatelessWidget {
       isFocused: false,
       isEmpty: false,
       child: Column(
-        children: jugendliche.entries
+        children: jugendliche
             .map((e) => ListTile(
-                  title: Text(e.value),
+                  title: Text(e.name),
                   leading: IconButton(
-                      onPressed: () {
-                        if (!anmerkungen.containsKey(e.key)) {
-                          anmerkungen.addAll({e.key: "anwesend"});
-                          didChange();
-                          return;
-                        }
-                        if (anmerkungen[e.key] == "abwesend") {
-                          anmerkungen.remove(e.key);
-                          didChange();
-                          return;
-                        }
-
-                        anmerkungen.update(
-                            e.key,
-                            (value) => value == "anwesend"
-                                ? "entschuldigt"
-                                : "abwesend");
-                        didChange();
-                      },
-                      icon: Icon(!anmerkungen.containsKey(e.key)
-                          ? Icons.question_mark
-                          : (anmerkungen[e.key] == "anwesend"
-                              ? Icons.check
-                              : (anmerkungen[e.key] == "entschuldigt"
-                                  ? Icons.circle_outlined
-                                  : Icons.close)))),
+                    onPressed: () {
+                      anmerkungen.rotate(e.id);
+                      didChange();
+                    },
+                    icon: Icon(anmerkungen.switchOnAnmerkung(e.id,
+                        anwesend: Icons.check,
+                        entschuldigt: Icons.circle_outlined,
+                        abwesend: Icons.close,
+                        other: Icons.question_mark)),
+                  ),
                 ))
             .toList(),
       ),

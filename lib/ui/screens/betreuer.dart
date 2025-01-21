@@ -12,9 +12,10 @@ class BetreuerScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final items = (ref.watch(repositoryProvider
-                .select((value) => value?.getAllBetreuer())) ??
-            [])
+    final db = ref.watch(repositoryProvider)!;
+
+    final items = db.betreuerRepository
+        .getAllBetreuer()
         .map((e) => BetreuerItem(
               name: e.name,
               id: e.id,

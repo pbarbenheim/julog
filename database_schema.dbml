@@ -1,24 +1,18 @@
 Table identities {
   userid text [primary key]
   public_key text
-  trusting integer [not null, default: 1]
 }
 
 Table eintrag {
   id integer [primary key]
-  beginn timestamp [not null]
-  ende timestamp [not null]
-  kategorie_id integer [ref: < kategorien.id]
+  beginn integer [not null]
+  ende integer [not null]
+  kategorie_id integer [not null, ref: < kategorien.id]
   thema text
   ort text
   raum text
   dienstverlauf text
   besonderheiten text
-}
-
-Table eintrag_verbindungen {
-  eintrag_a integer [ref: < eintrag.id]
-  eintrag_b integer [ref: < eintrag.id]
 }
 
 Table eintrag_zu_betreuer {
@@ -29,13 +23,19 @@ Table eintrag_zu_betreuer {
 Table betreuer {
   id integer [primary key]
   name text [not null]
+  geschlecht integer [not null]
 }
 
 Table signatures {
   eintrag_id integer [ref: < eintrag.id]
   userid text [ref: < identities.userid]
+  signature text [not null]
   signed_at timestamp [not null]
   sign_version integer [not null, default: 1]
+  indexes {
+    (eintrag_id, userid) [pk]
+    (eintrag_id, signed_at) [unique]
+  }
 }
 
 Table kategorien {
@@ -45,18 +45,20 @@ Table kategorien {
 
 Table eintrag_zu_jugendliche {
   eintrag_id integer [ref: < eintrag.id]
-  jugendliche_id integer [ref: < jugendliche.id]
-  anmerkung text
+  jugendliche_id integer [ref: < jugendlicher.id]
+  anmerkung integer
 }
 
-Table jugendliche {
+Table jugendlicher {
   id integer [primary key]
   name text [not null]
+  geschlecht integer [not null]
   passnummer text
-  geburtstag timestamp [not null]
-  eintrittsdatum timestamp [not null]
-  austrittsdatum timestamp
-  austrittsgrund text
+  geburtstag integer [not null]
+  eintrittsdatum integer [not null]
+  austrittsdatum integer
+  austrittsgrund integer
+  ersetzt_durch integer [null, ref: - jugendlicher.id]
 }
 
 Table info {

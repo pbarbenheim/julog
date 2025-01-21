@@ -12,15 +12,16 @@ class JugendlicheScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final items = ref
-        .watch(repositoryProvider.select((value) => value!.getAllJugendliche()))
-        .entries
+    final db = ref.watch(repositoryProvider)!;
+    final items = db.jugendlicherRepository
+        .getAllJugendliche()
         .map((e) => JugendlicheItem(
-              id: e.key,
-              name: e.value,
+              id: e.id,
+              name: e.name,
               ref: ref,
             ))
         .toList();
+    //TODO add filter to exclude ersetzte und inaktive
 
     JugendlicheItem? selectedItem;
     try {

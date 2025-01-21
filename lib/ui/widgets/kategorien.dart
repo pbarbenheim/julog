@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:julog/repository/kategorien/kategorie.dart';
+import 'package:julog/repository/util/util.dart';
 
 import '../../repository/repository.dart';
 import '../frame.dart';
@@ -60,7 +62,7 @@ class _AddKategorieFormState extends ConsumerState<AddKategorieForm> {
               if (value == null || value.isEmpty) {
                 return "Der Name muss angegeben werden.";
               }
-              if (!Repository.checkString(value)) {
+              if (!Util.checkString(value)) {
                 return "Der Name enthält verbotene Zeichen.";
               }
               return null;
@@ -72,6 +74,7 @@ class _AddKategorieFormState extends ConsumerState<AddKategorieForm> {
               if (_formKey.currentState!.validate()) {
                 final kat = ref
                     .read(repositoryProvider)!
+                    .kategorieRepository
                     .addKategorie(_nameController.text);
                 KategorienRoute(kat.id).go(context);
               }

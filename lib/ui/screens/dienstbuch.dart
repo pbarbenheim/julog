@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:julog/pdf/pdf.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 
 import '../../repository/repository.dart';
+import '../../repository/util/util.dart';
 import '../frame.dart';
 import '../routes.dart';
 import '../widgets/dienstbuch.dart';
-import '../../pdf/pdf.dart';
 
 class DienstbuchScreen extends ConsumerWidget {
   final int? id;
@@ -15,15 +16,18 @@ class DienstbuchScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final items = ref
-        .watch(repositoryProvider.select((value) => value!.getAllEintrage()))
-        .entries
+    final db = ref.watch(repositoryProvider)!;
+    final items = db.eintragRepository
+        .getAllEintraege()
         .map(
           (e) => EintragItem(
-            id: e.key,
-            beginn: e.value.$1,
-            thema: e.value.$2,
-            getEintrag: () => ref.read(repositoryProvider)!.getEintrag(e.key),
+            id: e.id,
+            beginn: e.beginn,
+            thema: e.thema,
+            getEintrag: () => ref
+                .read(repositoryProvider)!
+                .eintragRepository
+                .getEintrag(e.id),
           ),
         )
         .toList();
@@ -140,14 +144,15 @@ class SignEintragScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final repo = ref.watch(repositoryProvider)!;
-    final eintrag = repo.getEintrag(id);
-    final userIds = repo
+    final db = ref.watch(repositoryProvider)!;
+    final eintrag = db.eintragRepository.getEintrag(id);
+    final userIds = db.signingUseridsRepository
         .getSigningUserIds()
-        .where((element) =>
-            !eintrag.signaturen.map((e) => e.userId).contains(element))
+        .where((element) => !eintrag.signaturen
+            .map((e) => e.identity.userId)
+            .contains(element.userId))
         .map((element) {
-      final e = Repository.userIdToComponents(element);
+      final e = Util.userIdToComponents(element.userId);
       return ListTile(
         title: Text(e.$2 == "" ? "${e.$1}, ${e.$2}" : e.$1),
         onTap: () async {
@@ -161,7 +166,8 @@ class SignEintragScreen extends ConsumerWidget {
           }
 
           /*try {*/
-          await eintrag.sign(element, password);
+          db.signatureRepository.sign(eintrag, element.userId, password);
+          //TODO error handling
           if (context.mounted) {
             EintragRoute(id).go(context);
           }
