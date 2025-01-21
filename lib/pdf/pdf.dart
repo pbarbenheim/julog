@@ -1,10 +1,11 @@
 import 'package:flutter/services.dart';
+import 'package:julog/repository/eintrag/eintrag.dart';
+import 'package:julog/repository/util/util.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
 import '../pubspec.g.dart';
-import '../repository/repository.dart';
 
 extension EintragPdfGeneration on Eintrag {
   Future<Uint8List> buildPdf(PdfPageFormat format) async {
@@ -19,7 +20,7 @@ extension EintragPdfGeneration on Eintrag {
         pw.Text("Eintrag #$id"),
         pw.Text("Beginn: ${beginn.toString()}"),
         pw.Text("Ende: ${ende.toString()}"),
-        pw.Text("Kategorie: #${kategorie?.id} ${kategorie?.name}"),
+        pw.Text("Kategorie: #${kategorie.id} ${kategorie.name}"),
         pw.Text("Thema: $thema"),
         pw.Text("Ort: $ort"),
         pw.Text("Raum: $raum"),
@@ -30,11 +31,11 @@ extension EintragPdfGeneration on Eintrag {
         ...(betreuer.map((e) => pw.Text("\t\t\t\t- #${e.id} ${e.name}"))),
         pw.Padding(padding: const pw.EdgeInsets.only(top: 20)),
         pw.Text("Jugendliche:"),
-        ...(jugendliche
-            .map((e) => pw.Text("\t\t\t\t- #${e.$1} ${e.$2} \t\t(${e.$3})"))),
+        ...(jugendliche.map((e) => pw.Text(
+            "\t\t\t\t- #${e.jugendlicher.id} ${e.jugendlicher.name} \t\t(${e.anmerkung})"))),
         pw.Padding(padding: const pw.EdgeInsets.only(top: 40)),
         ...(signaturen.map((e) {
-          final userc = Repository.userIdToComponents(e.userId);
+          final userc = Util.userIdToComponents(e.identity.userId);
           String name = userc.$1;
           if (userc.$2.isNotEmpty) {
             name = "$name, ${userc.$2}";

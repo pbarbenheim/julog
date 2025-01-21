@@ -34,8 +34,9 @@ class _JulogAppState extends ConsumerState<JulogApp> {
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
-    final filename =
-        ref.watch(repositoryProvider.select((value) => value?.filename));
+    final filename = ref.watch(repositoryProvider.select(
+      (data) => data?.filename,
+    ));
     final file = filename != null ? path.basename(filename) : null;
     final String title;
     if (file == null) {
@@ -60,7 +61,7 @@ class _JulogAppState extends ConsumerState<JulogApp> {
   }
 
   Future<AppExitResponse> _handleShutdown() async {
-    ref.read(repositoryProvider.notifier).dispose();
+    ref.read(repositoryProvider)?.dispose();
     return AppExitResponse.exit;
   }
 }

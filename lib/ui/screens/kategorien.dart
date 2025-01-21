@@ -12,8 +12,9 @@ class KategorienScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final items = ref
-        .watch(repositoryProvider.select((value) => value!.getAllKategorien()))
+    final db = ref.watch(repositoryProvider)!;
+    final items = db.kategorieRepository
+        .getAllKategorien()
         .map((e) => KategorieItem(kategorie: e))
         .toList();
     KategorieItem? selectedItem;

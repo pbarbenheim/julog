@@ -11,7 +11,7 @@ class SelectFileScreen extends ConsumerWidget {
   const SelectFileScreen({super.key});
 
   Future<bool> Function() _getOpenFile(
-      BuildContext context, RepositoryNotifier notifier) {
+      BuildContext context, Repository notifier) {
     return () async {
       const XTypeGroup typeGroup = XTypeGroup(
         label: 'Dienstbuch',
@@ -75,7 +75,7 @@ class SelectFileScreen extends ConsumerWidget {
   }
 
   Future<bool> Function() _getCreateFile(
-      BuildContext context, RepositoryNotifier notifier) {
+      BuildContext context, Repository notifier) {
     return () async {
       const String fileName = "dienstbuch.jfdb";
       const XTypeGroup typeGroup = XTypeGroup(
@@ -96,7 +96,7 @@ class SelectFileScreen extends ConsumerWidget {
               (await getApplicationDocumentsDirectory()).absolute.path,
           suggestedName: fileName);
       if (location != null) {
-        notifier.newFile(location.path, domainName);
+        notifier.createFile(location.path, domainName);
         if (context.mounted) {
           DashboardRoute().go(context);
         }
@@ -108,7 +108,7 @@ class SelectFileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final notifier = ref.watch(repositoryProvider.notifier);
+    final repository = ref.watch(repositoryProvider.notifier);
     return Scaffold(
       appBar: AppBar(
         title: const Text("Datei auswählen"),
@@ -126,12 +126,12 @@ class SelectFileScreen extends ConsumerWidget {
                 "Bitte wähle eine Datei aus oder erstelle ein neues Dienstbuch."),
             const Padding(padding: EdgeInsets.only(top: 15)),
             ElevatedButton(
-              onPressed: _getOpenFile(context, notifier),
+              onPressed: _getOpenFile(context, repository),
               child: const Text("Datei öffnen"),
             ),
             const Padding(padding: EdgeInsets.only(top: 10)),
             ElevatedButton(
-              onPressed: _getCreateFile(context, notifier),
+              onPressed: _getCreateFile(context, repository),
               child: const Text("Datei erstellen"),
             ),
           ],

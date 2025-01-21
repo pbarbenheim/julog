@@ -8,20 +8,11 @@ import 'repository/repository.dart';
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final prefs = await SharedPreferences.getInstance();
-
-  String? file;
-  if (args.isNotEmpty) {
-    file = args.last;
-  } else {
-    file = Repository.getLastOpenFile(prefs);
-  }
+  final prefs = await SharedPreferencesWithCache.create(
+      cacheOptions: SharedPreferencesWithCacheOptions());
 
   runApp(ProviderScope(
     overrides: [
-      if (file != null)
-        repositoryProvider
-            .overrideWith(() => RepositoryNotifier(filename: file)),
       sharedPreferencesProvider.overrideWithValue(prefs),
     ],
     child: const JulogApp(),
