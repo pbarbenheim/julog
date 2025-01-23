@@ -285,10 +285,10 @@ class _AddDienstbuchEintragFormState
             //TODO change input field to more suitable one in desktop
             const Padding(padding: EdgeInsets.only(top: 12)),
             DateTimeField(
+              labelText: "Ende",
               onChanged: (value) {
                 _ende = value;
               },
-              labelText: "Ende",
               validator: (value) {
                 if (value == null) {
                   return "Das Ende muss angegeben werden";

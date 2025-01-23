@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:julog/repository/util/geschlecht.dart';
-import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 
 import '../../pubspec.g.dart';
 import 'logo.dart';
@@ -61,51 +61,195 @@ class GeschlechtDropDown extends StatelessWidget {
   }
 }
 
-class DateTimeField extends StatelessWidget {
-  final DateTime? initialValue;
+class DateTimeField extends StatefulWidget {
+  final String? labelText;
+  final Widget? label;
   final ValueChanged<DateTime?> onChanged;
-  final String labelText;
   final FormFieldValidator<DateTime?>? validator;
-  const DateTimeField({
+
+  DateTimeField({
     super.key,
-    this.initialValue,
+    this.label,
+    this.labelText,
     required this.onChanged,
-    required this.labelText,
     this.validator,
-  });
+  }) {
+    assert(labelText == null || label == null);
+  }
+
+  @override
+  State<DateTimeField> createState() => _DateTimeFieldState();
+}
+
+class _DateTimeFieldState extends State<DateTimeField> {
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return FormField<DateTime?>(
-      builder: (field) {
-        return Row(
-          children: [
-            Text(labelText),
-            const Padding(padding: EdgeInsets.only(left: 5)),
-            TextButton.icon(
-              onPressed: () async {
-                final dateTime = await showOmniDateTimePicker(
-                  context: context,
-                  initialDate: DateTime.now(),
-                  is24HourMode: true,
-                  isShowSeconds: false,
-                  minutesInterval: 1,
-                  barrierDismissible: true,
-                  lastDate: DateTime.now(),
-                );
-
-                field.didChange(dateTime);
-                onChanged(dateTime);
-              },
-              icon: const Icon(Icons.calendar_today),
-              label: Text(field.value?.toString() ?? "Datum auswählen"),
-            ),
-          ],
-        );
-      },
-      initialValue: initialValue,
-      validator: validator,
+    return TextFormField(
+      controller: _controller,
+      decoration: InputDecoration(
+        hintText: "tt.mm.jj hh:mm",
+        hintStyle: TextStyle(fontFamily: "monospace"),
+        border: OutlineInputBorder(),
+        labelText: widget.labelText,
+        label: widget.label,
+      ),
+      onChanged: (value) => widget.onChanged(_getDateTime(value)),
+      validator: widget.validator != null
+          ? (v) => widget.validator!(_getDateTime(v))
+          : null,
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp(r'[\d:\. ]*')),
+        TextInputFormatter.withFunction(
+          (oldValue, newValue) {
+            final n = newValue.text;
+            final o = oldValue.text;
+            if (newValue.selection.extentOffset == n.length) {
+              final String formatted;
+              if (_numbersOnly(o).length == _numbersOnly(n).length) {
+                final t = _numbersOnly(n);
+                formatted = _format(t.substring(0, t.length - 1));
+              } else {
+                formatted = _format(n);
+              }
+              return newValue.copyWith(
+                text: formatted,
+                selection: TextSelection.collapsed(offset: formatted.length),
+              );
+            } else {
+              final String numbers;
+              if (_numbersOnly(o).length > _numbersOnly(n).length) {
+                final i = newValue.selection.extentOffset;
+                final (j, t) = _numbersOnlyWithCursor(i, n);
+                numbers = t.replaceRange(j, j, '0');
+              } else {
+                final i = newValue.selection.extentOffset;
+                final (j, t) = _numbersOnlyWithCursor(i, n);
+                numbers = t.replaceRange(j, j + 1, '');
+                final (c, formatted) = _formatWithCursor(numbers, j);
+                return newValue.copyWith(
+                    text: formatted,
+                    selection: TextSelection.collapsed(offset: c));
+              }
+              return newValue.copyWith(
+                text: _format(numbers),
+              );
+            }
+          },
+        )
+      ],
     );
+  }
+
+  DateTime? _getDateTime(String? input) {
+    if (input == null) {
+      return null;
+    }
+    input = _numbersOnly(input);
+    if (input.length != 10) {
+      return null;
+    }
+    try {
+      final days = int.parse(input.substring(0, 2));
+      final month = int.parse(input.substring(2, 4));
+      final year = 2000 + int.parse(input.substring(4, 6));
+      final hours = int.parse(input.substring(6, 8));
+      final minutes = int.parse(input.substring(8, 10));
+
+      return DateTime(year, month, days, hours, minutes);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  (int, String) _numbersOnlyWithCursor(int cursor, String text) {
+    final regex = RegExp(r'[0-9]');
+    int newCursor = 0;
+    StringBuffer buffer = StringBuffer();
+    for (var i = 0; i < text.length; i++) {
+      if (regex.hasMatch(text[i])) {
+        buffer.write(text[i]);
+        if (i < cursor) {
+          newCursor++;
+        }
+      }
+    }
+
+    return (newCursor, buffer.toString());
+  }
+
+  String _numbersOnly(String text) {
+    return text.replaceAll(RegExp(r'[^0-9]'), '');
+  }
+
+  String _format(String text) {
+    text = _numbersOnly(text);
+    if (text.length > 10) {
+      text = text.substring(0, 10);
+    }
+
+    StringBuffer buffer = StringBuffer();
+
+    for (var i = 0; i < text.length; i++) {
+      buffer.write(text[i]);
+
+      // Füge Formatierung hinzu
+      if (i == 1) buffer.write('.'); // Tag
+      if (i == 3) buffer.write('.'); // Monat
+      if (i == 5) buffer.write(' '); // Trennzeichen zwischen Datum und Uhrzeit
+      if (i == 7) buffer.write(':'); // Stunden und Minuten
+    }
+    return buffer.toString();
+  }
+
+  (int, String) _formatWithCursor(String text, int cursor) {
+    int newCursor = 0;
+    if (text.length > 10) {
+      text = text.substring(0, 10);
+    }
+
+    StringBuffer buffer = StringBuffer();
+
+    for (var i = 0; i < text.length; i++) {
+      buffer.write(text[i]);
+      if (i < cursor) {
+        newCursor++;
+      }
+
+      // Füge Formatierung hinzu
+      if (i == 1) {
+        buffer.write('.');
+        if (i < cursor) {
+          newCursor++;
+        }
+      }
+      if (i == 3) {
+        buffer.write('.');
+        if (i < cursor) {
+          newCursor++;
+        }
+      }
+      if (i == 5) {
+        buffer.write(' ');
+        if (i < cursor) {
+          newCursor++;
+        }
+      }
+      if (i == 7) {
+        buffer.write(':');
+        if (i < cursor) {
+          newCursor++;
+        }
+      }
+    }
+    return (newCursor, buffer.toString());
   }
 }
 
