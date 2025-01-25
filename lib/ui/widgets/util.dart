@@ -113,7 +113,8 @@ class _DateTimeFieldState extends State<DateTimeField> {
             final o = oldValue.text;
             if (newValue.selection.extentOffset == n.length) {
               final String formatted;
-              if (_numbersOnly(o).length == _numbersOnly(n).length) {
+              if (_numbersOnly(o).length == _numbersOnly(n).length &&
+                  o.length != n.length) {
                 final t = _numbersOnly(n);
                 formatted = _format(t.substring(0, t.length - 1));
               } else {

@@ -73,11 +73,11 @@ class EintragRepository {
         e.ort as ort,
         e.raum as raum,
         e.dienstverlauf as dienstverlauf,
-        e.besonderheiten as besonderheiten,
+        e.besonderheiten as besonderheiten
       from 
         eintrag as e, 
         kategorien as k
-      where e.kategorie:id = k.id 
+      where e.kategorie_id = k.id 
         and e.id = ?
     """);
 
@@ -86,11 +86,11 @@ class EintragRepository {
         j.id as id,
         j.name as name,
         j.ersetzt_durch as ersetzt_durch,
-        je.anmerkung as anmerkung
+        je.anwesenheit as anwesenheit
       from
-        jugendliche as j,
-        eintrag_zu_jugendliche as je
-      where j.id = je.jugendliche_id
+        jugendlicher as j,
+        eintrag_zu_jugendlicher as je
+      where j.id = je.jugendlicher_id
         and je.eintrag_id = ?
     """);
 
@@ -126,7 +126,8 @@ class EintragRepository {
                 name: row["name"],
                 ersetztDurch: row["ersetzt_durch"],
               ),
-              anmerkung: JugendlicherAnmerkung.fromNumber(row["anmerkung"]),
+              anwesenheit:
+                  JugendlicherAnwesenheit.fromNumber(row["anwesenheit"]),
             ))
         .toList();
 
@@ -161,7 +162,7 @@ class EintragRepository {
     final signaturen = _getSignaturen!.select([id]).map((row) => Signatur(
           identity: Identity(userId: row["userid"]),
           signature: row["signature"],
-          signedAt: row["signed_at"],
+          signedAt: DateTime.fromMillisecondsSinceEpoch(row["signed_at"]),
           signVersion: row["sign_version"],
           eintrag: eintrag,
         ));
@@ -193,8 +194,8 @@ class EintragRepository {
       returning id
     """);
     _insertJugendliche ??= _database.getPreparedPersistent("""
-      insert into eintrag_zu_jugendliche
-        (eintrag_id, jugendliche_id, anmerkung)
+      insert into eintrag_zu_jugendlicher
+        (eintrag_id, jugendlicher_id, anwesenheit)
       values
         (?, ?, ?)
     """);
@@ -221,13 +222,13 @@ class EintragRepository {
     }
 
     for (final jugendlicher in jugendliche) {
-      if (jugendlicher.anmerkung == JugendlicherAnmerkung.unbestimmt) {
+      if (jugendlicher.anwesenheit == JugendlicherAnwesenheit.unbestimmt) {
         continue;
       }
       _insertJugendliche!.execute([
         id,
         jugendlicher.jugendlicher.id,
-        jugendlicher.anmerkung.toNumber(),
+        jugendlicher.anwesenheit.toNumber(),
       ]);
     }
 

@@ -52,7 +52,7 @@ class EintragItem extends Item {
         .map(
           (e) => ListTile(
             title: Text(e.jugendlicher.name),
-            subtitle: Text(e.anmerkung.text),
+            subtitle: Text(e.anwesenheit.text),
             onTap: () {
               JugendlicheRoute(e.jugendlicher.id).go(context);
             },
@@ -215,7 +215,7 @@ class _AddDienstbuchEintragFormState
   late final TextEditingController _besonderheitenController;
   Kategorie? _kategorie;
   final Set<Betreuer> _betreuer = {};
-  final RotatingJugendlicheInEintrag _jugendlicheAnmerkungen =
+  final RotatingJugendlicheInEintrag _jugendlicheAnwesenheiten =
       RotatingJugendlicheInEintrag();
   DateTime? _beginn;
   DateTime? _ende;
@@ -251,7 +251,7 @@ class _AddDienstbuchEintragFormState
       raum: _raumController.text,
       betreuers: _betreuer.toList(),
       kategorie: _kategorie!,
-      jugendliche: _jugendlicheAnmerkungen.toEintragList(),
+      jugendliche: _jugendlicheAnwesenheiten.toEintragList(),
     );
   }
 
@@ -417,7 +417,7 @@ class _AddDienstbuchEintragFormState
             const Padding(padding: EdgeInsets.only(top: 12)),
             JugendlicheForm(
               jugendliche: jugendliche,
-              anmerkungen: _jugendlicheAnmerkungen,
+              anwesenheiten: _jugendlicheAnwesenheiten,
               didChange: () {
                 setState(() {});
               },
@@ -453,12 +453,12 @@ class _AddDienstbuchEintragFormState
 
 class JugendlicheForm extends StatelessWidget {
   final List<JugendlicherHeader> jugendliche;
-  final RotatingJugendlicheInEintrag anmerkungen;
+  final RotatingJugendlicheInEintrag anwesenheiten;
   final void Function() didChange;
   const JugendlicheForm({
     super.key,
     required this.jugendliche,
-    required this.anmerkungen,
+    required this.anwesenheiten,
     required this.didChange,
   });
 
@@ -477,10 +477,10 @@ class JugendlicheForm extends StatelessWidget {
                   title: Text(e.name),
                   leading: IconButton(
                     onPressed: () {
-                      anmerkungen.rotate(e.id);
+                      anwesenheiten.rotate(e.id);
                       didChange();
                     },
-                    icon: Icon(anmerkungen.switchOnAnmerkung(e.id,
+                    icon: Icon(anwesenheiten.switchOnAnwesenheit(e.id,
                         anwesend: Icons.check,
                         entschuldigt: Icons.circle_outlined,
                         abwesend: Icons.close,
