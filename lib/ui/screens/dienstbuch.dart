@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:julog/pdf/pdf.dart';
+import 'package:julog/ui/widgets/signatures.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 
@@ -105,40 +106,10 @@ class SignEintragScreen extends ConsumerWidget {
   const SignEintragScreen({super.key, required this.id});
 
   Future<String?> _getPassword(BuildContext context) async {
-    final TextEditingController controller = TextEditingController();
     final result = await showAdaptiveDialog<String?>(
       context: context,
-      builder: (context) => Dialog(
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Column(
-            children: [
-              const Text(
-                "Gebe dein Passwort zum Signieren an.",
-                softWrap: true,
-              ),
-              TextField(
-                controller: controller,
-                decoration: const InputDecoration(
-                  label: Text("Passwort"),
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.visiblePassword,
-                obscureText: true,
-                onSubmitted: (value) {
-                  Navigator.pop(context, value);
-                },
-              ),
-              const Padding(padding: EdgeInsets.only(top: 6)),
-              TextButton(
-                  onPressed: () => Navigator.pop(context, controller.text),
-                  child: const Text("Weiter"))
-            ],
-          ),
-        ),
-      ),
+      builder: (context) => PasswortDialog(),
     );
-    controller.dispose();
     return result;
   }
 
@@ -166,9 +137,23 @@ class SignEintragScreen extends ConsumerWidget {
           }
 
           /*try {*/
-          db.signatureRepository.sign(eintrag, element.userId, password);
+          if (!context.mounted) {
+            return;
+          }
+          showAdaptiveDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => Dialog(
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          );
+          await db.signatureRepository.sign(eintrag, element.userId, password);
+
           //TODO error handling
           if (context.mounted) {
+            Navigator.pop(context);
             EintragRoute(id).go(context);
           }
           /* } catch (e) {

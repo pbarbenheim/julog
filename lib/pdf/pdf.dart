@@ -32,7 +32,7 @@ extension EintragPdfGeneration on Eintrag {
         pw.Padding(padding: const pw.EdgeInsets.only(top: 20)),
         pw.Text("Jugendliche:"),
         ...(jugendliche.map((e) => pw.Text(
-            "\t\t\t\t- #${e.jugendlicher.id} ${e.jugendlicher.name} \t\t(${e.anmerkung})"))),
+            "\t\t\t\t- #${e.jugendlicher.id} ${e.jugendlicher.name} \t\t(${e.anwesenheit})"))),
         pw.Padding(padding: const pw.EdgeInsets.only(top: 40)),
         ...(signaturen.map((e) {
           final userc = Util.userIdToComponents(e.identity.userId);

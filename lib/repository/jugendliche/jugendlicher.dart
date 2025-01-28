@@ -47,13 +47,13 @@ class Jugendlicher extends JugendlicherHeader {
 }
 
 class RotatingJugendlicheInEintrag {
-  Map<int, JugendlicherAnmerkung> daten = {};
+  Map<int, JugendlicherAnwesenheit> daten = {};
 
   void rotate(int id) {
     if (daten.containsKey(id)) {
       daten[id] = daten[id]!.rotate();
     } else {
-      daten[id] = JugendlicherAnmerkung.anwesend;
+      daten[id] = JugendlicherAnwesenheit.anwesend;
     }
   }
 
@@ -64,12 +64,12 @@ class RotatingJugendlicheInEintrag {
                 id: e.key,
                 name: e.key.toRadixString(16),
               ),
-              anmerkung: e.value,
+              anwesenheit: e.value,
             ))
         .toList();
   }
 
-  T switchOnAnmerkung<T>(
+  T switchOnAnwesenheit<T>(
     int id, {
     required T anwesend,
     required T entschuldigt,
@@ -79,7 +79,7 @@ class RotatingJugendlicheInEintrag {
     if (!daten.containsKey(id)) {
       return other;
     }
-    return daten[id]!.switchOnAnmerkung(
+    return daten[id]!.switchOnAnwesenheit(
       anwesend: anwesend,
       entschuldigt: entschuldigt,
       abwesend: abwesend,
@@ -90,16 +90,17 @@ class RotatingJugendlicheInEintrag {
 
 class JugendlicherInEintrag {
   final JugendlicherHeader jugendlicher;
-  JugendlicherAnmerkung anmerkung;
+  JugendlicherAnwesenheit anwesenheit;
 
-  JugendlicherInEintrag({required this.jugendlicher, required this.anmerkung});
+  JugendlicherInEintrag(
+      {required this.jugendlicher, required this.anwesenheit});
 
   void rotate() {
-    anmerkung = anmerkung.rotate();
+    anwesenheit = anwesenheit.rotate();
   }
 }
 
-enum JugendlicherAnmerkung {
+enum JugendlicherAnwesenheit {
   unbestimmt(0, ''),
   anwesend(1, 'anwesend'),
   entschuldigt(2, 'entschuldigt'),
@@ -108,7 +109,7 @@ enum JugendlicherAnmerkung {
   final int id;
   final String text;
 
-  const JugendlicherAnmerkung(this.id, this.text);
+  const JugendlicherAnwesenheit(this.id, this.text);
 
   int toNumber() {
     return id;
@@ -119,40 +120,40 @@ enum JugendlicherAnmerkung {
     return text;
   }
 
-  static JugendlicherAnmerkung fromNumber(int number) {
+  static JugendlicherAnwesenheit fromNumber(int number) {
     switch (number) {
       case 0:
-        return JugendlicherAnmerkung.unbestimmt;
+        return JugendlicherAnwesenheit.unbestimmt;
       case 1:
-        return JugendlicherAnmerkung.anwesend;
+        return JugendlicherAnwesenheit.anwesend;
       case 2:
-        return JugendlicherAnmerkung.entschuldigt;
+        return JugendlicherAnwesenheit.entschuldigt;
       case 3:
-        return JugendlicherAnmerkung.abwesend;
+        return JugendlicherAnwesenheit.abwesend;
       default:
         throw ArgumentError.value(number, "number");
     }
   }
 
-  JugendlicherAnmerkung rotate() {
+  JugendlicherAnwesenheit rotate() {
     final n = (id + 1) % 4;
     return fromNumber(n);
   }
 
-  T switchOnAnmerkung<T>({
+  T switchOnAnwesenheit<T>({
     required T anwesend,
     required T entschuldigt,
     required T abwesend,
     required T other,
   }) {
     switch (this) {
-      case JugendlicherAnmerkung.anwesend:
+      case JugendlicherAnwesenheit.anwesend:
         return anwesend;
-      case JugendlicherAnmerkung.abwesend:
+      case JugendlicherAnwesenheit.abwesend:
         return abwesend;
-      case JugendlicherAnmerkung.entschuldigt:
+      case JugendlicherAnwesenheit.entschuldigt:
         return entschuldigt;
-      case JugendlicherAnmerkung.unbestimmt:
+      case JugendlicherAnwesenheit.unbestimmt:
         return other;
     }
   }

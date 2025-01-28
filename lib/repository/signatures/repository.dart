@@ -1,4 +1,5 @@
 import 'package:dart_pg/dart_pg.dart';
+import 'package:flutter/foundation.dart';
 import 'package:julog/repository/db/database.dart';
 import 'package:julog/repository/eintrag/eintrag.dart';
 import 'package:julog/repository/identity/identity.dart';
@@ -35,7 +36,8 @@ class SignatureRepository {
       case 2:
         return _verify_v2(signatur);
       default:
-        throw UnsupportedError("Unsupported signing version"); //TODO change
+        throw UnsupportedError(
+            "Unsupported signing version"); //TODO change error handling
     }
   }
 
@@ -47,7 +49,7 @@ class SignatureRepository {
       signatur.eintrag.id,
       signatur.eintrag.id,
       signatur.eintrag.id,
-      signatur.signedAt,
+      signatur.signedAt.millisecondsSinceEpoch,
       signatur.eintrag.id,
     ];
 
@@ -74,9 +76,47 @@ class SignatureRepository {
     }
   }
 
-  Future<Signatur> sign(Eintrag eintrag, String userId, String password) async {
-    final Signatur signatur = await _sign_v2(eintrag, userId, password);
-    eintrag.signaturen.add(signatur);
+  Future<String> _signWithCompute(
+    PrivateKey privateKey,
+    String password,
+    String json,
+    DateTime now,
+  ) async {
+    String computeSign(
+        (String pk, String password, String json, int now) message) {
+      final privateKey = OpenPGP.decryptPrivateKey(message.$1, message.$2);
+      return OpenPGP.signDetachedCleartext(
+        message.$3,
+        [privateKey],
+        time: DateTime.fromMillisecondsSinceEpoch(message.$4),
+      ).armor();
+    }
+
+    return compute(
+      computeSign,
+      (privateKey.armor(), password, json, now.millisecondsSinceEpoch),
+    );
+  }
+
+  Future<Signatur> sign(
+      EintragHeader eintrag, String userId, String password) async {
+    final now = DateTime.now();
+    final String eintragJson = _sign_v2(eintrag, userId, password, now);
+    final identity = _useridsRepository.getSigningIdentity(userId);
+
+    final signature =
+        await _signWithCompute(identity.privateKey, password, eintragJson, now);
+
+    _sign_v2_insert!.execute(
+        [eintrag.id, userId, signature, now.millisecondsSinceEpoch, 2]);
+
+    final signatur = Signatur(
+      identity: Identity(userId: userId),
+      signature: signature,
+      signedAt: now,
+      signVersion: 2,
+      eintrag: eintrag,
+    );
     return signatur;
   }
 
@@ -108,13 +148,13 @@ class SignatureRepository {
                 json_object(
                   'id', j.id, 
                   'name', j.name, 
-                  'anmerkung', je.anmerkung
+                  'anwesenheit', je.anwesenheit
                 )
               ) as jugend
             from 
-              jugendliche as j, 
-              eintrag_zu_jugendliche as je
-            where j.id = je.jugendliche_id 
+              jugendlicher as j, 
+              eintrag_zu_jugendlicher as je
+            where j.id = je.jugendlicher_id 
               and je.eintrag_id = ?
         ) as json_jugend,
         (
@@ -142,11 +182,12 @@ class SignatureRepository {
   }
 
   // ignore: non_constant_identifier_names
-  Future<Signatur> _sign_v2(
-    Eintrag eintrag,
+  String _sign_v2(
+    EintragHeader eintrag,
     String userId,
     String password,
-  ) async {
+    DateTime now,
+  ) {
     _sign_v2_insert ??= _database.getPreparedPersistent("""
       insert into signatures
         (eintrag_id, userid, signature, signed_at, sign_version)
@@ -156,9 +197,6 @@ class SignatureRepository {
 
     _v2_initQuery();
 
-    final identity = _useridsRepository.getSigningIdentity(userId);
-
-    final now = DateTime.now();
     final opts = [
       eintrag.id,
       eintrag.id,
@@ -167,28 +205,6 @@ class SignatureRepository {
       eintrag.id,
     ];
 
-    final String eintragJson = _sign_v2_query!.select(opts).first["json"];
-
-    final privateKey = identity.privateKey.decrypt(password);
-    final signatureRaw =
-        OpenPGP.signDetachedCleartext(eintragJson, [privateKey], time: now);
-
-    _sign_v2_insert!.execute([
-      eintrag.id,
-      userId,
-      signatureRaw.armor(),
-      now.millisecondsSinceEpoch,
-      2
-    ]);
-
-    final signatur = Signatur(
-      identity: Identity(userId: userId),
-      signature: signatureRaw.armor(),
-      signedAt: now,
-      signVersion: 2,
-      eintrag: eintrag,
-    );
-    eintrag.signaturen.add(signatur);
-    return signatur;
+    return _sign_v2_query!.select(opts).first["json"];
   }
 }

@@ -83,7 +83,7 @@ class JugendlicherRepository {
     String? passnummer,
   }) {
     _insert ??= _database.getPreparedPersistent("""
-      insert into jugendliche
+      insert into jugendlicher
         (name, passnummer, geburtstag, eintrittsdatum, geschlecht)
       values
         (?, ?, ?, ?, ?)
