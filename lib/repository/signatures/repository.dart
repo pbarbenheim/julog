@@ -181,6 +181,7 @@ class SignatureRepository {
     """);
   }
 
+  // ignore: non_constant_identifier_names
   String _sign_v2(
     EintragHeader eintrag,
     String userId,
