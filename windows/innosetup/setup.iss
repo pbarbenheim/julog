@@ -6,11 +6,11 @@ Source: "..\..\README.md"; DestDir: "{app}"; Flags: isreadme
 [Setup]
 AppName=Julog
 AppVerName=Julog 1.0
-DefaultDirName={pf}\Julog
+DefaultDirName={autopf}\Julog
 DefaultGroupName=Julog
 ChangesAssociations=yes
-ArchitecturesAllowed=x64
-ArchitecturesInstallIn64BitMode=x64
+ArchitecturesAllowed=x64compatible
+ArchitecturesInstallIn64BitMode=x64compatible
 
 [Icons]
 Name: "{group}\Julog"; Filename: "{app}\julog.exe"; WorkingDir: "{app}"
