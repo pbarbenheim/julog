@@ -282,7 +282,6 @@ class _AddDienstbuchEintragFormState
                 return null;
               },
             ),
-            //TODO change input field to more suitable one in desktop
             const Padding(padding: EdgeInsets.only(top: 12)),
             DateTimeField(
               labelText: "Ende",
