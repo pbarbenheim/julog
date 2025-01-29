@@ -136,8 +136,17 @@ class JulogDatabase {
     }
   }
 
+  static bool validDomain(String domain) {
+    final RegExp regex =
+        RegExp(r'^(([A-Za-z0-9-]{1,63}\.)+)[A-Za-z0-9-]{2,63}$');
+    return regex.hasMatch(domain);
+  }
+
   void _setDomainSetting(String domain) {
-    //TODO maybe check domain on content ?
+    if (!validDomain(domain)) {
+      //TODO better exception handling
+      throw Exception("Domain konnte nicht validiert werden");
+    }
 
     final stmt = "insert into info (field, value) values (?, ?)";
     _database.execute(stmt, ["domainName", domain]);

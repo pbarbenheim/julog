@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../repository/repository.dart';
 import '../frame.dart';
-import '../widgets/util.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -16,17 +15,18 @@ class DashboardScreen extends ConsumerWidget {
       destination: Destination.dashboard,
       appBar: AppBar(
         title: const Text("Dashboard"),
-        actions: [
-          IconButton(
-            onPressed: () => showJulogAbout(context: context),
-            icon: const Icon(Icons.more_vert),
-          ),
-        ],
       ),
       body: Center(
-        child: Text(
-          "Herzlich Willkommen im Dienstbuch der Jugendfeuerwehr. Die geöffnete Datei ist ${filename ?? "FEHLER"}. Viel Spaß\n\nHier: ${Localizations.localeOf(context).languageCode}",
-          softWrap: true,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "Herzlich Willkommen im Dienstbuch der Jugendfeuerwehr. Die geöffnete Datei ist ${filename ?? "FEHLER"}.",
+              softWrap: true,
+            ),
+            Padding(padding: EdgeInsets.only(top: 20)),
+            Text("Viel Spaß!")
+          ],
         ),
       ),
     );
