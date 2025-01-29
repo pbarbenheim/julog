@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:julog/repository/repository.dart';
+import 'package:julog/ui/widgets/select_file.dart';
+import 'package:julog/ui/widgets/util.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -184,20 +188,80 @@ class JulogScaffold extends StatelessWidget {
       body: Row(
         children: [
           NavigationRail(
-            destinations:
-                Destination.values.map((e) => e.railDestination).toList(),
-            selectedIndex: destination.index,
-            onDestinationSelected: (value) {
-              final newDest = Destination.values[value];
-              context.goNamed(newDest.routeName);
-            },
-            labelType: NavigationRailLabelType.all,
-          ),
+              destinations:
+                  Destination.values.map((e) => e.railDestination).toList(),
+              selectedIndex: destination.index,
+              onDestinationSelected: (value) {
+                final newDest = Destination.values[value];
+                context.goNamed(newDest.routeName);
+              },
+              labelType: NavigationRailLabelType.all,
+              trailing: JulogMoreMenu()),
           const VerticalDivider(),
           Expanded(child: child),
         ],
       ),
       floatingActionButton: floatingActionButton,
+    );
+  }
+}
+
+class JulogMoreMenu extends ConsumerStatefulWidget {
+  const JulogMoreMenu({super.key});
+
+  @override
+  ConsumerState<JulogMoreMenu> createState() => _JulogMoreMenuState();
+}
+
+class _JulogMoreMenuState extends ConsumerState<JulogMoreMenu> {
+  final FocusNode _buttonFocusNode = FocusNode(debugLabel: "More Button");
+
+  @override
+  void dispose() {
+    _buttonFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final notifier = ref.watch(repositoryProvider.notifier);
+    return MenuAnchor(
+      childFocusNode: _buttonFocusNode,
+      menuChildren: [
+        MenuItemButton(
+          onPressed: JulogFileUIUtil.getCreateFileFn(context, notifier),
+          leadingIcon: Icon(Icons.note_add_outlined),
+          child: const Text("Neu"),
+        ),
+        MenuItemButton(
+          onPressed: JulogFileUIUtil.getOpenFileFn(context, notifier),
+          leadingIcon: Icon(Icons.file_open_outlined),
+          child: const Text("Öffnen"),
+        ),
+        MenuItemButton(
+          onPressed: () {
+            showJulogAbout(context: context);
+          },
+          leadingIcon: Icon(Icons.info_outline_rounded),
+          child: const Text("Über"),
+        ),
+      ],
+      builder: (context, controller, child) {
+        return Padding(
+          padding: const EdgeInsets.only(top: 20),
+          child: IconButton(
+            focusNode: _buttonFocusNode,
+            onPressed: () {
+              if (controller.isOpen) {
+                controller.close();
+              } else {
+                controller.open();
+              }
+            },
+            icon: Icon(Icons.more_horiz),
+          ),
+        );
+      },
     );
   }
 }
