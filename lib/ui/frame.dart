@@ -30,16 +30,18 @@ class ItemList<T extends Item> extends StatelessWidget {
   final List<T> items;
   final ValueChanged<T> onChanged;
   final T? selected;
+  final List<Widget>? chips;
   const ItemList({
     super.key,
     this.selected,
     required this.items,
     required this.onChanged,
+    this.chips,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
+    final listview = ListView(
       children: items
           .map((item) => ListTile(
                 title: Text(item.title),
@@ -49,6 +51,21 @@ class ItemList<T extends Item> extends StatelessWidget {
               ))
           .toList(),
     );
+    if (chips != null) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Wrap(
+            spacing: 5.0,
+            children: chips!,
+          ),
+          Padding(padding: EdgeInsets.only(top: 5)),
+          Expanded(child: listview),
+        ],
+      );
+    } else {
+      return listview;
+    }
   }
 }
 
@@ -83,6 +100,7 @@ class ListDetail<T extends Item> extends StatelessWidget {
   final Destination destination;
   final Widget? floatingActionButton;
   final List<Widget>? itemActions;
+  final List<Widget>? filterChips;
 
   const ListDetail({
     super.key,
@@ -93,6 +111,7 @@ class ListDetail<T extends Item> extends StatelessWidget {
     required this.destination,
     this.floatingActionButton,
     this.itemActions,
+    this.filterChips,
   });
 
   Widget _buildMobileLayout() {
@@ -105,6 +124,7 @@ class ListDetail<T extends Item> extends StatelessWidget {
           items: items,
           onChanged: onChanged,
           selected: selectedItem,
+          chips: filterChips,
         ),
         destination: destination,
         floatingActionButton: floatingActionButton,
@@ -127,6 +147,7 @@ class ListDetail<T extends Item> extends StatelessWidget {
                 items: items,
                 onChanged: onChanged,
                 selected: selectedItem,
+                chips: filterChips,
               ),
               destination: destination,
               floatingActionButton: floatingActionButton,
