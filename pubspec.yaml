@@ -37,7 +37,7 @@ dependencies:
 
   sqlite3_flutter_libs: ^0.5.30
   sqlite3: ^2.6.0
-  go_router: ^14.2.0
+  go_router: ^14.8.0
   dart_pg: ^2.0.0
   shared_preferences: ^2.5.1
   flutter_riverpod: ^2.6.1
