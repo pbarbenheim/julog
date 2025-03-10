@@ -39,7 +39,7 @@ dependencies:
   sqlite3: ^2.7.4
   go_router: ^14.8.1
   dart_pg: ^2.0.0
-  shared_preferences: ^2.5.1
+  shared_preferences: ^2.5.2
   flutter_riverpod: ^2.6.1
   path: ^1.9.1
   path_provider: ^2.1.3
