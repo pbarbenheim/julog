@@ -70,7 +70,7 @@ dev_dependencies:
   flutter_lints: ^5.0.0
 
   go_router_builder: ^2.7.3
-  build_runner: ^2.4.14
+  build_runner: ^2.4.15
   build_verify: ^3.1.0
   flutter_launcher_icons: ^0.14.2
   pubspec_extract: ^2.0.5
