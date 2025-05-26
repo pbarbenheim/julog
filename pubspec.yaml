@@ -52,7 +52,7 @@ dependencies:
       ref: 17d4710c17f4913137e7ec931f6e71eaef443363
   flutter_localizations:
     sdk: flutter
-  intl: any
+  intl: 0.20.2
   dropdown_search: ^6.0.1
   pdf: ^3.11.3
   printing: ^5.14.2
