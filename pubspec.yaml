@@ -35,7 +35,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
 
-  sqlite3_flutter_libs: ^0.5.32
+  sqlite3_flutter_libs: ^0.5.37
   sqlite3: ^2.7.5
   go_router: ^15.1.2
   dart_pg: ^2.1.0
