@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:julog/l10n/app_localizations.dart';
 import 'package:julog/repository/repository.dart';
 import 'package:julog/ui/widgets/select_file.dart';
 import 'package:julog/ui/widgets/util.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 abstract class Item extends StatelessWidget {
   final String title;

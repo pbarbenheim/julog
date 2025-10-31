@@ -29,7 +29,7 @@ abstract class JulogBaseRoute extends GoRouteData {
     TypedGoRoute<AddKategorienRoute>(path: "add"),
   ],
 )
-class KategorienRoute extends JulogBaseRoute {
+class KategorienRoute extends JulogBaseRoute with $KategorienRoute {
   final int? kategorieId;
   const KategorienRoute(this.kategorieId);
 
@@ -39,7 +39,7 @@ class KategorienRoute extends JulogBaseRoute {
   }
 }
 
-class AddKategorienRoute extends JulogBaseRoute {
+class AddKategorienRoute extends JulogBaseRoute with $AddKategorienRoute {
   const AddKategorienRoute();
 
   @override
@@ -54,7 +54,7 @@ class AddKategorienRoute extends JulogBaseRoute {
     routes: [
       TypedGoRoute<AddJugendlicheRoute>(path: "add"),
     ])
-class JugendlicheRoute extends JulogBaseRoute {
+class JugendlicheRoute extends JulogBaseRoute with $JugendlicheRoute {
   final int? jugendlicherId;
   const JugendlicheRoute(this.jugendlicherId);
 
@@ -64,7 +64,7 @@ class JugendlicheRoute extends JulogBaseRoute {
   }
 }
 
-class AddJugendlicheRoute extends JulogBaseRoute {
+class AddJugendlicheRoute extends JulogBaseRoute with $AddJugendlicheRoute {
   const AddJugendlicheRoute();
 
   @override
@@ -80,7 +80,7 @@ class AddJugendlicheRoute extends JulogBaseRoute {
     TypedGoRoute<AddBetreuerRoute>(path: "add"),
   ],
 )
-class BetreuerRoute extends JulogBaseRoute {
+class BetreuerRoute extends JulogBaseRoute with $BetreuerRoute {
   final int? betreuerId;
   const BetreuerRoute(this.betreuerId);
 
@@ -92,7 +92,7 @@ class BetreuerRoute extends JulogBaseRoute {
   }
 }
 
-class AddBetreuerRoute extends JulogBaseRoute {
+class AddBetreuerRoute extends JulogBaseRoute with $AddBetreuerRoute {
   const AddBetreuerRoute();
 
   @override
@@ -102,7 +102,7 @@ class AddBetreuerRoute extends JulogBaseRoute {
 }
 
 @TypedGoRoute<DashboardRoute>(path: "/dashboard", name: "dashboard")
-class DashboardRoute extends JulogBaseRoute {
+class DashboardRoute extends JulogBaseRoute with $DashboardRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return const DashboardScreen();
@@ -122,7 +122,7 @@ class DashboardRoute extends JulogBaseRoute {
     ),
   ],
 )
-class DienstbuchRoute extends JulogBaseRoute {
+class DienstbuchRoute extends JulogBaseRoute with $DienstbuchRoute {
   const DienstbuchRoute();
 
   @override
@@ -131,7 +131,7 @@ class DienstbuchRoute extends JulogBaseRoute {
   }
 }
 
-class EintragRoute extends JulogBaseRoute {
+class EintragRoute extends JulogBaseRoute with $EintragRoute {
   final int id;
 
   EintragRoute(this.id);
@@ -144,7 +144,7 @@ class EintragRoute extends JulogBaseRoute {
   }
 }
 
-class SignEintragRoute extends JulogBaseRoute {
+class SignEintragRoute extends JulogBaseRoute with $SignEintragRoute {
   final int id;
 
   SignEintragRoute(this.id);
@@ -155,7 +155,8 @@ class SignEintragRoute extends JulogBaseRoute {
   }
 }
 
-class AddDienstbuchEintragRoute extends JulogBaseRoute {
+class AddDienstbuchEintragRoute extends JulogBaseRoute
+    with $AddDienstbuchEintragRoute {
   const AddDienstbuchEintragRoute();
 
   @override
@@ -171,7 +172,7 @@ class AddDienstbuchEintragRoute extends JulogBaseRoute {
     TypedGoRoute<AddIdentityRoute>(path: "add"),
   ],
 )
-class IdentitiesRoute extends JulogBaseRoute {
+class IdentitiesRoute extends JulogBaseRoute with $IdentitiesRoute {
   final String? userId;
   const IdentitiesRoute(this.userId);
 
@@ -183,7 +184,7 @@ class IdentitiesRoute extends JulogBaseRoute {
   }
 }
 
-class AddIdentityRoute extends JulogBaseRoute {
+class AddIdentityRoute extends JulogBaseRoute with $AddIdentityRoute {
   const AddIdentityRoute();
 
   @override
@@ -193,7 +194,7 @@ class AddIdentityRoute extends JulogBaseRoute {
 }
 
 @TypedGoRoute<SelectFileRoute>(path: "/select-file", name: "selectFile")
-class SelectFileRoute extends JulogBaseRoute {
+class SelectFileRoute extends JulogBaseRoute with $SelectFileRoute {
   const SelectFileRoute();
 
   @override

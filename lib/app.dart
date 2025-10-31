@@ -4,9 +4,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:julog/l10n/app_localizations.dart';
 import 'package:path/path.dart' as path;
 import 'package:window_size/window_size.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'repository/repository.dart';
 import 'ui/routes.dart';
