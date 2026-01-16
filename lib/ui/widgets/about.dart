@@ -1,7 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:vector_graphics/vector_graphics.dart';
 
-import '../pubspec.g.dart';
+import '../../pubspec.g.dart';
+import 'logo.dart';
+
+class AboutButton extends StatelessWidget {
+  const AboutButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: () {
+        showJulogAbout(context);
+      },
+      icon: const Icon(Icons.info_outline),
+      tooltip: 'Über julog',
+    );
+  }
+}
 
 void showJulogAbout(BuildContext context) {
   final authors = Pubspec.contributors.join(', ');
@@ -11,13 +26,9 @@ void showJulogAbout(BuildContext context) {
     applicationName: Pubspec.name,
     applicationVersion: Pubspec.version,
     applicationLegalese: '© 2024 - $year by $authors',
-    applicationIcon: const Padding(
-      padding: EdgeInsets.all(8.0),
-      child: VectorGraphic(
-        loader: AssetBytesLoader('assets/logo.svg'),
-        width: 64,
-        height: 64,
-      ),
+    applicationIcon: Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: JulogLogo(),
     ),
     children: [
       Container(

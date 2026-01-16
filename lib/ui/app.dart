@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'router/router.dart';
+import '../router/router.dart';
 import 'theme.dart';
-import 'provider/darkmode/darkmode.dart';
+import '../provider/darkmode/darkmode.dart';
 
 class JulogApp extends ConsumerWidget {
   const JulogApp({super.key});
