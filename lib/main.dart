@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'app.dart';
+import 'ui/app.dart';
 import 'provider/shared_pref/shared_pref.dart';
 
 void main() async {

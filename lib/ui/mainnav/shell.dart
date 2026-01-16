@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../provider/darkmode/darkmode.dart';
-import '../about.dart';
+import '../widgets/about.dart';
+import '../widgets/theme_button.dart';
 import 'destination.dart';
 
 class Shell extends ConsumerWidget {
@@ -23,7 +24,7 @@ class Shell extends ConsumerWidget {
                 .toList(),
             onDestinationSelected: (value) {
               final destination = Destination.values[value];
-              destination.route.go(context);
+              destination.route().go(context);
             },
             selectedIndex: destination.index,
             labelType: NavigationRailLabelType.all,
@@ -32,33 +33,14 @@ class Shell extends ConsumerWidget {
             trailing: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                IconButton(
-                  onPressed: () {
-                    final newMode = switch (mode) {
-                      ThemeMode.light => ThemeMode.dark,
-                      ThemeMode.dark => ThemeMode.system,
-                      ThemeMode.system => ThemeMode.light,
-                    };
+                ThemeButton(
+                  mode: mode,
+                  onPressed: (newMode) {
                     ref.read(themeModeProvider.notifier).setThemeMode(newMode);
-                  },
-                  icon: Icon(switch (mode) {
-                    ThemeMode.light => Icons.dark_mode,
-                    ThemeMode.dark => Icons.light_mode,
-                    ThemeMode.system => Icons.brightness_auto,
-                  }),
-                  tooltip: switch (mode) {
-                    ThemeMode.light => 'Switch to dark mode',
-                    ThemeMode.dark => 'Switch to system mode',
-                    ThemeMode.system => 'Switch to light mode',
                   },
                 ),
                 const SizedBox(width: 8),
-                IconButton(
-                  onPressed: () {
-                    showJulogAbout(context);
-                  },
-                  icon: const Icon(Icons.info_outline),
-                ),
+                const AboutButton(),
                 const SizedBox(height: 16),
               ],
             ),

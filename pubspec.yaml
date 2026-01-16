@@ -6,7 +6,7 @@ license: GNU General Public License v3.0
 
 publish_to: "none"
 
-version: 1.0.0+1
+version: 1.0.0-beta.1+1
 
 environment:
   sdk: ^3.10.4
@@ -22,6 +22,13 @@ dependencies:
   material_symbols_icons: ^4.2892.0
   shared_preferences: ^2.5.4
   vector_graphics: ^1.1.19
+  jldb:
+    git:
+      url: https://github.com/pbarbenheim/jldb.git
+      # TODO: Change to a specific tag or commit hash when releasing
+      ref: main
+  file_selector: ^1.1.0
+  freezed_annotation: ^3.1.0
 
 dev_dependencies:
   flutter_test:
@@ -34,6 +41,7 @@ dev_dependencies:
   riverpod_generator: ^4.0.0+1
   vector_graphics_compiler: ^1.1.19
   pubspec_extract: ^2.1.1
+  freezed: ^3.2.3
 
 flutter:
   uses-material-design: true

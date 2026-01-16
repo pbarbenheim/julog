@@ -10,43 +10,47 @@ enum Destination {
       icon: Icon(Icons.dashboard),
       label: Text('Dashboard'),
     ),
-    DashboardRoute(),
   ),
   julog(
     NavigationRailDestination(
       icon: Icon(Icons.book),
       label: Text('Dienstbuch'),
     ),
-    PlaceholderRoute(),
   ),
   jugendliche(
     NavigationRailDestination(
       icon: Icon(Icons.groups),
       label: Text('Jugendliche'),
     ),
-    PlaceholderRoute(),
   ),
   identities(
     NavigationRailDestination(
       icon: Icon(Symbols.signature),
       label: Text('Identitäten'),
     ),
-    PlaceholderRoute(),
   ),
   betreuer(
     NavigationRailDestination(icon: Icon(Icons.group), label: Text('Betreuer')),
-    PlaceholderRoute(),
   ),
   kategorien(
     NavigationRailDestination(
       icon: Icon(Icons.label),
       label: Text('Kategorien'),
     ),
-    PlaceholderRoute(),
   );
 
-  const Destination(this.railDestination, this.route);
+  GoRouteData route() {
+    return switch (this) {
+      Destination.dashboard => const DashboardRoute(),
+      Destination.julog => const PlaceholderRoute(),
+      Destination.jugendliche => const PlaceholderRoute(),
+      Destination.identities => const PlaceholderRoute(),
+      Destination.betreuer => const PlaceholderRoute(),
+      Destination.kategorien => const PlaceholderRoute(),
+    };
+  }
+
+  const Destination(this.railDestination);
 
   final NavigationRailDestination railDestination;
-  final GoRouteData route;
 }

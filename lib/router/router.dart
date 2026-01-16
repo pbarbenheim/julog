@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../provider/jldb/jldb.dart';
+import '../provider/jldb/julog_file.dart';
 import '../ui/mainnav/destination.dart';
+import '../ui/mainnav/file.dart';
 import '../ui/mainnav/shell.dart';
 import '../ui/placeholder_test.dart';
 
@@ -72,10 +75,72 @@ class PlaceholderRoute extends JulogRouteData with $PlaceholderRoute {
   }
 }
 
+@TypedGoRoute<FileSelectorRoute>(path: '/file-selector', name: 'fileSelector')
+class FileSelectorRoute extends JulogRouteData with $FileSelectorRoute {
+  final bool loading;
+  const FileSelectorRoute({this.loading = false});
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return SelectFileScreen(loading: loading);
+  }
+}
+
 @riverpod
 GoRouter router(Ref ref) {
-  return GoRouter(
-    initialLocation: const DashboardRoute().location,
+  final jldbStateNotifier = ValueNotifier<JulogFile?>(null);
+  ref
+    ..onDispose(() {
+      jldbStateNotifier.dispose();
+    })
+    ..listen(julogServiceProvider, (previous, next) {
+      jldbStateNotifier.value = next;
+    });
+
+  final router = GoRouter(
+    initialLocation: const FileSelectorRoute().location,
     routes: $appRoutes,
+    refreshListenable: jldbStateNotifier,
+    redirect: (context, state) {
+      final path = state.fullPath;
+      if (path == null) {
+        return null;
+      }
+      final isOnFileSelector =
+          state.fullPath == const FileSelectorRoute().location;
+      final currentFile = ref.read(julogServiceProvider);
+      return currentFile.when(
+        loaded: (value) {
+          if (isOnFileSelector) {
+            return const DashboardRoute().location;
+          }
+          return null;
+        },
+        loading: () {
+          if (!isOnFileSelector) {
+            return const FileSelectorRoute(loading: true).location;
+          }
+          return null;
+        },
+        closed: () {
+          if (!isOnFileSelector) {
+            return const FileSelectorRoute().location;
+          }
+          return null;
+        },
+        none: () {
+          if (!isOnFileSelector) {
+            return const FileSelectorRoute().location;
+          }
+          return null;
+        },
+      );
+    },
   );
+
+  ref.onDispose(() {
+    router.dispose();
+  });
+
+  return router;
 }
