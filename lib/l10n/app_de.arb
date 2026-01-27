@@ -1,0 +1,89 @@
+{
+  "@@locale": "de",
+  "appTitle": "julog",
+  "@appTitle": {},
+
+  "addNewJugendlicher": "Neuen Jugendlichen hinzufügen",
+  "@addNewJugendlicher": {
+    "description": "Add new jugendlicher"
+  },
+
+  "name": "{count, plural, one{Name} many{Namen} other{Namen}}",
+  "@name": {
+      "description": "name",
+      "placeholders": {
+          "count": {
+            "type": "int",
+            "example": "1" 
+          }
+      }
+  },
+
+  "nameRequired": "Bitte gibt einen Namen ein",
+  "@nameRequired": {
+    "description": "Name required"
+  },
+
+  "birthdate": "Geburtsdatum",
+  "@birthdate": {
+    "description": "birthday"
+  },
+
+  "dateFormatError": "Ungültiges Datum",
+  "@dateFormatError": {
+    "description": "Date format error"
+  },
+
+  "dateInvalidError": "Datum außerhalb des gültigen Bereichs",
+  "@dateInvalidError": {
+    "description": "Date invalid error"
+  },
+
+  "memberSince": "Mitglied seit",
+  "@memberSince": {
+    "description": "Member sice"
+  },
+
+  "saveButton": "Speichern",
+  "@saveButton": {
+    "description": "save"
+  },
+
+  "optionalPass": "Pass (optional)",
+  "@optionalPass": {
+    "description": "Optional pass"
+  },
+
+  "stateBirthdate": "Geburtsdatum: {date}",
+  "@stateBirthdate": {
+    "description": "State birthdate",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMd"
+      }
+    }
+  },
+
+  "stateMemberSince": "Mitglied seit: {date}",
+  "@stateMemberSince": {
+    "description": "State member since",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMd"
+      }
+    }
+  },
+
+  "stateExitDate": "Austrittsdatum: {date}",
+  "@stateExitDate": {
+    "description": "State exit date",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMd"
+      }
+    }
+  }
+}

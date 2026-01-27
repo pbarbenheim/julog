@@ -1,0 +1,1 @@
+class PrivateKeyNotFoundException implements Exception {}

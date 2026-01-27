@@ -43,10 +43,10 @@ enum Destination {
     return switch (this) {
       Destination.dashboard => const DashboardRoute(),
       Destination.julog => const PlaceholderRoute(),
-      Destination.jugendliche => const PlaceholderRoute(),
-      Destination.identities => const PlaceholderRoute(),
-      Destination.betreuer => const PlaceholderRoute(),
-      Destination.kategorien => const PlaceholderRoute(),
+      Destination.jugendliche => const JugendlicheRoute(),
+      Destination.identities => const IdentityRoute(),
+      Destination.betreuer => const BetreuerRoute(),
+      Destination.kategorien => const KategorieRoute(),
     };
   }
 

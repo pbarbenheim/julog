@@ -4,6 +4,10 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../provider/jldb/jldb.dart';
 import '../provider/jldb/julog_file.dart';
+import '../ui/betreuer/screen.dart';
+import '../ui/identity/identity_screen.dart';
+import '../ui/jugendliche/jugendliche_screen.dart';
+import '../ui/kategorie/kategorie_screen.dart';
 import '../ui/mainnav/destination.dart';
 import '../ui/mainnav/file.dart';
 import '../ui/mainnav/shell.dart';
@@ -35,6 +39,10 @@ abstract class JulogRouteData extends GoRouteData {
   routes: [
     TypedGoRoute<DashboardRoute>(path: '/', name: 'dashboard'),
     TypedGoRoute<PlaceholderRoute>(path: '/julog', name: 'julog'),
+    TypedGoRoute<JugendlicheRoute>(path: '/jugendliche', name: 'jugendliche'),
+    TypedGoRoute<IdentityRoute>(path: '/identity', name: 'identity'),
+    TypedGoRoute<BetreuerRoute>(path: '/betreuer', name: 'betreuer'),
+    TypedGoRoute<KategorieRoute>(path: '/kategorie', name: 'kategorie'),
   ],
 )
 class MainShellRoute extends ShellRouteData {
@@ -48,6 +56,10 @@ class MainShellRoute extends ShellRouteData {
     final destination = switch (state.topRoute?.name) {
       'dashboard' => Destination.dashboard,
       'julog' => Destination.julog,
+      'jugendliche' => Destination.jugendliche,
+      'identity' => Destination.identities,
+      'betreuer' => Destination.betreuer,
+      'kategorie' => Destination.kategorien,
       _ => throw StateError('Unknown route name: ${state.name}'),
     };
     return Shell(destination: destination, child: navigator);
@@ -61,6 +73,52 @@ class DashboardRoute extends JulogRouteData with $DashboardRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return const Center(child: Text('Dashboard'));
+  }
+}
+
+class JugendlicheRoute extends JulogRouteData with $JugendlicheRoute {
+  final String? jugendlicheId;
+
+  const JugendlicheRoute({this.jugendlicheId});
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return JugendlicheScreen(jugendlicherId: jugendlicheId);
+  }
+}
+
+class IdentityRoute extends JulogRouteData with $IdentityRoute {
+  final String? identityId;
+
+  const IdentityRoute({this.identityId});
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return IdentityScreen(identityId: identityId);
+  }
+}
+
+@immutable
+class BetreuerRoute extends JulogRouteData with $BetreuerRoute {
+  final String? betreuerId;
+
+  const BetreuerRoute({this.betreuerId});
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return BetreuerScreen(betreuerId: betreuerId);
+  }
+}
+
+@immutable
+class KategorieRoute extends JulogRouteData with $KategorieRoute {
+  final String? kategorieId;
+
+  const KategorieRoute({this.kategorieId});
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return KategorieScreen(kategorieId: kategorieId);
   }
 }
 
