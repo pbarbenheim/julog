@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Julog
+Comment=Jugendfeuerwehr Dienstbuch digital
+Exec=julog %u
+Icon=data/flutter_assest/assets/icon/icon.png
+Terminal=false
+Type=Application
+Categories=Office;Database;
+MimeType=application/x.de.barbenheim.julog+sqlite3;
