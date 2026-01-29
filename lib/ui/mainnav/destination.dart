@@ -11,7 +11,7 @@ enum Destination {
       label: Text('Dashboard'),
     ),
   ),
-  julog(
+  eintrag(
     NavigationRailDestination(
       icon: Icon(Icons.book),
       label: Text('Dienstbuch'),
@@ -42,7 +42,7 @@ enum Destination {
   GoRouteData route() {
     return switch (this) {
       Destination.dashboard => const DashboardRoute(),
-      Destination.julog => const PlaceholderRoute(),
+      Destination.eintrag => const EintragRoute(),
       Destination.jugendliche => const JugendlicheRoute(),
       Destination.identities => const IdentityRoute(),
       Destination.betreuer => const BetreuerRoute(),

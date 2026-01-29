@@ -26,8 +26,8 @@ void showJulogAbout(BuildContext context) {
     applicationName: Pubspec.name,
     applicationVersion: Pubspec.version,
     applicationLegalese: '© 2024 - $year by $authors',
-    applicationIcon: Padding(
-      padding: const EdgeInsets.all(8.0),
+    applicationIcon: const Padding(
+      padding: EdgeInsets.all(8.0),
       child: JulogLogo(),
     ),
     children: [

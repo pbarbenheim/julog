@@ -5,7 +5,7 @@ import '../jldb/jldb.dart';
 
 part 'shared_pref.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 SharedPreferencesWithCache sharedPreferences(Ref ref) {
   throw UnimplementedError();
 }

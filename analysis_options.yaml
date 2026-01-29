@@ -36,3 +36,6 @@ linter:
     unnecessary_string_escapes: true
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
+
+plugins:
+  riverpod_lint: ^3.1.2

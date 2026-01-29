@@ -5,13 +5,13 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../provider/jldb/jldb.dart';
 import '../provider/jldb/julog_file.dart';
 import '../ui/betreuer/screen.dart';
+import '../ui/eintrag/eintrag_screen.dart';
 import '../ui/identity/identity_screen.dart';
 import '../ui/jugendliche/jugendliche_screen.dart';
 import '../ui/kategorie/kategorie_screen.dart';
 import '../ui/mainnav/destination.dart';
 import '../ui/mainnav/file.dart';
 import '../ui/mainnav/shell.dart';
-import '../ui/placeholder_test.dart';
 
 part 'router.g.dart';
 
@@ -38,7 +38,7 @@ abstract class JulogRouteData extends GoRouteData {
 @TypedShellRoute<MainShellRoute>(
   routes: [
     TypedGoRoute<DashboardRoute>(path: '/', name: 'dashboard'),
-    TypedGoRoute<PlaceholderRoute>(path: '/julog', name: 'julog'),
+    TypedGoRoute<EintragRoute>(path: '/eintraege', name: 'eintrag'),
     TypedGoRoute<JugendlicheRoute>(path: '/jugendliche', name: 'jugendliche'),
     TypedGoRoute<IdentityRoute>(path: '/identity', name: 'identity'),
     TypedGoRoute<BetreuerRoute>(path: '/betreuer', name: 'betreuer'),
@@ -55,7 +55,7 @@ class MainShellRoute extends ShellRouteData {
   Widget builder(BuildContext context, GoRouterState state, Widget navigator) {
     final destination = switch (state.topRoute?.name) {
       'dashboard' => Destination.dashboard,
-      'julog' => Destination.julog,
+      'eintrag' => Destination.eintrag,
       'jugendliche' => Destination.jugendliche,
       'identity' => Destination.identities,
       'betreuer' => Destination.betreuer,
@@ -76,6 +76,19 @@ class DashboardRoute extends JulogRouteData with $DashboardRoute {
   }
 }
 
+@immutable
+class EintragRoute extends JulogRouteData with $EintragRoute {
+  final String? eintragId;
+
+  const EintragRoute({this.eintragId});
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return EintragScreen(eintragId: eintragId);
+  }
+}
+
+@immutable
 class JugendlicheRoute extends JulogRouteData with $JugendlicheRoute {
   final String? jugendlicheId;
 
@@ -87,6 +100,7 @@ class JugendlicheRoute extends JulogRouteData with $JugendlicheRoute {
   }
 }
 
+@immutable
 class IdentityRoute extends JulogRouteData with $IdentityRoute {
   final String? identityId;
 
@@ -119,17 +133,6 @@ class KategorieRoute extends JulogRouteData with $KategorieRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return KategorieScreen(kategorieId: kategorieId);
-  }
-}
-
-//TODO needs removing
-@immutable
-class PlaceholderRoute extends JulogRouteData with $PlaceholderRoute {
-  const PlaceholderRoute();
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return const PlaceholderTestWidget();
   }
 }
 

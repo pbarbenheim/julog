@@ -14,27 +14,42 @@ abstract class JulogRepository<
 
   JulogRepository();
 
-  AsyncResult<List<ModelType>> getAll() async {
-    if (_cacheSynced) {
-      return cache.values
-          .whereType<Some<ModelType>>()
-          .map((e) => e.unwrap())
-          .toList()
-          .toSuccess();
+  AsyncResult<List<ModelType>> getAll() {
+    return asyncResultFromFunction(() async {
+      if (_cacheSynced) {
+        return cache.values
+            .whereType<Some<ModelType>>()
+            .map((e) => e.unwrap())
+            .toList();
+      }
+      final result = await fetchAllFromJldb();
+      if (result.isFailure()) {
+        throw result.getFailureOptional().unwrap();
+      }
+      final records = result.getOrThrow();
+      final List<ModelType> itemList = [];
+      for (var record in records) {
+        final item = await fromJldbRecord(record);
+        cache[getId(item)] = item.toOptional();
+        itemList.add(item);
+      }
+      _cacheSynced = true;
+      return itemList;
+    });
+  }
+
+  AsyncResult<Optional<ModelType>> getById(String id) async {
+    if (!_cacheSynced) {
+      final allResult = await getAll();
+      if (allResult.isFailure()) {
+        return allResult.getFailureOptional().unwrap().toFailure();
+      }
     }
-    final result = await fetchAllFromJldb();
-    if (result.isFailure()) {
-      return result.getFailureOptional().unwrap().toFailure();
+    if (cache.containsKey(id)) {
+      return cache[id]!.toSuccess();
+    } else {
+      return None<ModelType>().toSuccess();
     }
-    final records = result.getOrThrow();
-    final List<ModelType> itemList = [];
-    for (var record in records) {
-      final item = await fromJldbRecord(record);
-      cache[getId(item)] = item.toOptional();
-      itemList.add(item);
-    }
-    _cacheSynced = true;
-    return itemList.toSuccess();
   }
 
   AsyncResult<ModelType> save(SaveType data) async {

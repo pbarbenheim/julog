@@ -13,7 +13,7 @@ class JulogService extends _$JulogService {
   @override
   JulogFile build() {
     final file = ref
-        .read(sharedPreferencesProvider)
+        .watch(sharedPreferencesProvider)
         .getString(lastOpenedFileKey);
     if (file != null) {
       Jldb.open(file).then((result) {

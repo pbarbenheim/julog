@@ -82,7 +82,7 @@ class RadioFormField<T> extends FormField<T> {
                 return Padding(
                   padding: EdgeInsets.only(bottom: gap),
                   child: RadioListTile<T>(
-                    title: Text(option.label, style: TextStyle()),
+                    title: Text(option.label),
                     subtitle: option.subtitle != null
                         ? Text(option.subtitle!)
                         : null,
