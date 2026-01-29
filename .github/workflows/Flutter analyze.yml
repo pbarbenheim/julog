@@ -16,7 +16,7 @@ jobs:
           channel: "stable"
           flutter-version: ${{ env.flutterversion }}
       - name: Install project dependencies
-        run: flutter pub get
+        run: flutter pub get --enforce-lockfile
       - name: Generate intermediates
         run: flutter pub run build_runner build --delete-conflicting-outputs
       - name: Flutter analyze
