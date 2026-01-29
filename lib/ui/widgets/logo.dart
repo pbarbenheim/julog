@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:vector_graphics/vector_graphics.dart';
 
 class JulogLogo extends StatelessWidget {
-  final double? size;
-  const JulogLogo({super.key, this.size});
+  const JulogLogo({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Image(
-      image: AssetImage("assets/icon/icon.png"),
-      semanticLabel: "Julog App-Logo",
-      fit: BoxFit.scaleDown,
-      filterQuality: FilterQuality.medium,
+    return const VectorGraphic(
+      loader: AssetBytesLoader('assets/logo.svg'),
+      width: 64,
+      height: 64,
     );
   }
 }

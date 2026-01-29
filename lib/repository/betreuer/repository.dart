@@ -1,54 +1,62 @@
-import 'package:julog/repository/betreuer/betreuer.dart';
-import 'package:julog/repository/db/database.dart';
-import 'package:julog/repository/util/geschlecht.dart';
-import 'package:sqlite3/sqlite3.dart';
+import 'package:jldb/jldb.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart' hide AsyncResult;
 
-class BetreuerRepository {
-  final JulogDatabase _database;
+import '../../provider/jldb/jldb.dart';
+import '../../provider/jldb/julog_file.dart';
+import '../model/model.dart';
+import '../repository_base.dart';
 
-  PreparedStatement? _getAll;
-  PreparedStatement? _insert;
+part 'repository.g.dart';
 
-  BetreuerRepository({required JulogDatabase database}) : _database = database;
+class _BetreuerRepository
+    extends
+        JulogRepository<
+          Betreuer,
+          BetreuerApiModel,
+          ({String name, Gender gender})
+        > {
+  final Jldb _jldb;
 
-  void dispose() {
-    _getAll?.dispose();
-    _insert?.dispose();
+  _BetreuerRepository({required Jldb jldb}) : _jldb = jldb;
+
+  @override
+  AsyncResult<Betreuer> createInJldb(({Gender gender, String name}) data) {
+    return _jldb
+        .createBetreuer(
+          BetreuerApiModel(
+            id: UUID.generate(),
+            name: data.name,
+            sex: switch (data.gender) {
+              Gender.male => Sex.male,
+              Gender.female => Sex.female,
+              Gender.diverse => Sex.diverse,
+            },
+          ),
+        )
+        .map((savedRecord) {
+          return Betreuer.fromJldbRecord(savedRecord);
+        });
   }
 
-  List<Betreuer> getAllBetreuer() {
-    _getAll ??= _database
-        .getPreparedPersistent("select id, name, geschlecht from betreuer");
-
-    final result = _getAll!.select();
-    return result
-        .map((row) => Betreuer(
-              id: row["id"],
-              name: row["name"],
-              geschlecht: Geschlecht.fromNumber(row["geschlecht"]),
-            ))
-        .toList();
+  @override
+  AsyncResult<List<BetreuerApiModel>> fetchAllFromJldb() {
+    return _jldb.getAllBetreuer();
   }
 
-  Betreuer addBetreuer(String name, Geschlecht geschlecht,
-      {bool force = false}) {
-    final names = getAllBetreuer().map((e) => e.name);
-    if (names.any((element) => element == name)) {
-      if (!force) {
-        throw Exception("schon vorhanden"); //TODO sinnvollere Exception
-      }
-    }
+  @override
+  Betreuer fromJldbRecord(BetreuerApiModel record) =>
+      Betreuer.fromJldbRecord(record);
 
-    _insert ??= _database.getPreparedPersistent("""
-      insert into betreuer
-        (name, geschlecht)
-      values
-        (?, ?)
-      returning id
-    """);
+  @override
+  String getId(Betreuer item) => item.id;
+}
 
-    final int id = _insert!.select([name, geschlecht.toNumber()]).first["id"];
-
-    return Betreuer(id: id, name: name, geschlecht: geschlecht);
+@Riverpod(keepAlive: true)
+JulogRepository<Betreuer, BetreuerApiModel, ({String name, Gender gender})>
+betreuerRepository(Ref ref) {
+  final jldb = ref.watch(julogServiceProvider);
+  if (jldb is! JulogFileLoaded) {
+    throw StateError('Julog file is not loaded');
   }
+  return _BetreuerRepository(jldb: jldb.jldb);
 }

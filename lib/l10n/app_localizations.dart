@@ -62,7 +62,7 @@ import 'app_localizations_de.dart';
 /// property.
 abstract class AppLocalizations {
   AppLocalizations(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -85,26 +85,92 @@ abstract class AppLocalizations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[Locale('de')];
 
-  /// No description provided for @itemDetailDetail.
+  /// No description provided for @appTitle.
   ///
   /// In de, this message translates to:
-  /// **'Detail'**
-  String get itemDetailDetail;
+  /// **'julog'**
+  String get appTitle;
 
-  /// No description provided for @itemDetailEmptyHint.
+  /// Add new jugendlicher
   ///
   /// In de, this message translates to:
-  /// **'Klicke ein Listenelement links an, um dir die Details anzusehen.'**
-  String get itemDetailEmptyHint;
+  /// **'Neuen Jugendlichen hinzufügen'**
+  String get addNewJugendlicher;
+
+  /// name
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, one{Name} many{Namen} other{Namen}}'**
+  String name(int count);
+
+  /// Name required
+  ///
+  /// In de, this message translates to:
+  /// **'Bitte gibt einen Namen ein'**
+  String get nameRequired;
+
+  /// birthday
+  ///
+  /// In de, this message translates to:
+  /// **'Geburtsdatum'**
+  String get birthdate;
+
+  /// Date format error
+  ///
+  /// In de, this message translates to:
+  /// **'Ungültiges Datum'**
+  String get dateFormatError;
+
+  /// Date invalid error
+  ///
+  /// In de, this message translates to:
+  /// **'Datum außerhalb des gültigen Bereichs'**
+  String get dateInvalidError;
+
+  /// Member sice
+  ///
+  /// In de, this message translates to:
+  /// **'Mitglied seit'**
+  String get memberSince;
+
+  /// save
+  ///
+  /// In de, this message translates to:
+  /// **'Speichern'**
+  String get saveButton;
+
+  /// Optional pass
+  ///
+  /// In de, this message translates to:
+  /// **'Pass (optional)'**
+  String get optionalPass;
+
+  /// State birthdate
+  ///
+  /// In de, this message translates to:
+  /// **'Geburtsdatum: {date}'**
+  String stateBirthdate(DateTime date);
+
+  /// State member since
+  ///
+  /// In de, this message translates to:
+  /// **'Mitglied seit: {date}'**
+  String stateMemberSince(DateTime date);
+
+  /// State exit date
+  ///
+  /// In de, this message translates to:
+  /// **'Austrittsdatum: {date}'**
+  String stateExitDate(DateTime date);
 }
 
 class _AppLocalizationsDelegate
@@ -132,8 +198,9 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
 }

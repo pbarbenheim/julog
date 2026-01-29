@@ -1,0 +1,207 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../provider/jldb/jldb.dart';
+import '../provider/jldb/julog_file.dart';
+import '../ui/betreuer/screen.dart';
+import '../ui/eintrag/eintrag_screen.dart';
+import '../ui/identity/identity_screen.dart';
+import '../ui/jugendliche/jugendliche_screen.dart';
+import '../ui/kategorie/kategorie_screen.dart';
+import '../ui/mainnav/destination.dart';
+import '../ui/mainnav/file.dart';
+import '../ui/mainnav/shell.dart';
+
+part 'router.g.dart';
+
+abstract class JulogRouteData extends GoRouteData {
+  const JulogRouteData();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    final child = build(context, state);
+    return CustomTransitionPage(
+      key: state.pageKey,
+      child: child,
+      transitionDuration: const Duration(milliseconds: 150),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return FadeTransition(
+          opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+          child: child,
+        );
+      },
+    );
+  }
+}
+
+@TypedShellRoute<MainShellRoute>(
+  routes: [
+    TypedGoRoute<DashboardRoute>(path: '/', name: 'dashboard'),
+    TypedGoRoute<EintragRoute>(path: '/eintraege', name: 'eintrag'),
+    TypedGoRoute<JugendlicheRoute>(path: '/jugendliche', name: 'jugendliche'),
+    TypedGoRoute<IdentityRoute>(path: '/identity', name: 'identity'),
+    TypedGoRoute<BetreuerRoute>(path: '/betreuer', name: 'betreuer'),
+    TypedGoRoute<KategorieRoute>(path: '/kategorie', name: 'kategorie'),
+  ],
+)
+class MainShellRoute extends ShellRouteData {
+  const MainShellRoute();
+
+  static final GlobalKey<NavigatorState> $navigatorKey =
+      GlobalKey<NavigatorState>();
+
+  @override
+  Widget builder(BuildContext context, GoRouterState state, Widget navigator) {
+    final destination = switch (state.topRoute?.name) {
+      'dashboard' => Destination.dashboard,
+      'eintrag' => Destination.eintrag,
+      'jugendliche' => Destination.jugendliche,
+      'identity' => Destination.identities,
+      'betreuer' => Destination.betreuer,
+      'kategorie' => Destination.kategorien,
+      _ => throw StateError('Unknown route name: ${state.name}'),
+    };
+    return Shell(destination: destination, child: navigator);
+  }
+}
+
+@immutable
+class DashboardRoute extends JulogRouteData with $DashboardRoute {
+  const DashboardRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const Center(child: Text('Dashboard'));
+  }
+}
+
+@immutable
+class EintragRoute extends JulogRouteData with $EintragRoute {
+  final String? eintragId;
+
+  const EintragRoute({this.eintragId});
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return EintragScreen(eintragId: eintragId);
+  }
+}
+
+@immutable
+class JugendlicheRoute extends JulogRouteData with $JugendlicheRoute {
+  final String? jugendlicheId;
+
+  const JugendlicheRoute({this.jugendlicheId});
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return JugendlicheScreen(jugendlicherId: jugendlicheId);
+  }
+}
+
+@immutable
+class IdentityRoute extends JulogRouteData with $IdentityRoute {
+  final String? identityId;
+
+  const IdentityRoute({this.identityId});
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return IdentityScreen(identityId: identityId);
+  }
+}
+
+@immutable
+class BetreuerRoute extends JulogRouteData with $BetreuerRoute {
+  final String? betreuerId;
+
+  const BetreuerRoute({this.betreuerId});
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return BetreuerScreen(betreuerId: betreuerId);
+  }
+}
+
+@immutable
+class KategorieRoute extends JulogRouteData with $KategorieRoute {
+  final String? kategorieId;
+
+  const KategorieRoute({this.kategorieId});
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return KategorieScreen(kategorieId: kategorieId);
+  }
+}
+
+@TypedGoRoute<FileSelectorRoute>(path: '/file-selector', name: 'fileSelector')
+class FileSelectorRoute extends JulogRouteData with $FileSelectorRoute {
+  final bool loading;
+  const FileSelectorRoute({this.loading = false});
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return SelectFileScreen(loading: loading);
+  }
+}
+
+@riverpod
+GoRouter router(Ref ref) {
+  final jldbStateNotifier = ValueNotifier<JulogFile?>(null);
+  ref
+    ..onDispose(() {
+      jldbStateNotifier.dispose();
+    })
+    ..listen(julogServiceProvider, (previous, next) {
+      jldbStateNotifier.value = next;
+    });
+
+  final router = GoRouter(
+    initialLocation: const FileSelectorRoute().location,
+    routes: $appRoutes,
+    refreshListenable: jldbStateNotifier,
+    redirect: (context, state) {
+      final path = state.fullPath;
+      if (path == null) {
+        return null;
+      }
+      final isOnFileSelector =
+          state.fullPath == const FileSelectorRoute().location;
+      final currentFile = ref.read(julogServiceProvider);
+      return currentFile.when(
+        loaded: (value) {
+          if (isOnFileSelector) {
+            return const DashboardRoute().location;
+          }
+          return null;
+        },
+        loading: () {
+          if (!isOnFileSelector) {
+            return const FileSelectorRoute(loading: true).location;
+          }
+          return null;
+        },
+        closed: () {
+          if (!isOnFileSelector) {
+            return const FileSelectorRoute().location;
+          }
+          return null;
+        },
+        none: () {
+          if (!isOnFileSelector) {
+            return const FileSelectorRoute().location;
+          }
+          return null;
+        },
+      );
+    },
+  );
+
+  ref.onDispose(() {
+    router.dispose();
+  });
+
+  return router;
+}

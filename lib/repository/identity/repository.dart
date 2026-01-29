@@ -1,49 +1,123 @@
-import 'package:dart_pg/dart_pg.dart';
-import 'package:julog/repository/db/database.dart';
-import 'package:julog/repository/identity/identity.dart';
-import 'package:sqlite3/sqlite3.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:jlcrypto/jlcrypto.dart' as crypto;
+import 'package:jldb/jldb.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart' hide AsyncResult;
 
-class IdentityRepository {
-  PreparedStatement? _getAllIdentities;
-  PreparedStatement? _getIdentity;
-  PreparedStatement? _insert;
+import '../../provider/jldb/jldb.dart';
+import '../../provider/jldb/julog_file.dart';
+import '../../provider/secure_storage/secure_storage.dart';
+import '../model/identity/identity.dart';
+import '../repository_base.dart';
+import 'exception.dart';
 
-  final JulogDatabase _database;
+part 'repository.g.dart';
 
-  IdentityRepository({required JulogDatabase database}) : _database = database;
+typedef IdentityCreateData = ({
+  String name,
+  String function,
+  String mail,
+  String password,
+});
 
-  void dispose() {
-    _getAllIdentities?.dispose();
-    _getIdentity?.dispose();
-    _insert?.dispose();
-  }
+class IdentityRepository
+    extends JulogRepository<Identity, IdentityApiModel, IdentityCreateData> {
+  final Jldb _jldb;
+  final FlutterSecureStorage _secureStorage;
 
-  List<Identity> getIdentities() {
-    _getAllIdentities ??=
-        _database.getPreparedPersistent("select userid from identities");
-    final result = _getAllIdentities!.select();
-    return result
-        .map(
-          (e) => Identity(userId: e["userid"]),
+  IdentityRepository._({
+    required Jldb jldb,
+    required FlutterSecureStorage secureStorage,
+  }) : _jldb = jldb,
+       _secureStorage = secureStorage;
+
+  AsyncResult<Optional<OpenIdentity>> openIdentity(
+    String id,
+    String password,
+  ) => asyncResultFromFunction(() async {
+    final recordResult = await _jldb.getIdentity(UUID.fromString(id));
+    final record = recordResult.getOrThrow();
+    if (record.isNone()) {
+      return const None();
+    }
+    final privateKeyString = await _secureStorage.read(
+      key: 'private_key_${record.unwrap().id.toString()}',
+    );
+    if (privateKeyString == null) {
+      throw PrivateKeyNotFoundException();
+    }
+    final privateKey = await compute(
+      (message) => crypto.PrivateKey.fromString(
+        message.privateKeyString,
+        message.password,
+      ),
+      (privateKeyString: privateKeyString, password: password),
+    );
+
+    return OpenIdentity(id: id, privateKey: privateKey).toOptional();
+  });
+
+  @protected
+  @override
+  AsyncResult<Identity> createInJldb(
+    IdentityCreateData data,
+  ) => asyncResultFromFunction(() async {
+    final newId = UUID.generate();
+    final keypair = await compute(
+      (message) => crypto.KeyPair.generate(
+        identity: crypto.Identity(message.name, message.function, message.mail),
+        password: message.password,
+      ),
+      data,
+    );
+
+    await _secureStorage.write(
+      key: 'private_key_${newId.toString()}',
+      value: keypair.privateKey.toString(),
+    );
+
+    return _jldb
+        .createIdentity(
+          IdentityApiModel(id: newId, publicKey: keypair.publicKey.toString()),
         )
-        .toList();
+        .map((savedRecord) {
+          final identity = Identity.fromApiModel(savedRecord, true);
+          return identity;
+        })
+        .getOrThrow();
+  });
+
+  @protected
+  @override
+  AsyncResult<List<IdentityApiModel>> fetchAllFromJldb() {
+    return _jldb.getAllIdentities();
   }
 
-  Identity getIdentity(String userId) {
-    _getIdentity ??= _database.getPreparedPersistent(
-      "select public_key from identities where userid = ?",
-    );
-
-    final result = _getIdentity!.select([userId]);
-    return Identity(
-      userId: userId,
-      key: PublicKey.fromArmored(result.first["public_key"]),
-    );
+  @protected
+  @override
+  Future<Identity> fromJldbRecord(IdentityApiModel record) async {
+    final id = record.id.toString();
+    final privateKey = await _secureStorage.read(key: 'private_key_$id');
+    final bool isLocal;
+    if (privateKey != null) {
+      isLocal = true;
+    } else {
+      isLocal = false;
+    }
+    return Identity.fromApiModel(record, isLocal);
   }
 
-  void insertIdentity(Identity identity) {
-    _insert ??= _database.getPreparedPersistent(
-        "insert into identities (userid, public_key) values (?, ?)");
-    _insert!.execute([identity.userId, identity.key?.armor()]);
+  @protected
+  @override
+  String getId(Identity item) => item.id;
+}
+
+@Riverpod(keepAlive: true)
+IdentityRepository identityRepository(Ref ref) {
+  final secureStorage = ref.watch(secureStorageProvider);
+  final jldb = ref.watch(julogServiceProvider);
+  if (jldb is! JulogFileLoaded) {
+    throw StateError('Julog file is not loaded');
   }
+  return IdentityRepository._(jldb: jldb.jldb, secureStorage: secureStorage);
 }

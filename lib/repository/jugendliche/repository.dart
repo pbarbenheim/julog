@@ -1,103 +1,104 @@
-import 'package:julog/repository/db/database.dart';
-import 'package:julog/repository/jugendliche/jugendlicher.dart';
-import 'package:julog/repository/util/geschlecht.dart';
-import 'package:sqlite3/sqlite3.dart';
+import 'package:jldb/jldb.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart' hide AsyncResult;
 
-class JugendlicherRepository {
-  final JulogDatabase _database;
+import '../../provider/jldb/jldb.dart';
+import '../../provider/jldb/julog_file.dart';
+import '../model/model.dart';
+import '../repository_base.dart';
 
-  PreparedStatement? _getAll;
-  PreparedStatement? _get;
-  PreparedStatement? _insert;
+part 'repository.g.dart';
 
-  JugendlicherRepository({required JulogDatabase database})
-      : _database = database;
+typedef JugendlicheCreateData = ({
+  String name,
+  Gender gender,
+  DateTime birthDate,
+  DateTime memberSince,
+  String? pass,
+});
 
-  void dispose() {
-    _get?.dispose();
-    _getAll?.dispose();
-    _insert?.dispose();
+class _JugendlicheRepository
+    extends
+        JulogRepository<
+          Jugendlicher,
+          JugendlicherApiModel,
+          JugendlicheCreateData
+        > {
+  final Jldb _jldb;
+  _JugendlicheRepository({required Jldb jldb}) : _jldb = jldb;
+
+  @override
+  AsyncResult<Jugendlicher> createInJldb(JugendlicheCreateData data) {
+    return _jldb
+        .upsertJugendlicher(
+          JugendlicherApiModel(
+            id: UUID.generate(),
+            name: data.name,
+            sex: switch (data.gender) {
+              Gender.diverse => Sex.diverse,
+              Gender.female => Sex.female,
+              Gender.male => Sex.male,
+            },
+            birthDate: data.birthDate,
+            memberSince: data.memberSince,
+            pass: data.pass,
+          ),
+        )
+        .map((savedRecord) {
+          return Jugendlicher.fromJldbRecord(savedRecord);
+        });
   }
 
-  List<JugendlicherHeader> getAllJugendliche({
-    bool excludeReplaced = true,
-    bool onlyActive = true,
-  }) {
-    _getAll ??= _database.getPreparedPersistent("""
-      select id, name, austrittsgrund, ersetzt_durch
-      from jugendlicher
-    """);
-
-    Iterable<Row> result = _getAll!.select();
-    if (excludeReplaced) {
-      result = result.where((r) => r["ersetzt_durch"] == null);
+  @override
+  AsyncResult<List<JugendlicherApiModel>> fetchAllFromJldb() async {
+    final result = await _jldb.getAllJugendliche();
+    if (result.isFailure()) {
+      return result;
     }
-    if (onlyActive) {
-      result = result.where((r) => r["austrittsgrund"] == null);
+    final records = result.getOrThrow();
+    records.sort((a, b) {
+      final aReplacedBy = a.replacedById != null ? 1 : 0;
+      final bReplacedBy = b.replacedById != null ? 1 : 0;
+      if (aReplacedBy + bReplacedBy != 2) {
+        return aReplacedBy.compareTo(bReplacedBy);
+      }
+      if (a.replacedById == b.id) {
+        return 1;
+      } else if (b.replacedById == a.id) {
+        return -1;
+      } else {
+        return 0;
+      }
+    });
+    return records.toSuccess();
+  }
+
+  @override
+  Jugendlicher fromJldbRecord(JugendlicherApiModel record) {
+    Jugendlicher? replacedBy;
+    if (record.replacedById != null) {
+      final replacedByOptional = cache[record.replacedById!.toString()];
+      if (replacedByOptional is Some<Jugendlicher>) {
+        replacedBy = replacedByOptional.unwrap();
+      } else {
+        throw StateError(
+          'ReplacedBy Jugendlicher with id ${record.replacedById} not found in cache',
+        );
+      }
     }
 
-    return result
-        .map((row) => JugendlicherHeader(
-              id: row["id"],
-              name: row["name"],
-              ersetztDurch: row["ersetzt_durch"],
-            ))
-        .toList();
+    return Jugendlicher.fromJldbRecord(record, replacedBy: replacedBy);
   }
 
-  Jugendlicher getJugendlicher(int id, {bool followLinks = true}) {
-    _get ??= _database.getPreparedPersistent("""
-      select *
-      from jugendlicher
-      where id = ?
-    """);
+  @override
+  String getId(Jugendlicher item) => item.id;
+}
 
-    final result = _get!.select([id]).first;
-    final austrittsdatum = result["austrittsdatum"];
-    final j = Jugendlicher(
-      id: id,
-      name: result["name"],
-      geburtstag: DateTime.fromMillisecondsSinceEpoch(result["geburtstag"]),
-      eintrittsdatum:
-          DateTime.fromMillisecondsSinceEpoch(result["eintrittsdatum"]),
-      geschlecht: Geschlecht.fromNumber(result["geschlecht"]),
-      passnummer: result["passnummer"],
-      austrittsgrund: result["austrittsgrund"],
-      ersetztDurch: result["ersetzt_durch"],
-      austrittsdatum: austrittsdatum != null
-          ? DateTime.fromMillisecondsSinceEpoch(austrittsdatum)
-          : null,
-    );
-
-    if (followLinks && j.isErsetzt) {
-      return getJugendlicher(j.ersetztDurch!, followLinks: true);
-    }
-    return j;
+@Riverpod(keepAlive: true)
+JulogRepository<Jugendlicher, JugendlicherApiModel, JugendlicheCreateData>
+jugendlicheRepository(Ref ref) {
+  final jldb = ref.watch(julogServiceProvider);
+  if (jldb is! JulogFileLoaded) {
+    throw StateError('Julog file is not loaded');
   }
-
-  int addJugendlicher({
-    required String name,
-    required Geschlecht geschlecht,
-    required DateTime geburtstag,
-    required DateTime eintrittsdatum,
-    String? passnummer,
-  }) {
-    _insert ??= _database.getPreparedPersistent("""
-      insert into jugendlicher
-        (name, passnummer, geburtstag, eintrittsdatum, geschlecht)
-      values
-        (?, ?, ?, ?, ?)
-      returning id
-    """);
-
-    final id = _insert!.select([
-      name,
-      passnummer,
-      geburtstag.millisecondsSinceEpoch,
-      eintrittsdatum.millisecondsSinceEpoch,
-      geschlecht.toNumber(),
-    ]).first["id"];
-
-    return id;
-  }
+  return _JugendlicheRepository(jldb: jldb.jldb);
 }
