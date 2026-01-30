@@ -1,0 +1,26 @@
+name: jldb
+description: A starting point for Dart libraries or applications.
+version: 1.0.0-experimental
+# repository: https://github.com/my_org/my_repo
+
+hooks:
+  user_defines:
+    sqlite3:
+      source: system
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  freezed_annotation: ^3.1.0
+  meta: ^1.17.0
+  mutex: ^3.1.0
+  sqlite3: ^3.1.2
+  uuid: ^4.5.2
+
+dev_dependencies:
+  build_runner: ^2.10.4
+  build_test: ^3.5.4
+  freezed: ^3.2.4
+  lints: ^6.0.0
+  test: ^1.25.6

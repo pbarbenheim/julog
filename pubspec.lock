@@ -536,20 +536,16 @@ packages:
   jlcrypto:
     dependency: "direct main"
     description:
-      path: "."
-      ref: main
-      resolved-ref: ce3c69f38199e0571d09d7b48c2ecc0805332bab
-      url: "https://github.com/pbarbenheim/jlcrypto.git"
-    source: git
+      path: "packages/jlcrypto"
+      relative: true
+    source: path
     version: "1.0.0"
   jldb:
     dependency: "direct main"
     description:
-      path: "."
-      ref: main
-      resolved-ref: e49298ba8f33de000476193e5ae3ac8cf7aa8506
-      url: "https://github.com/pbarbenheim/jldb.git"
-    source: git
+      path: "packages/jldb"
+      relative: true
+    source: path
     version: "1.0.0-experimental"
   js:
     dependency: transitive

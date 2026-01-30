@@ -23,15 +23,9 @@ dependencies:
   shared_preferences: ^2.5.4
   vector_graphics: ^1.1.19
   jldb:
-    git:
-      url: https://github.com/pbarbenheim/jldb.git
-      # TODO: Change to a specific tag or commit hash when releasing
-      ref: main
+    path: ./packages/jldb
   jlcrypto:
-    git:
-      url: https://github.com/pbarbenheim/jlcrypto.git
-      # TODO: Change to a specific tag or commit hash when releasing
-      ref: main
+    path: ./packages/jlcrypto
   file_selector: ^1.1.0
   freezed_annotation: ^3.1.0
   meta: ^1.17.0
