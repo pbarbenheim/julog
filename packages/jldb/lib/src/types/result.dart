@@ -1,325 +1,221 @@
+import 'dart:async';
+
 import 'package:meta/meta.dart';
 
 import 'optional.dart';
 import 'unit.dart' as type_unit;
 
-typedef Result<S extends Object> = ResultDart<S, Exception>;
-typedef VoidResult = Result<type_unit.Unit>;
-typedef AsyncVoidResult = AsyncResult<type_unit.Unit>;
-typedef AsyncResultDart<S extends Object, F extends Exception> =
-    Future<ResultDart<S, F>>;
-typedef AsyncResult<S extends Object> = Future<Result<S>>;
-
-VoidResult voidResult() {
-  return const Success<type_unit.Unit, Exception>(type_unit.unit);
-}
-
-AsyncVoidResult asyncVoidResult() async {
-  return const Success<type_unit.Unit, Exception>(type_unit.unit);
-}
-
-type_unit.Unit get resultvoid => type_unit.unit;
-
-AsyncResult<S> asyncResultFromFunction<S extends Object>(
-  Future<S> Function() func,
-) async {
-  final S result;
-  try {
-    result = await func();
-  } on Exception catch (e) {
-    return Failure<S, Exception>(e);
-  }
-
-  assert(result is! ResultDart);
-  assert(result is! Future);
-  return Success<S, Exception>(result);
-}
-
-extension AsyncResultMethods<S extends Object> on AsyncResult<S> {
-  Future<S> getOrThrow() async {
-    final result = await this;
-    return result.getOrThrow();
-  }
-
-  Future<Optional<S>> getOptional() async {
-    final result = await this;
-    return result.getOptional();
-  }
-
-  Future<S> getOrElse(S Function(Exception failure) onFailure) async {
-    final result = await this;
-    return result.getOrElse(onFailure);
-  }
-
-  Future<S> getOrDefault(S defaultValue) async {
-    final result = await this;
-    return result.getOrDefault(defaultValue);
-  }
-
-  Future<Optional<Exception>> getFailureOptional() async {
-    final result = await this;
-    return result.getFailureOptional();
-  }
-
-  Future<W> fold<W>({
-    required W Function(S success) onSuccess,
-    required W Function(Exception failure) onFailure,
-  }) async {
-    final result = await this;
-    return result.fold(onSuccess: onSuccess, onFailure: onFailure);
-  }
-
-  AsyncResult<S> onSuccess(void Function(S success) action) {
-    return then((result) {
-      return result.onSuccess(action);
-    });
-  }
-
-  AsyncResult<S> onFailure(void Function(Exception failure) action) {
-    return then((result) {
-      return result.onFailure(action);
-    });
-  }
-
-  AsyncResult<W> map<W extends Object>(W Function(S success) transform) {
-    return then((result) {
-      return result.map(transform);
-    });
-  }
-
-  AsyncResult<S> mapFailure<G extends Exception>(
-    G Function(Exception failure) transform,
-  ) {
-    return then((result) {
-      return result.mapFailure<G>(transform);
-    });
-  }
-
-  Future<bool> isSuccess() async {
-    final result = await this;
-    return result.isSuccess();
-  }
-
-  Future<bool> isFailure() async {
-    final result = await this;
-    return result.isFailure();
-  }
-}
-
-extension AsyncResultExtension<S extends Object, F extends Exception>
-    on Future<S> {
-  AsyncResult<S> toAsyncResult() async {
-    return then(
-      (S value) {
-        return Success<S, F>(value);
-      },
-      onError: (Object error) {
-        if (error is F) {
-          return Failure<S, F>(error);
-        } else {
-          return Failure<S, F>(Exception('Unknown error: $error') as F);
-        }
-      },
-    );
-  }
-}
-
 sealed class ResultDart<S extends Object, F extends Exception> {
-  bool isSuccess();
-
-  bool isFailure();
-
-  S getOrThrow();
-
+  S unwrap();
   S getOrElse(S Function(F failure) onFailure);
-
   S getOrDefault(S defaultValue);
 
-  Optional<S> getOptional();
+  F unwrapFailure();
 
-  Optional<F> getFailureOptional();
-
-  W fold<W>({
-    required W Function(S success) onSuccess,
-    required W Function(F failure) onFailure,
-  });
-
-  ResultDart<S, F> onSuccess(void Function(S success) action);
-
-  ResultDart<S, F> onFailure(void Function(F failure) action);
+  ResultDart<W, Exception> when<W extends Object>(
+    W Function(S value) onSuccess,
+    Exception Function(F error)? onFailure,
+  );
 
   ResultDart<W, Exception> map<W extends Object>(
-    W Function(S success) transform,
-  );
+    W Function(S value) transform,
+  ) => when(transform, null);
 
-  ResultDart<S, G> mapFailure<G extends Exception>(
-    G Function(F failure) transform,
-  );
+  const ResultDart._();
 
-  factory ResultDart.success(S value) => Success<S, F>(value);
-  factory ResultDart.failure(F error) => Failure<S, F>(error);
+  const factory ResultDart.success(S value) = SuccessDart<S, F>;
+  const factory ResultDart.failure(F error) = FailureDart<S, F>;
 
-  factory ResultDart.fromFunction(S Function() func) {
+  static Result<W> safe<W extends Object>(W Function() fn) {
     try {
-      final result = func();
-      assert(result is! ResultDart);
-      assert(result is! Future);
-      return Success<S, F>(result);
-    } on F catch (e) {
-      return Failure<S, F>(e);
+      final value = fn();
+      return Success<W>(value);
+    } on Exception catch (e) {
+      return Failure<W>(e);
+    }
+  }
+
+  static Result<type_unit.Unit> voidSafe(void Function() fn) {
+    try {
+      fn();
+      return const Success<type_unit.Unit>(type_unit.unit);
+    } on Exception catch (e) {
+      return Failure<type_unit.Unit>(e);
+    }
+  }
+
+  static AsyncResult<W> safeAsync<W extends Object>(
+    FutureOr<W> Function() fn,
+  ) async {
+    try {
+      final value = await fn();
+      return Success<W>(value);
+    } on Exception catch (e) {
+      return Failure<W>(e);
+    }
+  }
+
+  static AsyncVoidResult voidSafeAsync(Future<void> Function() fn) async {
+    try {
+      await fn();
+      return const Success<type_unit.Unit>(type_unit.unit);
+    } on Exception catch (e) {
+      return Failure<type_unit.Unit>(e);
+    }
+  }
+
+  static ResultOptional<S> safeNullable<S extends Object>(S? Function() fn) {
+    try {
+      final value = fn();
+      return ResultOptional<S>.success(Optional<S>.fromNullable(value));
+    } on Exception catch (e) {
+      return ResultOptional<S>.failure(e);
+    }
+  }
+
+  static AsyncResultOptional<S> safeNullableAsync<S extends Object>(
+    FutureOr<S?> Function() fn,
+  ) async {
+    try {
+      final value = await fn();
+      return ResultOptional<S>.success(Optional<S>.fromNullable(value));
+    } on Exception catch (e) {
+      return ResultOptional<S>.failure(e);
     }
   }
 }
 
 @immutable
-final class Success<S extends Object, F extends Exception>
-    implements ResultDart<S, F> {
-  const Success(this._value);
+final class SuccessDart<S extends Object, F extends Exception>
+    extends ResultDart<S, F> {
   final S _value;
 
-  static Success<type_unit.Unit, F> unit<F extends Exception>() =>
-      Success<type_unit.Unit, F>(type_unit.unit);
+  const SuccessDart(this._value) : super._();
 
   @override
-  bool isSuccess() => true;
+  S unwrap() {
+    return _value;
+  }
 
-  @override
-  bool isFailure() => false;
-
-  @override
-  S getOrThrow() => _value;
-
-  @override
-  S getOrElse(S Function(F failure) onFailure) => _value;
+  S get value => _value;
 
   @override
   S getOrDefault(S defaultValue) => _value;
 
   @override
-  Optional<S> getOptional() => Optional.some(_value);
+  S getOrElse(S Function(F failure) onFailure) => _value;
 
   @override
-  Optional<F> getFailureOptional() => Optional.none();
-
-  @override
-  W fold<W>({
-    required W Function(S success) onSuccess,
-    required W Function(F failure) onFailure,
-  }) {
-    return onSuccess(_value);
-  }
-
-  @override
-  ResultDart<S, F> onSuccess(void Function(S success) action) {
-    action(_value);
-    return this;
-  }
-
-  @override
-  ResultDart<S, F> onFailure(void Function(F failure) action) {
-    return this;
-  }
-
-  @override
-  ResultDart<W, Exception> map<W extends Object>(
-    W Function(S success) transform,
+  ResultDart<W, Exception> when<W extends Object>(
+    W Function(S value) onSuccess,
+    Exception Function(F error)? onFailure,
   ) {
     try {
-      return Success<W, Exception>(transform(_value));
+      final value = onSuccess(_value);
+      return SuccessDart<W, Exception>(value);
     } on Exception catch (e) {
-      return Failure<W, Exception>(e);
+      return FailureDart<W, Exception>(e);
     }
   }
 
   @override
-  ResultDart<S, G> mapFailure<G extends Exception>(
-    G Function(F failure) transform,
-  ) {
-    return Success<S, G>(_value);
+  F unwrapFailure() {
+    throw StateError('Cannot unwrap failure from Success');
   }
 }
 
 @immutable
-final class Failure<S extends Object, F extends Exception>
-    implements ResultDart<S, F> {
-  const Failure(this._error);
+final class FailureDart<S extends Object, F extends Exception>
+    extends ResultDart<S, F> {
   final F _error;
 
-  @override
-  bool isSuccess() => false;
+  const FailureDart(this._error) : super._();
+
+  F get error => _error;
 
   @override
-  bool isFailure() => true;
-
-  @override
-  S getOrThrow() {
+  S unwrap() {
     throw _error;
   }
 
   @override
-  S getOrElse(S Function(F failure) onFailure) {
-    return onFailure(_error);
-  }
+  S getOrDefault(S defaultValue) => defaultValue;
 
   @override
-  S getOrDefault(S defaultValue) {
-    return defaultValue;
-  }
+  S getOrElse(S Function(F failure) onFailure) => onFailure(_error);
 
   @override
-  Optional<S> getOptional() => Optional.none();
-
-  @override
-  Optional<F> getFailureOptional() => Optional.some(_error);
-
-  @override
-  W fold<W>({
-    required W Function(S success) onSuccess,
-    required W Function(F failure) onFailure,
-  }) {
-    return onFailure(_error);
-  }
-
-  @override
-  ResultDart<S, F> onSuccess(void Function(S success) action) {
-    return this;
-  }
-
-  @override
-  ResultDart<S, F> onFailure(void Function(F failure) action) {
-    action(_error);
-    return this;
-  }
-
-  @override
-  ResultDart<W, Exception> map<W extends Object>(
-    W Function(S success) transform,
+  ResultDart<W, Exception> when<W extends Object>(
+    W Function(S value) onSuccess,
+    Exception Function(F error)? onFailure,
   ) {
-    return Failure<W, F>(_error);
-  }
-
-  @override
-  ResultDart<S, G> mapFailure<G extends Exception>(
-    G Function(F failure) transform,
-  ) {
-    try {
-      return Failure<S, G>(transform(_error));
-    } on Exception catch (e) {
-      return Failure<S, G>(e as G);
+    if (onFailure != null) {
+      try {
+        final value = onFailure(_error);
+        return FailureDart<W, Exception>(value);
+      } on Exception catch (e) {
+        return FailureDart<W, Exception>(e);
+      }
+    } else {
+      return FailureDart<W, Exception>(_error);
     }
   }
+
+  @override
+  F unwrapFailure() => _error;
 }
 
-extension FailureObjectExtension<W extends Exception> on W {
-  Failure<S, W> toFailure<S extends Object>() {
-    return Failure<S, W>(this);
+typedef Result<S extends Object> = ResultDart<S, Exception>;
+typedef Success<S extends Object> = SuccessDart<S, Exception>;
+typedef Failure<S extends Object> = FailureDart<S, Exception>;
+
+typedef VoidResult = ResultDart<type_unit.Unit, Exception>;
+typedef VoidSuccess = SuccessDart<type_unit.Unit, Exception>;
+typedef VoidFailure = FailureDart<type_unit.Unit, Exception>;
+
+typedef AsyncVoidResult = AsyncResult<type_unit.Unit>;
+typedef AsyncResultDart<S extends Object, F extends Exception> =
+    Future<ResultDart<S, F>>;
+typedef AsyncResult<S extends Object> = Future<Result<S>>;
+
+extension AsyncResultMethods<S extends Object, F extends Exception>
+    on AsyncResultDart<S, F> {
+  Future<S> unwrap() async => then((result) => result.unwrap());
+
+  Future<S> getOrDefault(S defaultValue) async =>
+      then((result) => result.getOrDefault(defaultValue));
+
+  Future<S> getOrElse(S Function(F failure) onFailure) async =>
+      then((result) => result.getOrElse(onFailure));
+
+  AsyncResultDart<W, Exception> when<W extends Object>(
+    W Function(S value) onSuccess,
+    F Function(F error)? onFailure,
+  ) async => then((result) => result.when(onSuccess, onFailure));
+
+  AsyncResultDart<W, Exception> map<W extends Object>(
+    W Function(S value) transform,
+  ) async => then((result) => result.map(transform));
+}
+
+T identity<T>(T value) => value;
+
+typedef ResultOptional<S extends Object> = Result<Optional<S>>;
+typedef AsyncResultOptional<S extends Object> = AsyncResult<Optional<S>>;
+
+extension ResultOptionalMethods<S extends Object, F extends Exception>
+    on ResultOptional<S> {
+  S unwrapAll() {
+    final optional = unwrap();
+    return optional.unwrap();
   }
 }
 
-extension SuccessObjectExtension<S extends Object> on S {
-  Success<S, F> toSuccess<F extends Exception>() {
-    assert(this is! ResultDart);
-    assert(this is! Future);
-    return Success<S, F>(this);
+extension AsyncResultOptionalMethods<S extends Object, F extends Exception>
+    on AsyncResultOptional<S> {
+  Future<S> unwrapAll() async {
+    final result = await this;
+    final optional = result.unwrap();
+    return optional.unwrap();
   }
 }

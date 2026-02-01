@@ -17,11 +17,11 @@ class JulogService extends _$JulogService {
         .getString(lastOpenedFileKey);
     if (file != null) {
       Jldb.open(file).then((result) {
-        if (result.isFailure()) {
+        if (result is Failure<Jldb>) {
           _saveToPrefs('');
           return;
         }
-        state = JulogFile.loaded(jldb: result.getOrThrow());
+        state = JulogFile.loaded(jldb: result.unwrap());
       });
       return const JulogFile.loading();
     }
@@ -35,20 +35,20 @@ class JulogService extends _$JulogService {
 
   Future<bool> open(String path) async {
     final jldb = await Jldb.open(path);
-    if (jldb.isFailure()) {
+    if (jldb is Failure<Jldb>) {
       return false;
     }
-    state = JulogFile.loaded(jldb: jldb.getOrThrow());
+    state = JulogFile.loaded(jldb: jldb.unwrap());
     _saveToPrefs(path);
     return true;
   }
 
   Future<bool> create(String path, String domain) async {
     final jldb = await Jldb.create(path, domain: domain);
-    if (jldb.isFailure()) {
+    if (jldb is Failure<Jldb>) {
       return false;
     }
-    state = JulogFile.loaded(jldb: jldb.getOrThrow());
+    state = JulogFile.loaded(jldb: jldb.unwrap());
     _saveToPrefs(path);
     return true;
   }

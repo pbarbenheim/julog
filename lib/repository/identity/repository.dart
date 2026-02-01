@@ -31,37 +31,35 @@ class IdentityRepository
   }) : _jldb = jldb,
        _secureStorage = secureStorage;
 
-  AsyncResult<Optional<OpenIdentity>> openIdentity(
-    String id,
-    String password,
-  ) => asyncResultFromFunction(() async {
-    final recordResult = await _jldb.getIdentity(UUID.fromString(id));
-    final record = recordResult.getOrThrow();
-    if (record.isNone()) {
-      return const None();
-    }
-    final privateKeyString = await _secureStorage.read(
-      key: 'private_key_${record.unwrap().id.toString()}',
-    );
-    if (privateKeyString == null) {
-      throw PrivateKeyNotFoundException();
-    }
-    final privateKey = await compute(
-      (message) => crypto.PrivateKey.fromString(
-        message.privateKeyString,
-        message.password,
-      ),
-      (privateKeyString: privateKeyString, password: password),
-    );
+  AsyncResultOptional<OpenIdentity> openIdentity(String id, String password) =>
+      Result.safeNullableAsync(() async {
+        final recordResult = await _jldb.getIdentity(UUID.fromString(id));
+        final record = recordResult.unwrap();
+        if (record is None<IdentityApiModel>) {
+          return null;
+        }
+        final privateKeyString = await _secureStorage.read(
+          key: 'private_key_${record.unwrap().id.toString()}',
+        );
+        if (privateKeyString == null) {
+          throw PrivateKeyNotFoundException();
+        }
+        final privateKey = await compute(
+          (message) => crypto.PrivateKey.fromString(
+            message.privateKeyString,
+            message.password,
+          ),
+          (privateKeyString: privateKeyString, password: password),
+        );
 
-    return OpenIdentity(id: id, privateKey: privateKey).toOptional();
-  });
+        return OpenIdentity(id: id, privateKey: privateKey);
+      });
 
   @protected
   @override
   AsyncResult<Identity> createInJldb(
     IdentityCreateData data,
-  ) => asyncResultFromFunction(() async {
+  ) => Result.safeAsync(() async {
     final newId = UUID.generate();
     final keypair = await compute(
       (message) => crypto.KeyPair.generate(
@@ -84,7 +82,7 @@ class IdentityRepository
           final identity = Identity.fromApiModel(savedRecord, true);
           return identity;
         })
-        .getOrThrow();
+        .unwrap();
   });
 
   @protected

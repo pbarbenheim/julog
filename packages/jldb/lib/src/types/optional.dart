@@ -1,93 +1,76 @@
+import 'dart:async';
+
 import 'package:meta/meta.dart';
 
 sealed class Optional<T extends Object> {
-  bool isSome();
-  bool isNone();
+  const Optional._();
+
   T unwrap();
   T? unsafe();
 
   Optional<W> map<W extends Object>(W Function(T value) transform);
 
-  W fold<W>({
-    required W Function(T value) onSome,
-    required W Function() onNone,
-  });
-
   factory Optional.some(T value) => Some<T>(value);
   factory Optional.none() => None<T>();
+  factory Optional.fromNullable(T? value) =>
+      value != null ? Some<T>(value) : None<T>();
+
+  static AsyncOptional<W> fromFuture<W extends Object>(Future<W?> value) =>
+      value.then((v) => Optional.fromNullable(v));
+  static AsyncOptional<W> fromAsync<W extends Object>(
+    FutureOr<W?> Function() fn,
+  ) async => Optional.fromNullable(await fn());
 }
 
 @immutable
-final class Some<T extends Object> implements Optional<T> {
-  const Some(this._value);
-
+final class Some<T extends Object> extends Optional<T> {
   final T _value;
-
-  @override
-  bool isSome() => true;
-
-  @override
-  bool isNone() => false;
-
-  @override
-  T unwrap() => _value;
-
-  @override
-  T? unsafe() => _value;
+  Some(this._value) : super._();
 
   @override
   Optional<W> map<W extends Object>(W Function(T value) transform) {
-    return transform(_value).toOptional();
+    return Some<W>(transform(_value));
   }
 
   @override
-  W fold<W>({
-    required W Function(T value) onSome,
-    required W Function() onNone,
-  }) {
-    return onSome(_value);
+  T? unsafe() {
+    return _value;
+  }
+
+  @override
+  T unwrap() {
+    return _value;
+  }
+
+  T get value {
+    return _value;
   }
 }
 
 @immutable
-final class None<T extends Object> implements Optional<T> {
-  const None();
+final class None<T extends Object> extends Optional<T> {
+  const None() : super._();
 
   @override
-  bool isSome() => false;
-
-  @override
-  bool isNone() => true;
-
-  @override
-  T unwrap() {
-    throw StateError('Called unwrap on None');
-  }
+  Optional<W> map<W extends Object>(W Function(T value) transform) => None<W>();
 
   @override
   T? unsafe() => null;
 
   @override
-  Optional<W> map<W extends Object>(W Function(T value) transform) {
-    return None<W>();
-  }
-
-  @override
-  W fold<W>({
-    required W Function(T value) onSome,
-    required W Function() onNone,
-  }) {
-    return onNone();
-  }
+  T unwrap() => throw StateError('No value present');
 }
 
-extension OptionalExtension<T extends Object> on T? {
-  Optional<T> toOptional() {
-    final value = this;
-    if (value == null) {
-      return None<T>();
-    } else {
-      return Some<T>(value);
-    }
-  }
+class OptionalHasNoValueException implements Exception {
+  @override
+  String toString() => 'Optional has no value';
+}
+
+typedef AsyncOptional<T extends Object> = Future<Optional<T>>;
+
+extension AsyncOptionalMethods<T extends Object> on AsyncOptional<T> {
+  Future<T> unwrap() async => then((optional) => optional.unwrap());
+  Future<T?> unsafe() async => then((optional) => optional.unsafe());
+  AsyncOptional<W> map<W extends Object>(W Function(T value) transform) async =>
+      then((optional) => optional.map(transform));
 }

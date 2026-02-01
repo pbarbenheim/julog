@@ -51,10 +51,10 @@ class _JugendlicheRepository
   @override
   AsyncResult<List<JugendlicherApiModel>> fetchAllFromJldb() async {
     final result = await _jldb.getAllJugendliche();
-    if (result.isFailure()) {
+    if (result is Failure<List<JugendlicherApiModel>>) {
       return result;
     }
-    final records = result.getOrThrow();
+    final records = result.unwrap();
     records.sort((a, b) {
       final aReplacedBy = a.replacedById != null ? 1 : 0;
       final bReplacedBy = b.replacedById != null ? 1 : 0;
@@ -69,7 +69,7 @@ class _JugendlicheRepository
         return 0;
       }
     });
-    return records.toSuccess();
+    return Success(records);
   }
 
   @override

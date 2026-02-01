@@ -10,6 +10,5 @@ export 'src/models/models.dart'
         eintragStatusAnwesend,
         eintragStatusEntschuldigt,
         UUIDExtension;
-export 'src/types/result.dart' hide AsyncResultDart, ResultDart;
-export 'src/types/optional.dart' show None, Some, Optional, OptionalExtension;
-export 'src/types/result_optional.dart';
+export 'src/types/types.dart'
+    hide AsyncResultDart, ResultDart, SuccessDart, FailureDart;

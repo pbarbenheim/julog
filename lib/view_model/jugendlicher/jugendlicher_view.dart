@@ -1,3 +1,4 @@
+import 'package:jldb/types.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../repository/jugendliche/repository.dart';
@@ -11,12 +12,10 @@ class JugendlicherViewModel extends _$JugendlicherViewModel {
   Future<List<Jugendlicher>> build() async {
     final repo = ref.watch(jugendlicheRepositoryProvider);
     final result = await repo.getAll();
-    if (result.isFailure()) {
-      throw Exception(
-        'Failed to load Jugendlicher: ${result.getFailureOptional().unsafe()}',
-      );
+    if (result is Failure<List<Jugendlicher>>) {
+      throw Exception('Failed to load Jugendlicher: ${result.error}');
     } else {
-      return result.getOrThrow();
+      return result.unwrap();
     }
   }
 
@@ -35,15 +34,13 @@ class JugendlicherViewModel extends _$JugendlicherViewModel {
       memberSince: memberSince,
       pass: pass,
     ));
-    if (result.isFailure()) {
-      throw Exception(
-        'Failed to save Jugendlicher: ${result.getFailureOptional().unsafe()}',
-      );
+    if (result is Failure<Jugendlicher>) {
+      throw Exception('Failed to save Jugendlicher: ${result.error}');
     } else {
       // Refresh the list after adding a new Jugendlicher
       ref.invalidateSelf();
 
-      final jugendlicher = result.getOrThrow();
+      final jugendlicher = result.unwrap();
       return jugendlicher.id;
     }
   }

@@ -26,28 +26,27 @@ class SelectedEintragViewModel extends _$SelectedEintragViewModel {
     final betreuerRepo = ref.watch(betreuerRepositoryProvider);
     final identityRepo = ref.watch(identityRepositoryProvider);
 
-    final eintrag = (await eintragRepo.getById(id).getOrThrow()).unwrap();
+    final eintrag = (await eintragRepo.getById(id).unwrap()).unwrap();
     final kategorie =
-        (await kategorieRepo.getById(eintrag.kategorieId).getOrThrow())
-            .unwrap();
-    final signatures = await signatureRepo.getAll().getOrThrow();
+        (await kategorieRepo.getById(eintrag.kategorieId).unwrap()).unwrap();
+    final signatures = await signatureRepo.getAll().unwrap();
     final betreuerList = await Future.wait(
       eintrag.betreuerIds.map((id) async {
-        return (await betreuerRepo.getById(id).getOrThrow()).unwrap();
+        return (await betreuerRepo.getById(id).unwrap()).unwrap();
       }),
     );
     final anwesendeJugendlicheList = await Future.wait(
       eintrag.anwesendeJugendlicherIds.map((id) async {
-        return (await jugendlicheRepo.getById(id).getOrThrow()).unwrap();
+        return (await jugendlicheRepo.getById(id).unwrap()).unwrap();
       }),
     );
     final entschuldigteJugendlicheList = await Future.wait(
       eintrag.entschuldigteJugendlicherIds.map((id) async {
-        return (await jugendlicheRepo.getById(id).getOrThrow()).unwrap();
+        return (await jugendlicheRepo.getById(id).unwrap()).unwrap();
       }),
     );
 
-    final possibleSigners = await identityRepo.getAll().getOrThrow();
+    final possibleSigners = await identityRepo.getAll().unwrap();
 
     return SelectedEintrag(
       id: eintrag.id,
@@ -67,53 +66,48 @@ class SelectedEintragViewModel extends _$SelectedEintragViewModel {
     );
   }
 
-  AsyncVoidResult sign(String identityId, String password) async {
+  AsyncVoidResult sign(String identityId, String password) {
     const currentVersion = 4;
     assert(state.hasValue);
     final timestamp = DateTime.timestamp();
 
-    final identityRepo = ref.read(identityRepositoryProvider);
-    final eintragRepo = ref.read(eintragRepositoryProvider);
-    final signatureRepo = ref.read(
-      signatureRepositoryProvider(state.asData!.value.id),
-    );
+    return Result.voidSafeAsync(() async {
+      final identityRepo = ref.read(identityRepositoryProvider);
+      final eintragRepo = ref.read(eintragRepositoryProvider);
+      final signatureRepo = ref.read(
+        signatureRepositoryProvider(state.asData!.value.id),
+      );
 
-    final identity = await identityRepo.openIdentity(identityId, password);
-    if (identity.isFailure()) {
-      return Failure(identity.getFailureOptional().unwrap());
-    }
+      final identity = await identityRepo
+          .openIdentity(identityId, password)
+          .unwrapAll();
 
-    final eintragResult = await eintragRepo.getEintragSigningData(
-      state.asData!.value.id,
-      currentVersion,
-      timestamp,
-    );
-    if (eintragResult.isFailure()) {
-      return Failure(eintragResult.getFailureOptional().unwrap());
-    }
-    final eintragString = eintragResult.getOrThrow().unwrap();
+      final eintragString = await eintragRepo
+          .getEintragSigningData(
+            state.asData!.value.id,
+            currentVersion,
+            timestamp,
+          )
+          .unwrapAll();
 
-    final privateKey = identity.getOrThrow().unwrap().privateKey;
-    final crypto.Signature signature;
-    try {
+      final privateKey = identity.privateKey;
+      final crypto.Signature signature;
+
       signature = await compute(
         ((crypto.PrivateKey, String) data) =>
             data.$1.signSHA512(crypto.Message.fromString(data.$2)),
         (privateKey, eintragString),
       );
-    } on Exception catch (e) {
-      return Failure(e);
-    }
 
-    await signatureRepo.save((
-      identityId: identityId,
-      signature: signature,
-      timestamp: timestamp,
-      version: currentVersion,
-    ));
+      await signatureRepo.save((
+        identityId: identityId,
+        signature: signature,
+        timestamp: timestamp,
+        version: currentVersion,
+      ));
 
-    ref.invalidateSelf();
-    return asyncVoidResult();
+      ref.invalidateSelf();
+    });
   }
 }
 

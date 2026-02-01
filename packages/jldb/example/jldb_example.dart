@@ -3,15 +3,12 @@
 import 'package:jldb/jldb.dart';
 
 void main() async {
-  final jldb = await Jldb.create(
-    ':memory:',
-    domain: 'jf.example.com',
-  ).getOrThrow();
+  final jldb = await Jldb.create(':memory:', domain: 'jf.example.com').unwrap();
 
   await jldb.createKategorie(
     KategorieApiModel(id: UUID.generate(), name: 'Kategorie 1'),
   );
 
-  final kategorien = await jldb.getAllKategorien().getOrThrow();
+  final kategorien = await jldb.getAllKategorien().unwrap();
   print(kategorien.first.name);
 }

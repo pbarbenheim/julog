@@ -28,7 +28,7 @@ class _SignatureRepository
 
   @override
   AsyncResult<Signature> createInJldb(SignatureCreateData data) {
-    return asyncResultFromFunction(() async {
+    return Result.safeAsync(() async {
       final signature = await _jldb
           .createSignature(
             SignatureApiModel(
@@ -39,19 +39,19 @@ class _SignatureRepository
               version: data.version,
             ),
           )
-          .getOrThrow();
+          .unwrap();
       final isValid = await _isSignatureValid(
         '${signature.eintragId}:${signature.identityId}',
-      ).getOrThrow();
+      ).unwrap();
       return Signature.fromApiModel(signature, isValid);
     });
   }
 
   AsyncResult<bool> _isSignatureValid(String id) {
-    return asyncResultFromFunction(() async {
+    return Result.safeAsync(() async {
       final signatures = await _jldb
           .getSignaturesByEintragId(UUID.fromString(_eintragId))
-          .getOrThrow();
+          .unwrap();
       final signature = signatures.firstWhere(
         (s) => '${s.eintragId}:${s.identityId}' == id,
       );
@@ -59,17 +59,14 @@ class _SignatureRepository
       final identityId = signature.identityId;
       final cryptoSignature = signature.signature;
 
-      final eintragResult =
-          (await _jldb
-                  .getEintragForSigning(
-                    eintragId,
-                    signature.version,
-                    signature.timestamp,
-                  )
-                  .getOrThrow())
-              .unwrap();
-      final identity = (await _jldb.getIdentity(identityId).getOrThrow())
-          .unwrap();
+      final eintragResult = await _jldb
+          .getEintragForSigning(
+            eintragId,
+            signature.version,
+            signature.timestamp,
+          )
+          .unwrapAll();
+      final identity = await _jldb.getIdentity(identityId).unwrapAll();
       final publicKey = crypto.PublicKey.fromString(identity.publicKey);
       final isValid = await compute(
         ((crypto.PublicKey, String, crypto.Signature) data) => data.$1
@@ -92,7 +89,7 @@ class _SignatureRepository
   Future<Signature> fromJldbRecord(SignatureApiModel record) async {
     final isValid = await _isSignatureValid(
       '${record.eintragId}:${record.identityId}',
-    ).getOrThrow();
+    ).unwrap();
     return Signature.fromApiModel(record, isValid);
   }
 

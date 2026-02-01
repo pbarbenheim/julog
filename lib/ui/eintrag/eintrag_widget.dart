@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jldb/types.dart';
 
 import '../../repository/model/model.dart';
 import '../../view_model/eintrag/selected_eintrag_viewmodel.dart';
@@ -119,22 +120,23 @@ class EintragDisplay extends ConsumerWidget {
                           selectedEintragViewModelProvider(eintragId).notifier,
                         )
                         .sign(identityId, password);
-                    if (signResult.isSuccess()) {
-                      if (!context.mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Eintrag erfolgreich signiert.'),
-                        ),
-                      );
-                    } else {
-                      if (!context.mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Fehler beim Signieren: ${signResult.getFailureOptional().unwrap().toString()}',
+                    switch (signResult) {
+                      case Success<Unit>():
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Eintrag erfolgreich signiert.'),
                           ),
-                        ),
-                      );
+                        );
+                      case Failure<Unit>():
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Fehler beim Signieren: ${signResult.error.toString()}',
+                            ),
+                          ),
+                        );
                     }
                   },
                   child: const Text('Signieren'),

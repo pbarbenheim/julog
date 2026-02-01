@@ -3,6 +3,7 @@ import 'package:jldb/jldb.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../repository/eintrag/eintrag_repo.dart';
+import '../../repository/model/model.dart';
 
 part 'eintrag_viewmodel.g.dart';
 part 'eintrag_viewmodel.freezed.dart';
@@ -12,7 +13,7 @@ class EintragViewModel extends _$EintragViewModel {
   @override
   Future<List<SmallEintrag>> build() async {
     final repo = ref.watch(eintragRepositoryProvider);
-    final result = await repo.getAll().getOrThrow();
+    final result = await repo.getAll().unwrap();
     return result
         .map(
           (e) => SmallEintrag(
@@ -52,15 +53,13 @@ class EintragViewModel extends _$EintragViewModel {
       anwesendeJugendlicherIds: anwesendeJugendlicherIds,
       entschuldigteJugendlicherIds: entschuldigteJugendlicherIds,
     ));
-    if (result.isFailure()) {
-      throw Exception(
-        'Failed to save Eintrag: ${result.getFailureOptional().unsafe()}',
-      );
+    if (result is Failure<Eintrag>) {
+      throw Exception('Failed to save Eintrag: ${result.error}');
     } else {
       // Refresh the list after adding a new Eintrag
       ref.invalidateSelf();
 
-      final eintrag = result.getOrThrow();
+      final eintrag = result.unwrap();
       return eintrag.id;
     }
   }

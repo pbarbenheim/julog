@@ -4,8 +4,7 @@ import 'database/sqlite_worker.dart';
 import 'migrations.dart';
 import 'models/models.dart';
 import 'signing.dart';
-import 'types/optional.dart';
-import 'types/result.dart';
+import 'types/types.dart';
 
 const jldbCompatibleSinceVersion = 3;
 
@@ -93,7 +92,7 @@ final class Jldb {
       values (?, ?, ?)
       returning id, name, sex;
     ''';
-    return asyncResultFromFunction(() async {
+    return Result.safeAsync(() async {
       _createBetreuerStmnt ??= await _database.prepare(sql, peristent: true);
       final result = await _createBetreuerStmnt!.select([
         betreuer.id.toString(),
@@ -132,7 +131,7 @@ final class Jldb {
       insert into eintrag_jugendlicher (eintrag_id, jugendlicher_id, status) 
       values (?, ?, ?);
     ''';
-    return asyncResultFromFunction(() async {
+    return Result.safeAsync(() async {
       return await _database.transaction((db) async {
         await db.execute(createEintragSql, [
           eintrag.id.toString(),
@@ -189,7 +188,7 @@ final class Jldb {
       values (?, ?)
       returning id, public_key;
     ''';
-    return asyncResultFromFunction(() async {
+    return Result.safeAsync(() async {
       _createIdentityStmnt ??= await _database.prepare(sql, peristent: true);
       final result = await _createIdentityStmnt!.select([
         identity.id.toString(),
@@ -212,7 +211,7 @@ final class Jldb {
       values (?, ?)
       returning id, name;
     ''';
-    return asyncResultFromFunction(() async {
+    return Result.safeAsync(() async {
       _createKategorieStmnt ??= await _database.prepare(sql, peristent: true);
       final result = await _createKategorieStmnt!.select([
         kategorie.id.toString(),
@@ -243,7 +242,7 @@ final class Jldb {
         timestamp,
         version;
     ''';
-    return asyncResultFromFunction(() async {
+    return Result.safeAsync(() async {
       _createSignatureStmnt ??= await _database.prepare(sql, peristent: true);
       final result = await _createSignatureStmnt!.select([
         signature.eintragId.toString(),
@@ -270,7 +269,7 @@ final class Jldb {
 
   AsyncResult<List<BetreuerApiModel>> getAllBetreuer() {
     const sql = 'select id, name, sex from betreuer;';
-    return asyncResultFromFunction(() async {
+    return Result.safeAsync(() async {
       _getAllBetreuerStmnt ??= await _database.prepare(sql, peristent: true);
       final result = await _getAllBetreuerStmnt!.select([]);
       final betreuer = result.map((row) {
@@ -285,7 +284,7 @@ final class Jldb {
   }
 
   AsyncResult<List<EintragApiModel>> getAllEintraege() async {
-    return asyncResultFromFunction(() async {
+    return Result.safeAsync(() async {
       _getAllEintraegeStmnt ??= await _database.prepare(
         _getAllEintraegeSql.replaceFirst('%COND%', ''),
         peristent: true,
@@ -300,7 +299,7 @@ final class Jldb {
 
   AsyncResult<List<IdentityApiModel>> getAllIdentities() async {
     const sql = 'select id, public_key from identity;';
-    return asyncResultFromFunction(() async {
+    return Result.safeAsync(() async {
       _getAllIdentitiesStmnt ??= await _database.prepare(sql, peristent: true);
       final result = await _getAllIdentitiesStmnt!.select([]);
       final identities = result.map((row) {
@@ -327,7 +326,7 @@ final class Jldb {
         replaced_by_id 
       from jugendlicher;
     ''';
-    return asyncResultFromFunction(() async {
+    return Result.safeAsync(() async {
       _getAllJugendlicheStmnt ??= await _database.prepare(sql, peristent: true);
       final result = await _getAllJugendlicheStmnt!.select([]);
       final jugendliche = result.map((row) {
@@ -351,7 +350,7 @@ final class Jldb {
 
   AsyncResult<List<KategorieApiModel>> getAllKategorien() async {
     const sql = 'select id, name from kategorien;';
-    return asyncResultFromFunction(() async {
+    return Result.safeAsync(() async {
       _getAllKategorienStmnt ??= await _database.prepare(sql, peristent: true);
       final result = await _getAllKategorienStmnt!.select([]);
       final kategorien = result.map((row) {
@@ -364,13 +363,13 @@ final class Jldb {
     });
   }
 
-  AsyncResult<Optional<BetreuerApiModel>> getBetreuer(UUID id) async {
+  AsyncResultOptional<BetreuerApiModel> getBetreuer(UUID id) async {
     const sql = 'select id, name, sex from betreuer where id = ?;';
-    return asyncResultFromFunction(() async {
+    return Result.safeNullableAsync(() async {
       _getBetreuerStmnt ??= await _database.prepare(sql, peristent: true);
       final result = await _getBetreuerStmnt!.select([id.toString()]);
       if (result.isEmpty) {
-        return const None<BetreuerApiModel>();
+        return null;
       }
       final row = result.first;
       final bet = BetreuerApiModel(
@@ -378,41 +377,41 @@ final class Jldb {
         name: row[1].toString(),
         sex: Sex.fromInt(row[2] as int),
       );
-      return Some(bet);
+      return bet;
     });
   }
 
-  AsyncResult<Optional<String>> getConfigValue(String key) async {
+  AsyncResultOptional<String> getConfigValue(String key) async {
     const sql = 'select val from config where field = ?;';
-    return asyncResultFromFunction(() async {
+    return Result.safeNullableAsync(() async {
       _getConfigStmnt ??= await _database.prepare(sql, peristent: true);
       final result = await _getConfigStmnt!.select([key]);
       final val = result[0][0];
       if (val == null) {
-        return const None<String>();
+        return null;
       } else {
-        return Some(val.toString());
+        return val.toString();
       }
     });
   }
 
-  AsyncResult<Optional<EintragApiModel>> getEintrag(UUID id) async {
-    return asyncResultFromFunction(() async {
+  AsyncResultOptional<EintragApiModel> getEintrag(UUID id) async {
+    return Result.safeNullableAsync(() async {
       _getEintragStmnt ??= await _database.prepare(
         _getAllEintraegeSql.replaceFirst('%COND%', 'where e.id = ?'),
         peristent: true,
       );
       final result = await _getEintragStmnt!.select([id.toString()]);
       if (result.isEmpty) {
-        return const None<EintragApiModel>();
+        return null;
       }
       final row = result.first;
       final eintrag = eintragApiModelFromDbArray(row, _eintraegeColumns);
-      return Some(eintrag);
+      return eintrag;
     });
   }
 
-  AsyncResult<Optional<String>> getEintragForSigning(
+  AsyncResultOptional<String> getEintragForSigning(
     UUID id,
     int version,
     DateTime timestamp,
@@ -421,37 +420,37 @@ final class Jldb {
       4 => signV4Query,
       _ => throw UnsupportedError('Unsupported signing version: $version'),
     };
-    return asyncResultFromFunction(() async {
+    return Result.safeNullableAsync(() async {
       final result = await _database.select(query, [id.toString()]);
       if (result.isEmpty) {
-        return const None<String>();
+        return null;
       }
       final row = result.first;
       final json = row[0].toString();
       final data = jsonDecode(json) as Map<String, dynamic>;
       data.addAll({'timestamp': timestamp.millisecondsSinceEpoch});
-      return Some(json);
+      return json;
     });
   }
 
-  AsyncResult<Optional<IdentityApiModel>> getIdentity(UUID id) async {
+  AsyncResultOptional<IdentityApiModel> getIdentity(UUID id) async {
     const sql = 'select id, public_key from identity where id = ?;';
-    return asyncResultFromFunction(() async {
+    return Result.safeNullableAsync(() async {
       _getIdentityStmnt ??= await _database.prepare(sql, peristent: true);
       final result = await _getIdentityStmnt!.select([id.toString()]);
       if (result.isEmpty) {
-        return const None<IdentityApiModel>();
+        return null;
       }
       final row = result.first;
       final iden = IdentityApiModel(
         id: row[0].toString().toUUID(),
         publicKey: row[1].toString(),
       );
-      return Some(iden);
+      return iden;
     });
   }
 
-  AsyncResult<Optional<JugendlicherApiModel>> getJugendlicher(UUID id) async {
+  AsyncResultOptional<JugendlicherApiModel> getJugendlicher(UUID id) async {
     const sql = '''
       select 
         id, 
@@ -466,11 +465,11 @@ final class Jldb {
       from jugendlicher
       where id = ?;
     ''';
-    return asyncResultFromFunction(() async {
+    return Result.safeNullableAsync(() async {
       _getJugendlicherStmnt ??= await _database.prepare(sql, peristent: true);
       final result = await _getJugendlicherStmnt!.select([id.toString()]);
       if (result.isEmpty) {
-        return const None<JugendlicherApiModel>();
+        return null;
       }
       final row = result.first;
       final jug = JugendlicherApiModel(
@@ -486,24 +485,24 @@ final class Jldb {
         exitReason: row[7] != null ? row[7] as int : null,
         replacedById: row[8]?.toString().toUUID(),
       );
-      return Some(jug);
+      return jug;
     });
   }
 
-  AsyncResult<Optional<KategorieApiModel>> getKategorie(UUID id) async {
+  AsyncResultOptional<KategorieApiModel> getKategorie(UUID id) async {
     const sql = 'select id, name from kategorien where id = ?;';
-    return asyncResultFromFunction(() async {
+    return Result.safeNullableAsync(() async {
       _getKategorieStmnt ??= await _database.prepare(sql, peristent: true);
       final result = await _getKategorieStmnt!.select([id.toString()]);
       if (result.isEmpty) {
-        return const None<KategorieApiModel>();
+        return null;
       }
       final row = result.first;
       final kat = KategorieApiModel(
         id: row[0].toString().toUUID(),
         name: row[1].toString(),
       );
-      return Some(kat);
+      return kat;
     });
   }
 
@@ -520,7 +519,7 @@ final class Jldb {
       from signature
       where eintrag_id = ?;
     ''';
-    return asyncResultFromFunction(() async {
+    return Result.safeAsync(() async {
       _getSignaturesByEintragIdStmnt ??= await _database.prepare(
         sql,
         peristent: true,
@@ -551,39 +550,34 @@ final class Jldb {
         values (?, ?) 
         on conflict(field) do update set val = ?;
     ''';
-    return asyncResultFromFunction(() async {
+    return Result.voidSafeAsync(() async {
       _setConfigStmnt ??= await _database.prepare(sql, peristent: true);
       _setConfigStmnt!.execute([key, value, value]);
-      return resultvoid;
     });
   }
 
   AsyncResult<JugendlicherApiModel> upsertJugendlicher(
     JugendlicherApiModel jugendlicher,
   ) async {
-    final insertId = jugendlicher.id;
-    final existingResult = await getJugendlicher(insertId);
-    if (existingResult.isFailure()) {
-      return Failure(existingResult.getFailureOptional().unwrap());
-    }
-    final existing = existingResult.getOrThrow();
-    return existing.fold(
-      onSome: (existingJug) {
-        final isSimpleUpdate = jugendlicher.canBeUpdatedFrom(existingJug);
-        if (isSimpleUpdate) {
-          return _insertNewJugendlicher(jugendlicher);
-        } else {
-          final newJugendlicher = jugendlicher.copyWith(
-            id: UUID.generate(),
-            replacedById: insertId,
-          );
-          return upsertJugendlicher(newJugendlicher);
-        }
-      },
-      onNone: () {
-        return _insertNewJugendlicher(jugendlicher);
-      },
-    );
+    return Result.safeAsync(() async {
+      final insertId = jugendlicher.id;
+      final existing = await getJugendlicher(insertId).unwrap();
+      switch (existing) {
+        case Some(value: final value):
+          final isSimpleUpdate = jugendlicher.canBeUpdatedFrom(value);
+          if (isSimpleUpdate) {
+            return _insertNewJugendlicher(jugendlicher).unwrap();
+          } else {
+            final newJugendlicher = jugendlicher.copyWith(
+              id: UUID.generate(),
+              replacedById: insertId,
+            );
+            return upsertJugendlicher(newJugendlicher).unwrap();
+          }
+        case None():
+          return _insertNewJugendlicher(jugendlicher).unwrap();
+      }
+    });
   }
 
   Future<int> _getVersion() async {
@@ -623,7 +617,7 @@ final class Jldb {
             exit_reason,
             replaced_by_id;
         ''';
-    return asyncResultFromFunction(() async {
+    return Result.safeAsync(() async {
       _insertNewJugendlicherStmnt ??= await _database.prepare(
         insertNewSql,
         peristent: true,
@@ -680,17 +674,17 @@ final class Jldb {
     String filename, {
     required String domain,
   }) async {
-    return asyncResultFromFunction(() async {
+    return Result.safeAsync(() async {
       final database = await SqliteWorker.spawn(filename, createDatabase: true);
       final service = Jldb._(filename, database);
       await service._runMigrationsFromVersion();
-      await service.setConfigValue('domain', domain).getOrThrow();
+      await service.setConfigValue('domain', domain).unwrap();
       return service;
     });
   }
 
   static AsyncResult<Jldb> open(String filename) async {
-    return asyncResultFromFunction(() async {
+    return Result.safeAsync(() async {
       final database = await SqliteWorker.spawn(
         filename,
         createDatabase: false,

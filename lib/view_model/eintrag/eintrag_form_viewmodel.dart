@@ -15,9 +15,9 @@ Future<EintragFormOptions> eintragFormViewmodel(Ref ref) async {
   final betreuerRepo = ref.watch(betreuerRepositoryProvider);
   final jugendlicheRepo = ref.watch(jugendlicheRepositoryProvider);
 
-  final kategorien = await kategorieRepo.getAll().getOrThrow();
-  final betreuer = await betreuerRepo.getAll().getOrThrow();
-  final jugendliche = await jugendlicheRepo.getAll().getOrThrow();
+  final kategorien = await kategorieRepo.getAll().unwrap();
+  final betreuer = await betreuerRepo.getAll().unwrap();
+  final jugendliche = await jugendlicheRepo.getAll().unwrap();
 
   return EintragFormOptions(
     kategorieOptions: {

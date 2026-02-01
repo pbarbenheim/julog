@@ -1,3 +1,4 @@
+import 'package:jldb/types.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../repository/identity/repository.dart';
@@ -11,12 +12,10 @@ class IdentityViewModel extends _$IdentityViewModel {
   Future<List<Identity>> build() async {
     final repo = ref.watch(identityRepositoryProvider);
     final result = await repo.getAll();
-    if (result.isFailure()) {
-      throw Exception(
-        'Failed to load Identities: ${result.getFailureOptional().unsafe()}',
-      );
+    if (result is Failure<List<Identity>>) {
+      throw Exception('Failed to load Identities: ${result.error}');
     } else {
-      final list = result.getOrThrow();
+      final list = result.unwrap();
       list.sort((a, b) => a.name.compareTo(b.name));
       return list;
     }
@@ -35,15 +34,13 @@ class IdentityViewModel extends _$IdentityViewModel {
       mail: mail,
       password: password,
     ));
-    if (result.isFailure()) {
-      throw Exception(
-        'Failed to save Identity: ${result.getFailureOptional().unsafe()}',
-      );
+    if (result is Failure<Identity>) {
+      throw Exception('Failed to save Identity: ${result.error}');
     } else {
       // Refresh the list after adding a new Identity
       ref.invalidateSelf();
 
-      final identity = result.getOrThrow();
+      final identity = result.unwrap();
       return identity.id;
     }
   }
