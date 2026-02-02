@@ -18,4 +18,4 @@ jobs:
       - name: Install dependencies and generate intermediates
         run: ./scripts/install_dependencies.sh
       - name: Flutter analyze
-        run: ./scripts/flutter_analyze.sh
+        run: ./scripts/analyze.sh

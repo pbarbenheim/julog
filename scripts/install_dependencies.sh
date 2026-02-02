@@ -5,7 +5,7 @@ cd "$(dirname "$0")"
 cd ../packages/jlcrypto
 echo "####### Installing jlcrypto dependencies #######"
 
-flutter pub get --enforce-lockfile
+flutter pub get
 
 echo "############## Finished jlcrypto ###############"
 echo ""
@@ -16,7 +16,7 @@ cd ../jldb
 
 echo "######### Installing jldb dependencies #########"
 
-flutter pub get --enforce-lockfile
+flutter pub get
 
 echo "######## Generating jldb intermediates #########"
 
