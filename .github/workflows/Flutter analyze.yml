@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
 env:
-  flutterversion: "3.x"
+  flutterversion: "3.38.x"
 jobs:
   flutter-status-check:
     runs-on: ubuntu-latest
@@ -15,9 +15,7 @@ jobs:
         with:
           channel: "stable"
           flutter-version: ${{ env.flutterversion }}
-      - name: Install project dependencies
-        run: flutter pub get --enforce-lockfile
-      - name: Generate intermediates
-        run: flutter pub run build_runner build --delete-conflicting-outputs
+      - name: Install dependencies and generate intermediates
+        run: ./scripts/install_dependencies.sh
       - name: Flutter analyze
-        run: flutter analyze
+        run: ./scripts/flutter_analyze.sh
