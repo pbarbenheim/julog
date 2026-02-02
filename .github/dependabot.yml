@@ -6,6 +6,9 @@
 version: 2
 updates:
   - package-ecosystem: "pub" # See documentation for possible values
-    directory: "/" # Location of package manifests
+    directories:
+      - "/"
+      - "/packages/jldb"
+      - "/packages/jlcrypto"
     schedule:
       interval: "weekly"
