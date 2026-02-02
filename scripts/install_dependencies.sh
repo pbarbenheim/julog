@@ -1,11 +1,12 @@
 #!/bin/sh
+set -e
 cd "$(dirname "$0")"
 
 
 cd ../packages/jlcrypto
 echo "####### Installing jlcrypto dependencies #######"
 
-flutter pub get
+dart pub get
 
 echo "############## Finished jlcrypto ###############"
 echo ""
@@ -16,11 +17,11 @@ cd ../jldb
 
 echo "######### Installing jldb dependencies #########"
 
-flutter pub get
+dart pub get
 
 echo "######## Generating jldb intermediates #########"
 
-flutter pub run build_runner build --delete-conflicting-outputs
+dart pub run build_runner build --delete-conflicting-outputs
 
 echo "################ Finished jldb #################"
 echo ""

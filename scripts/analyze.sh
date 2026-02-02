@@ -1,16 +1,17 @@
 #!/bin/sh
+set -e
 cd "$(dirname "$0")"
 
 cd ../packages/jlcrypto
 echo "Analyzing jlcrypto package..."
-flutter analyze
+dart analyze
 echo "Finished analyzing jlcrypto."
 echo ""
 echo ""
 
 cd ../jldb
 echo "Analyzing jldb package..."
-flutter analyze
+dart analyze
 echo "Finished analyzing jldb."
 echo ""
 echo ""
