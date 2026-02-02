@@ -59,7 +59,7 @@ jobs:
           channel: "stable"
           flutter-version: ${{ env.flutterversion }}
       - name: Install project dependencies and generate intermediates
-        run: ./scripts/install_dependencies.bat
+        run: ./scripts/install_dependencies.ps1
       - name: Enable windows build
         run: flutter config --enable-windows-desktop
       - name: Build artifacts
