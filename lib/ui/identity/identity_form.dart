@@ -23,6 +23,7 @@ class _IdentityFormState extends State<IdentityForm> {
   final TextEditingController _functionController = TextEditingController();
   final TextEditingController _mailController = TextEditingController();
   final TextEditingController _passController = TextEditingController();
+  final TextEditingController _confirmPassController = TextEditingController();
 
   bool _loading = false;
 
@@ -32,6 +33,7 @@ class _IdentityFormState extends State<IdentityForm> {
     _functionController.dispose();
     _mailController.dispose();
     _passController.dispose();
+    _confirmPassController.dispose();
     super.dispose();
   }
 
@@ -85,9 +87,28 @@ class _IdentityFormState extends State<IdentityForm> {
               controller: _passController,
               decoration: const InputDecoration(labelText: 'Passwort'),
               obscureText: true,
+              keyboardType: TextInputType.visiblePassword,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Bitte gib ein Passwort ein.';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: _confirmPassController,
+              decoration: const InputDecoration(
+                labelText: 'Passwort bestätigen',
+              ),
+              keyboardType: TextInputType.visiblePassword,
+              obscureText: true,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Bitte bestätige dein Passwort.';
+                }
+                if (value != _passController.text) {
+                  return 'Die Passwörter stimmen nicht überein.';
                 }
                 return null;
               },

@@ -56,13 +56,13 @@ class EintragRepository
             raum: data.raum,
             dienstverlauf: data.dienstverlauf,
             besonderheiten: data.besonderheiten,
-            betreuerIds: data.betreuerIds.map(UUID.fromString).toList(),
+            betreuerIds: data.betreuerIds.map(UUID.fromString).toSet(),
             anwesendeJugendlicherIds: data.anwesendeJugendlicherIds
                 .map(UUID.fromString)
-                .toList(),
+                .toSet(),
             entschuldigteJugendlicherIds: data.entschuldigteJugendlicherIds
                 .map(UUID.fromString)
-                .toList(),
+                .toSet(),
           ),
         )
         .map((savedRecord) {

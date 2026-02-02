@@ -15,9 +15,9 @@ abstract class Eintrag with _$Eintrag {
     String? raum,
     String? dienstverlauf,
     String? besonderheiten,
-    required List<String> betreuerIds,
-    required List<String> anwesendeJugendlicherIds,
-    required List<String> entschuldigteJugendlicherIds,
+    required Set<String> betreuerIds,
+    required Set<String> anwesendeJugendlicherIds,
+    required Set<String> entschuldigteJugendlicherIds,
   }) = _Eintrag;
 
   static Eintrag fromApiModel(EintragApiModel model) {
@@ -31,13 +31,13 @@ abstract class Eintrag with _$Eintrag {
       raum: model.raum,
       dienstverlauf: model.dienstverlauf,
       besonderheiten: model.besonderheiten,
-      betreuerIds: model.betreuerIds.map((e) => e.toString()).toList(),
+      betreuerIds: model.betreuerIds.map((e) => e.toString()).toSet(),
       anwesendeJugendlicherIds: model.anwesendeJugendlicherIds
           .map((e) => e.toString())
-          .toList(),
+          .toSet(),
       entschuldigteJugendlicherIds: model.entschuldigteJugendlicherIds
           .map((e) => e.toString())
-          .toList(),
+          .toSet(),
     );
   }
 }

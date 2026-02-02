@@ -15,7 +15,7 @@ class JulogService extends _$JulogService {
     final file = ref
         .watch(sharedPreferencesProvider)
         .getString(lastOpenedFileKey);
-    if (file != null) {
+    if (file != null && file.isNotEmpty) {
       Jldb.open(file).then((result) {
         if (result is Failure<Jldb>) {
           _saveToPrefs('');
@@ -58,6 +58,7 @@ class JulogService extends _$JulogService {
       await (state as JulogFileLoaded).jldb.close();
     }
     state = const JulogFile.closed();
+    _saveToPrefs('');
   }
 
   Future<void> reset() async {

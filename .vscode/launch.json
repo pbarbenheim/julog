@@ -5,7 +5,8 @@
             "name": "julog",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "debug"
+            "flutterMode": "debug",
+            "program": "lib/main.dart"
         },
         {
             "name": "julog (profile mode)",

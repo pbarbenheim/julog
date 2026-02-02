@@ -19,9 +19,9 @@ abstract class EintragApiModel with _$EintragApiModel {
     String? raum,
     String? dienstverlauf,
     String? besonderheiten,
-    required List<UUID> betreuerIds,
-    required List<UUID> anwesendeJugendlicherIds,
-    required List<UUID> entschuldigteJugendlicherIds,
+    required Set<UUID> betreuerIds,
+    required Set<UUID> anwesendeJugendlicherIds,
+    required Set<UUID> entschuldigteJugendlicherIds,
   }) = _EintragApiModel;
 }
 
@@ -52,8 +52,8 @@ EintragApiModel eintragApiModelFromDbArray(
   final betreuerIdsIndex = columns.indexOf('betreuer_ids');
   final statusJugendlicherIdsIndex = columns.indexOf('status_jugendlicher_ids');
 
-  final anwesendeJugendlicherIds = <UUID>[];
-  final entschuldigteJugendlicherIds = <UUID>[];
+  final anwesendeJugendlicherIds = <UUID>{};
+  final entschuldigteJugendlicherIds = <UUID>{};
 
   final statusJugendlicherIds =
       (data[statusJugendlicherIdsIndex] as String?)
@@ -94,8 +94,8 @@ EintragApiModel eintragApiModelFromDbArray(
             ?.split(',')
             .where((e) => e.isNotEmpty)
             .map((e) => e.toUUID())
-            .toList() ??
-        [],
+            .toSet() ??
+        {},
     anwesendeJugendlicherIds: anwesendeJugendlicherIds,
     entschuldigteJugendlicherIds: entschuldigteJugendlicherIds,
   );

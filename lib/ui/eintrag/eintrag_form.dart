@@ -76,6 +76,9 @@ class _EintragFormState extends ConsumerState<EintragForm> {
                     lastDate: DateTime.now().add(const Duration(days: 2)),
                     labelText: 'Startzeit',
                     onSaved: (newValue) => _start = newValue,
+                    onChanged: (value) {
+                      _start = value;
+                    },
                     validator: (value) {
                       if (value == null) {
                         return 'Bitte Startzeit auswählen';
@@ -94,6 +97,10 @@ class _EintragFormState extends ConsumerState<EintragForm> {
                     validator: (value) {
                       if (value == null) {
                         return 'Bitte Endzeit auswählen';
+                      }
+                      if (_start != null &&
+                          value.difference(_start!).isNegative) {
+                        return 'Endzeit muss nach der Startzeit liegen';
                       }
                       return null;
                     },

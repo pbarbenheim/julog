@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../provider/darkmode/darkmode.dart';
+import '../../provider/jldb/jldb.dart';
+import '../../provider/jldb/julog_file.dart';
 import '../widgets/about.dart';
 import '../widgets/theme_button.dart';
 import 'destination.dart';
@@ -14,6 +16,7 @@ class Shell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final mode = ref.watch(themeModeProvider);
+    final julogFile = ref.watch(julogServiceProvider);
     return Scaffold(
       body: Row(
         children: [
@@ -40,6 +43,15 @@ class Shell extends ConsumerWidget {
                   },
                 ),
                 const SizedBox(width: 8),
+                if (julogFile is JulogFileLoaded) ...[
+                  IconButton(
+                    onPressed: () {
+                      ref.read(julogServiceProvider.notifier).close();
+                    },
+                    icon: const Icon(Icons.logout),
+                    tooltip: 'Julog-Datei schließen',
+                  ),
+                ],
                 const AboutButton(),
                 const SizedBox(height: 16),
               ],

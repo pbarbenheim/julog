@@ -68,7 +68,7 @@ class BetreuerScreen extends ConsumerWidget {
                     const SizedBox(height: 16),
                     Text('ID: ${selectedBetreuer.id}'),
                     const SizedBox(height: 8),
-                    Text('Geschlecht: ${selectedBetreuer.gender.name}'),
+                    Text('Geschlecht: ${selectedBetreuer.gender.display}'),
                   ],
                 ),
               ),
