@@ -70,18 +70,13 @@ final class Jldb {
   WorkerStatement? _getJugendlicherStmnt;
   WorkerStatement? _getKategorieStmnt;
   WorkerStatement? _setConfigStmnt;
-
   WorkerStatement? _getAllBetreuerStmnt;
-
   WorkerStatement? _insertNewJugendlicherStmnt;
-
   WorkerStatement? _createSignatureStmnt;
-
   WorkerStatement? _getAllEintraegeStmnt;
-
   WorkerStatement? _getEintragStmnt;
-
   WorkerStatement? _getSignaturesByEintragIdStmnt;
+
   Jldb._(this.filename, this._database);
 
   AsyncResult<BetreuerApiModel> createBetreuer(
@@ -283,18 +278,35 @@ final class Jldb {
     });
   }
 
-  AsyncResult<List<EintragApiModel>> getAllEintraege() async {
+  AsyncResult<List<EintragApiModel>> getAllEintraege({
+    UUID? jugendlicherId,
+  }) async {
     return Result.safeAsync(() async {
-      _getAllEintraegeStmnt ??= await _database.prepare(
-        _getAllEintraegeSql.replaceFirst('%COND%', ''),
-        peristent: true,
-      );
-      final result = await _getAllEintraegeStmnt!.select([]);
+      final List<List<Object?>> result;
+      if (jugendlicherId != null) {
+        result = await _getEintraegeWith(jugendlicherId: jugendlicherId);
+      } else {
+        _getAllEintraegeStmnt ??= await _database.prepare(
+          _getAllEintraegeSql.replaceFirst('%COND%', ''),
+          peristent: true,
+        );
+        result = await _getAllEintraegeStmnt!.select([]);
+      }
       final eintraege = result.map((row) {
         return eintragApiModelFromDbArray(row, _eintraegeColumns);
       });
       return eintraege.toList();
     });
+  }
+
+  Future<List<List<Object?>>> _getEintraegeWith({
+    required UUID jugendlicherId,
+  }) {
+    final sql = _getAllEintraegeSql.replaceFirst('%COND%', '''
+      join eintrag_jugendlicher as ej on e.id = ej.eintrag_id
+      where ej.jugendlicher_id = ?;
+      ''');
+    return _database.select(sql, [jugendlicherId.toString()]);
   }
 
   AsyncResult<List<IdentityApiModel>> getAllIdentities() async {
