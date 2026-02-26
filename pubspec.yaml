@@ -45,7 +45,7 @@ dev_dependencies:
   riverpod_generator: ^4.0.0+1
   vector_graphics_compiler: ^1.1.19
   pubspec_extract: ^2.1.1
-  freezed: ^3.2.3
+  freezed: ^3.2.5
   flutter_launcher_icons: "^0.14.4"
 
 flutter:
