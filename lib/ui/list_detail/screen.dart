@@ -9,6 +9,8 @@ class ListDetailLayout extends StatefulWidget {
   final Widget? emptyDetail;
   final int? initialSelectedIndex;
   final bool showEmptyHint;
+  final List<Widget>? Function(BuildContext context, int? selectedIndex)?
+  actionsBuilder;
 
   const ListDetailLayout({
     super.key,
@@ -18,6 +20,7 @@ class ListDetailLayout extends StatefulWidget {
     this.initialSelectedIndex,
     this.form,
     this.showEmptyHint = true,
+    this.actionsBuilder,
   });
 
   @override
@@ -148,7 +151,31 @@ class _ListDetailLayoutState extends State<ListDetailLayout> {
                 ),
                 margin: const EdgeInsets.symmetric(vertical: 4),
                 padding: const EdgeInsets.all(8.0),
-                child: detail,
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 48,
+                      child: Row(
+                        children: [
+                          if (_selectedIndex != null)
+                            IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  _selectedIndex = null;
+                                });
+                              },
+                              icon: const Icon(Icons.arrow_back),
+                            ),
+                          Expanded(child: Container()),
+                          ...?widget.actionsBuilder != null
+                              ? widget.actionsBuilder!(context, _selectedIndex)
+                              : [],
+                        ],
+                      ),
+                    ),
+                    Expanded(child: detail),
+                  ],
+                ),
               ),
             ),
           ],

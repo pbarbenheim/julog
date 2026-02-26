@@ -17,6 +17,8 @@ abstract class JugendlicherApiModel with _$JugendlicherApiModel {
     DateTime? exitDate,
     int? exitReason,
     UUID? replacedById,
+    UUID? replacesId,
+    required Set<UUID> eintragIds,
   }) = _JugendlicherApiModel;
 
   const JugendlicherApiModel._();
@@ -24,4 +26,16 @@ abstract class JugendlicherApiModel with _$JugendlicherApiModel {
   bool canBeUpdatedFrom(JugendlicherApiModel existingJug) {
     return id == existingJug.id && name == existingJug.name;
   }
+}
+
+@freezed
+abstract class JugendlicherCreateDTO with _$JugendlicherCreateDTO {
+  const factory JugendlicherCreateDTO({
+    required String name,
+    required Sex sex,
+    String? pass,
+    required DateTime birthDate,
+    required DateTime memberSince,
+    UUID? replacesId,
+  }) = _JugendlicherCreateDTO;
 }

@@ -27,8 +27,6 @@ class EintragForm extends ConsumerStatefulWidget {
   ConsumerState<EintragForm> createState() => _EintragFormState();
 }
 
-enum Anwesenheit { anwesend, entschuldigt, undefiniert }
-
 class _EintragFormState extends ConsumerState<EintragForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _themaController = TextEditingController();
@@ -52,7 +50,7 @@ class _EintragFormState extends ConsumerState<EintragForm> {
     final options = ref.watch(eintragFormViewmodelProvider);
     return options.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => Center(child: Text('Error: $error')),
+      error: (error, stack) => Center(child: Text('Fehler: $error')),
       data: (data) {
         final betreuer = data.betreuerOptions;
         final jugendliche = data.jugendlicheOptions;
@@ -65,7 +63,7 @@ class _EintragFormState extends ConsumerState<EintragForm> {
               child: Column(
                 children: [
                   Text(
-                    'Eintrag Form',
+                    'Neuen Eintrag hinzufügen',
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   const SizedBox(height: 16),
@@ -279,3 +277,5 @@ class _EintragFormState extends ConsumerState<EintragForm> {
     );
   }
 }
+
+enum Anwesenheit { anwesend, entschuldigt, undefiniert }

@@ -79,6 +79,10 @@ final class Jldb {
 
   Jldb._(this.filename, this._database);
 
+  Future<void> close() async {
+    await _database.close();
+  }
+
   AsyncResult<BetreuerApiModel> createBetreuer(
     BetreuerApiModel betreuer,
   ) async {
@@ -198,6 +202,59 @@ final class Jldb {
     });
   }
 
+  AsyncResult<UUID> createJugendlicher(JugendlicherCreateDTO jugendlicher) {
+    const insertNewSql = '''
+          insert or replace into jugendlicher (
+            id, 
+            name,
+            sex,
+            pass,
+            birth_date,
+            member_since
+          ) values (?, ?, ?, ?, ?, ?);
+        ''';
+    const updateReplacedSql = '''
+          update jugendlicher
+          set replaced_by_id = ?
+          where id = ?;
+        ''';
+    return Result.safeAsync(() async {
+      final id = UUID.generate();
+      if (jugendlicher.replacesId != null) {
+        await _database.transaction((db) async {
+          await db.execute(insertNewSql, [
+            id.toString(),
+            jugendlicher.name,
+            jugendlicher.sex.toInt(),
+            jugendlicher.pass,
+            jugendlicher.birthDate.millisecondsSinceEpoch,
+            jugendlicher.memberSince.millisecondsSinceEpoch,
+          ]);
+          await db.execute(updateReplacedSql, [
+            id.toString(),
+            jugendlicher.replacesId.toString(),
+          ]);
+        });
+      } else {
+        _insertNewJugendlicherStmnt ??= await _database.prepare(
+          insertNewSql,
+          peristent: true,
+        );
+
+        await _insertNewJugendlicherStmnt!.execute([
+          id.toString(),
+          jugendlicher.name,
+          jugendlicher.sex.toInt(),
+          jugendlicher.pass,
+          jugendlicher.birthDate.millisecondsSinceEpoch,
+          jugendlicher.memberSince.millisecondsSinceEpoch,
+        ]);
+      }
+
+      return id;
+    });
+  }
+
   AsyncResult<KategorieApiModel> createKategorie(
     KategorieApiModel kategorie,
   ) async {
@@ -258,10 +315,6 @@ final class Jldb {
     });
   }
 
-  Future<void> close() async {
-    await _database.close();
-  }
-
   AsyncResult<List<BetreuerApiModel>> getAllBetreuer() {
     const sql = 'select id, name, sex from betreuer;';
     return Result.safeAsync(() async {
@@ -278,35 +331,19 @@ final class Jldb {
     });
   }
 
-  AsyncResult<List<EintragApiModel>> getAllEintraege({
-    UUID? jugendlicherId,
-  }) async {
+  AsyncResult<List<EintragApiModel>> getAllEintraege() async {
     return Result.safeAsync(() async {
-      final List<List<Object?>> result;
-      if (jugendlicherId != null) {
-        result = await _getEintraegeWith(jugendlicherId: jugendlicherId);
-      } else {
-        _getAllEintraegeStmnt ??= await _database.prepare(
-          _getAllEintraegeSql.replaceFirst('%COND%', ''),
-          peristent: true,
-        );
-        result = await _getAllEintraegeStmnt!.select([]);
-      }
+      _getAllEintraegeStmnt ??= await _database.prepare(
+        _getAllEintraegeSql.replaceFirst('%COND%', ''),
+        peristent: true,
+      );
+      final result = await _getAllEintraegeStmnt!.select([]);
+
       final eintraege = result.map((row) {
         return eintragApiModelFromDbArray(row, _eintraegeColumns);
       });
       return eintraege.toList();
     });
-  }
-
-  Future<List<List<Object?>>> _getEintraegeWith({
-    required UUID jugendlicherId,
-  }) {
-    final sql = _getAllEintraegeSql.replaceFirst('%COND%', '''
-      join eintrag_jugendlicher as ej on e.id = ej.eintrag_id
-      where ej.jugendlicher_id = ?;
-      ''');
-    return _database.select(sql, [jugendlicherId.toString()]);
   }
 
   AsyncResult<List<IdentityApiModel>> getAllIdentities() async {
@@ -327,16 +364,26 @@ final class Jldb {
   AsyncResult<List<JugendlicherApiModel>> getAllJugendliche() async {
     const sql = '''
       select 
-        id, 
-        name, 
-        sex, 
-        pass, 
-        birth_date, 
-        member_since, 
-        exit_date, 
-        exit_reason, 
-        replaced_by_id 
-      from jugendlicher;
+        j.id, 
+        j.name,
+        j.sex,
+        j.pass,
+        j.birth_date,
+        j.member_since,
+        j.exit_date,
+        j.exit_reason,
+        j.replaced_by_id,
+        j2.id as replaces_id,
+        je.eintrag_ids as eintrag_ids
+      from jugendlicher as j
+        left join jugendlicher as j2 on j2.replaced_by_id = j.id
+        left join (
+          select 
+            ej.jugendlicher_id as jid,
+            group_concat(ej.eintrag_id, ',') as eintrag_ids
+          from eintrag_jugendlicher as ej
+          group by ej.jugendlicher_id
+        ) as je on j.id = je.jid;
     ''';
     return Result.safeAsync(() async {
       _getAllJugendlicheStmnt ??= await _database.prepare(sql, peristent: true);
@@ -354,6 +401,10 @@ final class Jldb {
               : null,
           exitReason: row[7] != null ? row[7] as int : null,
           replacedById: row[8]?.toString().toUUID(),
+          replacesId: row[9]?.toString().toUUID(),
+          eintragIds: row[10] != null
+              ? (row[10] as String).split(',').map((e) => e.toUUID()).toSet()
+              : <UUID>{},
         );
       }).toList();
       return jugendliche;
@@ -462,20 +513,43 @@ final class Jldb {
     });
   }
 
+  AsyncVoidResult deleteJugendlicher(UUID id) => Result.voidSafeAsync(() async {
+    final current = await getJugendlicher(id).unwrap().unsafe();
+    if (current == null) {
+      throw StateError('Jugendlicher mit ID $id nicht gefunden.');
+    }
+    if (current.replacesId != null || current.eintragIds.isNotEmpty) {
+      throw Exception('Jugendlicher mit ID $id wurde bereits verwendet.');
+    }
+
+    const sql = 'delete from jugendlicher where id = ?;';
+    await _database.execute(sql, [id.toString()]);
+  });
+
   AsyncResultOptional<JugendlicherApiModel> getJugendlicher(UUID id) async {
     const sql = '''
       select 
-        id, 
-        name,
-        sex,
-        pass,
-        birth_date,
-        member_since,
-        exit_date,
-        exit_reason,
-        replaced_by_id
-      from jugendlicher
-      where id = ?;
+        j.id, 
+        j.name,
+        j.sex,
+        j.pass,
+        j.birth_date,
+        j.member_since,
+        j.exit_date,
+        j.exit_reason,
+        j.replaced_by_id,
+        j2.id as replaces_id,
+        je.eintrag_ids as eintrag_ids
+      from jugendlicher as j
+        left join jugendlicher as j2 on j2.replaced_by_id = j.id
+        left join (
+          select 
+            ej.jugendlicher_id as jid,
+            group_concat(ej.eintrag_id, ',') as eintrag_ids
+          from eintrag_jugendlicher as ej
+          group by ej.jugendlicher_id
+        ) as je on j.id = je.jid
+      where j.id = ?;
     ''';
     return Result.safeNullableAsync(() async {
       _getJugendlicherStmnt ??= await _database.prepare(sql, peristent: true);
@@ -484,6 +558,7 @@ final class Jldb {
         return null;
       }
       final row = result.first;
+
       final jug = JugendlicherApiModel(
         id: row[0].toString().toUUID(),
         name: row[1].toString(),
@@ -496,6 +571,10 @@ final class Jldb {
             : null,
         exitReason: row[7] != null ? row[7] as int : null,
         replacedById: row[8]?.toString().toUUID(),
+        replacesId: row[9]?.toString().toUUID(),
+        eintragIds: row[10] != null
+            ? (row[10] as String).split(',').map((e) => e.toUUID()).toSet()
+            : <UUID>{},
       );
       return jug;
     });
@@ -568,30 +647,6 @@ final class Jldb {
     });
   }
 
-  AsyncResult<JugendlicherApiModel> upsertJugendlicher(
-    JugendlicherApiModel jugendlicher,
-  ) async {
-    return Result.safeAsync(() async {
-      final insertId = jugendlicher.id;
-      final existing = await getJugendlicher(insertId).unwrap();
-      switch (existing) {
-        case Some(value: final value):
-          final isSimpleUpdate = jugendlicher.canBeUpdatedFrom(value);
-          if (isSimpleUpdate) {
-            return _insertNewJugendlicher(jugendlicher).unwrap();
-          } else {
-            final newJugendlicher = jugendlicher.copyWith(
-              id: UUID.generate(),
-              replacedById: insertId,
-            );
-            return upsertJugendlicher(newJugendlicher).unwrap();
-          }
-        case None():
-          return _insertNewJugendlicher(jugendlicher).unwrap();
-      }
-    });
-  }
-
   Future<int> _getVersion() async {
     const stmt = 'PRAGMA user_version;';
     final result = await _database.select(stmt);
@@ -601,66 +656,6 @@ final class Jldb {
     } else {
       return int.parse(version.toString());
     }
-  }
-
-  AsyncResult<JugendlicherApiModel> _insertNewJugendlicher(
-    JugendlicherApiModel jugendlicher,
-  ) {
-    const insertNewSql = '''
-          insert or replace into jugendlicher (
-            id, 
-            name,
-            sex,
-            pass,
-            birth_date,
-            member_since,
-            exit_date,
-            exit_reason,
-            replaced_by_id
-          ) values (?, ?, ?, ?, ?, ?, ?, ?, ?)
-          returning 
-            id,
-            name,
-            sex,
-            pass,
-            birth_date,
-            member_since,
-            exit_date,
-            exit_reason,
-            replaced_by_id;
-        ''';
-    return Result.safeAsync(() async {
-      _insertNewJugendlicherStmnt ??= await _database.prepare(
-        insertNewSql,
-        peristent: true,
-      );
-      final result = await _insertNewJugendlicherStmnt!.select([
-        jugendlicher.id.toString(),
-        jugendlicher.name,
-        jugendlicher.sex.toInt(),
-        jugendlicher.pass,
-        jugendlicher.birthDate.millisecondsSinceEpoch,
-        jugendlicher.memberSince.millisecondsSinceEpoch,
-        jugendlicher.exitDate?.millisecondsSinceEpoch,
-        jugendlicher.exitReason,
-        jugendlicher.replacedById?.toString(),
-      ]);
-      final row = result.first;
-      final newJug = JugendlicherApiModel(
-        id: row[0].toString().toUUID(),
-        name: row[1].toString(),
-        sex: Sex.fromInt(row[2] as int),
-        pass: row[3]?.toString(),
-        birthDate: DateTime.fromMillisecondsSinceEpoch(row[4] as int),
-        memberSince: DateTime.fromMillisecondsSinceEpoch(row[5] as int),
-        exitDate: row[6] != null
-            ? DateTime.fromMillisecondsSinceEpoch(row[6] as int)
-            : null,
-        exitReason: row[7] != null ? row[7] as int : null,
-        replacedById: row[8]?.toString().toUUID(),
-      );
-      return newJug;
-    });
   }
 
   Future<void> _migrateIfNeeded() async {

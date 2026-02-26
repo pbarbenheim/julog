@@ -29,7 +29,15 @@ class SelectedEintragViewModel extends _$SelectedEintragViewModel {
     final eintrag = (await eintragRepo.getById(id).unwrap()).unwrap();
     final kategorie =
         (await kategorieRepo.getById(eintrag.kategorieId).unwrap()).unwrap();
-    final signatures = await signatureRepo.getAll().unwrap();
+    
+    final signatures = await signatureRepo.getAll()
+        .mapIterable((signature) async {
+          final identity = await identityRepo.getById(signature.identityId).unwrapAll();
+          return ShowingSignature.fromSignature(signature: signature, identity: identity);
+        })
+        .map((list) => Future.wait(list))
+        .unwrap();
+    
     final betreuerList = await Future.wait(
       eintrag.betreuerIds.map((id) async {
         return (await betreuerRepo.getById(id).unwrap()).unwrap();
@@ -126,7 +134,33 @@ abstract class SelectedEintrag with _$SelectedEintrag {
     required List<Betreuer> betreuer,
     required List<Jugendlicher> anwesendeJugendliche,
     required List<Jugendlicher> entschuldigteJugendliche,
-    required List<Signature> signatures,
+    required List<ShowingSignature> signatures,
     required List<Identity> possibleSigners,
   }) = _SelectedEintrag;
+}
+
+@freezed
+abstract class ShowingSignature with _$ShowingSignature {
+  const ShowingSignature._();
+  const factory ShowingSignature({
+    required String id,
+    required String eintragId,
+    required Identity identity,
+    required crypto.Signature signature,
+    required DateTime timestamp,
+    required bool isValid,
+  }) = _ShowingSignature;
+
+  factory ShowingSignature.fromSignature({
+    required Signature signature,
+    required Identity identity
+  }) => ShowingSignature(
+      eintragId: signature.eintragId,
+      id: signature.id,
+      identity: identity,
+      signature: signature.signature,
+      timestamp: signature.timestamp,
+      isValid: signature.isValid,
+    );
+
 }

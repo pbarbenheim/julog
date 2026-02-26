@@ -17,7 +17,12 @@ abstract class Jugendlicher with _$Jugendlicher {
     DateTime? exitDate,
     int? exitReason,
     Jugendlicher? replacedBy,
+    // ID of the Jugendlicher this one replaces, is id because we want to avoid cycles
+    String? replacesId,
+    required Set<String> eintragIds,
   }) = _Jugendlicher;
+
+  String get currentId => replacedBy?.currentId ?? id;
 
   const Jugendlicher._();
 
@@ -43,25 +48,8 @@ abstract class Jugendlicher with _$Jugendlicher {
       exitDate: record.exitDate,
       exitReason: record.exitReason,
       replacedBy: replacedBy,
-    );
-  }
-
-  JugendlicherApiModel toJldbRecord() {
-    final replaced = replacedBy?.id;
-    return JugendlicherApiModel(
-      id: UUID.fromString(id),
-      name: name,
-      sex: switch (gender) {
-        Gender.diverse => Sex.diverse,
-        Gender.female => Sex.female,
-        Gender.male => Sex.male,
-      },
-      pass: pass,
-      birthDate: birthDate,
-      memberSince: memberSince,
-      exitDate: exitDate,
-      exitReason: exitReason,
-      replacedById: replaced != null ? UUID.fromString(replaced) : null,
+      eintragIds: record.eintragIds.map((e) => e.toString()).toSet(),
+      replacesId: record.replacesId?.toString(),
     );
   }
 }
