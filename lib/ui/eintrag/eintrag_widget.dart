@@ -99,9 +99,17 @@ class EintragDisplay extends ConsumerWidget {
                 if (eintrag.signatures.isNotEmpty) ...[
                   ...eintrag.signatures.map((s) {
                     final validityText = s.isValid ? 'gültig' : 'ungültig';
-                    return Text(
-                      '- ($validityText) Signatur ID: ${s.id}, Datum: ${MaterialLocalizations.of(context).formatFullDate(s.timestamp)}',
-                      style: Theme.of(context).textTheme.bodyMedium,
+                    return Row(
+                      children: [
+                        Icon(
+                          s.isValid ? Icons.check : Icons.error,
+                          color: s.isValid ? Colors.green.shade900 : Colors.red.shade900,
+                        ),
+                        Text(
+                          '${s.identity.name}, ${s.identity.function}, am ${MaterialLocalizations.of(context).formatFullDate(s.timestamp)}',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        )
+                      ]
                     );
                   }),
                   const SizedBox(height: 8),
@@ -157,7 +165,7 @@ class EintragDisplay extends ConsumerWidget {
       context: context,
       builder: (context) {
         return SimpleDialog(
-          title: const Text('Select Identity to Sign'),
+          title: const Text('Identität zum Signieren wählen'),
           children: identities.map((identity) {
             return SimpleDialogOption(
               onPressed: () {
@@ -172,7 +180,7 @@ class EintragDisplay extends ConsumerWidget {
     if (!context.mounted) return null;
     if (identity == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No identity selected for signing.')),
+        const SnackBar(content: Text('Keine Identität ausgewählt')),
       );
       return null;
     }
@@ -182,11 +190,11 @@ class EintragDisplay extends ConsumerWidget {
       builder: (context) {
         final controller = TextEditingController();
         return AlertDialog(
-          title: const Text('Enter Password'),
+          title: const Text('Passwort eingeben'),
           content: TextField(
             controller: controller,
             obscureText: true,
-            decoration: const InputDecoration(labelText: 'Password'),
+            decoration: const InputDecoration(labelText: 'Passwort'),
           ),
           actions: [
             TextButton(
@@ -202,7 +210,7 @@ class EintragDisplay extends ConsumerWidget {
     if (!context.mounted) return null;
     if (password == null || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password is required for signing.')),
+        const SnackBar(content: Text('Das Passwort wird zum Unterschreiben benötigt')),
       );
       return null;
     }
