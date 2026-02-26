@@ -26,6 +26,11 @@ sealed class ResultDart<S extends Object, F extends Exception> {
   const factory ResultDart.success(S value) = SuccessDart<S, F>;
   const factory ResultDart.failure(F error) = FailureDart<S, F>;
 
+  static VoidSuccess voidSuccess() =>
+      const SuccessDart<type_unit.Unit, Exception>(type_unit.unit);
+  static VoidFailure voidFailure(Exception error) =>
+      FailureDart<type_unit.Unit, Exception>(error);
+
   static Result<W> safe<W extends Object>(W Function() fn) {
     try {
       final value = fn();

@@ -14,6 +14,12 @@ abstract class JulogRepository<
 
   JulogRepository();
 
+  @protected
+  void invalidateCache() {
+    _cacheSynced = false;
+    cache.clear();
+  }
+
   AsyncResult<List<ModelType>> getAll() {
     return Result.safeAsync(() async {
       if (_cacheSynced) {

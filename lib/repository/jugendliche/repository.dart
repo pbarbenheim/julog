@@ -1,3 +1,4 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:jldb/jldb.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart' hide AsyncResult;
 
@@ -16,7 +17,7 @@ typedef JugendlicheCreateData = ({
   String? pass,
 });
 
-class _JugendlicheRepository
+class JugendlicheRepository
     extends
         JulogRepository<
           Jugendlicher,
@@ -24,14 +25,23 @@ class _JugendlicheRepository
           JugendlicheCreateData
         > {
   final Jldb _jldb;
-  _JugendlicheRepository({required Jldb jldb}) : _jldb = jldb;
+  JugendlicheRepository({required Jldb jldb}) : _jldb = jldb;
 
+  AsyncVoidResult delete(String id) async {
+    final result = await _jldb.deleteJugendlicher(UUID.fromString(id));
+    if (result is Failure<Unit>) {
+      return Failure(result.error);
+    }
+    invalidateCache();
+    return Result.voidSuccess();
+  }
+
+  @protected
   @override
   AsyncResult<Jugendlicher> createInJldb(JugendlicheCreateData data) {
     return _jldb
-        .upsertJugendlicher(
-          JugendlicherApiModel(
-            id: UUID.generate(),
+        .createJugendlicher(
+          JugendlicherCreateDTO(
             name: data.name,
             sex: switch (data.gender) {
               Gender.diverse => Sex.diverse,
@@ -43,11 +53,27 @@ class _JugendlicheRepository
             pass: data.pass,
           ),
         )
-        .map((savedRecord) {
-          return Jugendlicher.fromJldbRecord(savedRecord);
+        .then((result) async {
+          if (result is Failure<UUID>) {
+            return Failure(result.error);
+          }
+          final record = result.unwrap();
+
+          final saved = await _jldb.getJugendlicher(record);
+          if (saved is Failure<Optional<JugendlicherApiModel>>) {
+            return Failure(saved.error);
+          }
+          final savedOptional = saved.unwrap();
+          if (savedOptional is None<JugendlicherApiModel>) {
+            return Failure(Exception('Created Jugendlicher not found'));
+          }
+
+          final jugendlicher = fromJldbRecord(savedOptional.unwrap());
+          return Success(jugendlicher);
         });
   }
 
+  @protected
   @override
   AsyncResult<List<JugendlicherApiModel>> fetchAllFromJldb() async {
     final result = await _jldb.getAllJugendliche();
@@ -72,6 +98,7 @@ class _JugendlicheRepository
     return Success(records);
   }
 
+  @protected
   @override
   Jugendlicher fromJldbRecord(JugendlicherApiModel record) {
     Jugendlicher? replacedBy;
@@ -89,16 +116,16 @@ class _JugendlicheRepository
     return Jugendlicher.fromJldbRecord(record, replacedBy: replacedBy);
   }
 
+  @protected
   @override
   String getId(Jugendlicher item) => item.id;
 }
 
 @Riverpod(keepAlive: true)
-JulogRepository<Jugendlicher, JugendlicherApiModel, JugendlicheCreateData>
-jugendlicheRepository(Ref ref) {
+JugendlicheRepository jugendlicheRepository(Ref ref) {
   final jldb = ref.watch(julogServiceProvider);
   if (jldb is! JulogFileLoaded) {
     throw StateError('Julog file is not loaded');
   }
-  return _JugendlicheRepository(jldb: jldb.jldb);
+  return JugendlicheRepository(jldb: jldb.jldb);
 }

@@ -53,6 +53,26 @@ class JugendlicheScreen extends ConsumerWidget {
               JugendlicheRoute(jugendlicheId: id).go(context);
             },
           ),
+          actionsBuilder: (context, selectedIndex) {
+            if (selectedIndex == null) {
+              return null;
+            }
+            final selectedJugendlicher = jugendliche[selectedIndex];
+            final deletable =
+                selectedJugendlicher.eintragIds.isEmpty &&
+                selectedJugendlicher.replacesId == null;
+            return [
+              if (deletable)
+                IconButton(
+                  onPressed: () {
+                    ref
+                        .read(jugendlicherViewModelProvider.notifier)
+                        .deleteJugendlicher(selectedJugendlicher.id);
+                  },
+                  icon: const Icon(Icons.delete),
+                ),
+            ];
+          },
           detailBuilder: (context, index) {
             final selectedJugendlicher = jugendliche[index];
             return Center(
@@ -89,6 +109,12 @@ class JugendlicheScreen extends ConsumerWidget {
                       const SizedBox(height: 4),
                       Text(
                         "Grund für Austritt: ${selectedJugendlicher.exitReason ?? 'Keine Angabe'}",
+                      ),
+                    ],
+                    if (selectedJugendlicher.eintragIds.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      Text(
+                        'Einträge: ${selectedJugendlicher.eintragIds.length}',
                       ),
                     ],
                   ],

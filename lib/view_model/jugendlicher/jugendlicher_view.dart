@@ -44,4 +44,11 @@ class JugendlicherViewModel extends _$JugendlicherViewModel {
       return jugendlicher.id;
     }
   }
+
+  AsyncVoidResult deleteJugendlicher(String id) {
+    final result = ref.read(jugendlicheRepositoryProvider).delete(id);
+    // Refresh the list after deleting a Jugendlicher
+    ref.invalidateSelf();
+    return result;
+  }
 }
