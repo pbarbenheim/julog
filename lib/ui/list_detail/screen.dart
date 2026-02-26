@@ -173,7 +173,7 @@ class _ListDetailLayoutState extends State<ListDetailLayout> {
                         ],
                       ),
                     ),
-                    detail,
+                    Expanded(child: detail),
                   ],
                 ),
               ),
