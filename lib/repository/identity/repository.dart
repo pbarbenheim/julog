@@ -44,13 +44,20 @@ class IdentityRepository
         if (privateKeyString == null) {
           throw PrivateKeyNotFoundException();
         }
-        final privateKey = await compute(
-          (message) => crypto.PrivateKey.fromString(
-            message.privateKeyString,
-            message.password,
-          ),
-          (privateKeyString: privateKeyString, password: password),
-        );
+
+        final crypto.PrivateKey privateKey;
+        try {
+          privateKey = await compute(
+                (message) =>
+                crypto.PrivateKey.fromString(
+                  message.privateKeyString,
+                  message.password,
+                ),
+            (privateKeyString: privateKeyString, password: password),
+          );
+        } catch(e) {
+          throw PasswortWrongException();
+        }
 
         return OpenIdentity(id: id, privateKey: privateKey);
       });
