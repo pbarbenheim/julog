@@ -199,8 +199,33 @@ extension AsyncResultMethods<S extends Object, F extends Exception>
   ) async => then((result) => result.when(onSuccess, onFailure));
 
   AsyncResultDart<W, Exception> map<W extends Object>(
-    W Function(S value) transform,
-  ) async => then((result) => result.map(transform));
+    FutureOr<W> Function(S value) transform,
+  ) async => then((result) async {
+    if (result is FailureDart<S, F>) {
+      return FailureDart(result.error);
+    }
+
+    final value = result.unwrap();
+    final future = transform(value);
+    final W newValue;
+    if (future is Future<W>) {
+      newValue = await future;
+    } else {
+      newValue = future;
+    }
+    return ResultDart.success(newValue);
+  });
+}
+
+extension AsyncResultIterableMethods<S extends Object, F extends Exception>
+  on AsyncResultDart<Iterable<S>, F> {
+  AsyncResultDart<Iterable<W>, Exception> mapIterable<W extends Object>(W Function(S e) toElement) {
+    return map((value) => value.map(toElement));
+  }
+
+  AsyncResultDart<List<S>, Exception> toList() {
+    return map((value) => value.toList(),);
+  }
 }
 
 T identity<T>(T value) => value;
