@@ -1,77 +1,22 @@
 import 'package:flutter/foundation.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:jlcrypto/jlcrypto.dart' as crypto;
 import 'package:jldb/jldb.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../repository/betreuer/repository.dart';
+import '../../assembly/eintrag_assembly.dart';
 import '../../repository/eintrag/eintrag_repo.dart';
 import '../../repository/identity/repository.dart';
-import '../../repository/jugendliche/repository.dart';
-import '../../repository/kategorie/repository.dart';
-import '../../repository/model/model.dart';
 import '../../repository/signature/signature_repository.dart';
 
 part 'selected_eintrag_viewmodel.g.dart';
-part 'selected_eintrag_viewmodel.freezed.dart';
 
 @riverpod
 class SelectedEintragViewModel extends _$SelectedEintragViewModel {
   @override
   Future<SelectedEintrag> build(String id) async {
-    final eintragRepo = ref.watch(eintragRepositoryProvider);
-    final kategorieRepo = ref.watch(kategorieRepositoryProvider);
+    final assembly = ref.watch(eintragAssemblyProvider);
     final signatureRepo = ref.watch(signatureRepositoryProvider(id));
-    final jugendlicheRepo = ref.watch(jugendlicheRepositoryProvider);
-    final betreuerRepo = ref.watch(betreuerRepositoryProvider);
-    final identityRepo = ref.watch(identityRepositoryProvider);
-
-    final eintrag = (await eintragRepo.getById(id).unwrap()).unwrap();
-    final kategorie =
-        (await kategorieRepo.getById(eintrag.kategorieId).unwrap()).unwrap();
-    
-    final signatures = await signatureRepo.getAll()
-        .mapIterable((signature) async {
-          final identity = await identityRepo.getById(signature.identityId).unwrapAll();
-          return ShowingSignature.fromSignature(signature: signature, identity: identity);
-        })
-        .map((list) => Future.wait(list))
-        .unwrap();
-    
-    final betreuerList = await Future.wait(
-      eintrag.betreuerIds.map((id) async {
-        return (await betreuerRepo.getById(id).unwrap()).unwrap();
-      }),
-    );
-    final anwesendeJugendlicheList = await Future.wait(
-      eintrag.anwesendeJugendlicherIds.map((id) async {
-        return (await jugendlicheRepo.getById(id).unwrap()).unwrap();
-      }),
-    );
-    final entschuldigteJugendlicheList = await Future.wait(
-      eintrag.entschuldigteJugendlicherIds.map((id) async {
-        return (await jugendlicheRepo.getById(id).unwrap()).unwrap();
-      }),
-    );
-
-    final possibleSigners = await identityRepo.getAll().unwrap();
-
-    return SelectedEintrag(
-      id: eintrag.id,
-      start: eintrag.start,
-      end: eintrag.end,
-      kategorie: kategorie,
-      thema: eintrag.thema,
-      ort: eintrag.ort,
-      raum: eintrag.raum,
-      dienstverlauf: eintrag.dienstverlauf,
-      besonderheiten: eintrag.besonderheiten,
-      betreuer: betreuerList,
-      anwesendeJugendliche: anwesendeJugendlicheList,
-      entschuldigteJugendliche: entschuldigteJugendlicheList,
-      signatures: signatures,
-      possibleSigners: possibleSigners,
-    );
+    return (await assembly.assemble(id, signatureRepo)).unwrap();
   }
 
   AsyncVoidResult sign(String identityId, String password) {
@@ -117,50 +62,4 @@ class SelectedEintragViewModel extends _$SelectedEintragViewModel {
       ref.invalidateSelf();
     });
   }
-}
-
-@freezed
-abstract class SelectedEintrag with _$SelectedEintrag {
-  const factory SelectedEintrag({
-    required String id,
-    required DateTime start,
-    required DateTime end,
-    required Kategorie kategorie,
-    String? thema,
-    String? ort,
-    String? raum,
-    String? dienstverlauf,
-    String? besonderheiten,
-    required List<Betreuer> betreuer,
-    required List<Jugendlicher> anwesendeJugendliche,
-    required List<Jugendlicher> entschuldigteJugendliche,
-    required List<ShowingSignature> signatures,
-    required List<Identity> possibleSigners,
-  }) = _SelectedEintrag;
-}
-
-@freezed
-abstract class ShowingSignature with _$ShowingSignature {
-  const ShowingSignature._();
-  const factory ShowingSignature({
-    required String id,
-    required String eintragId,
-    required Identity identity,
-    required crypto.Signature signature,
-    required DateTime timestamp,
-    required bool isValid,
-  }) = _ShowingSignature;
-
-  factory ShowingSignature.fromSignature({
-    required Signature signature,
-    required Identity identity
-  }) => ShowingSignature(
-      eintragId: signature.eintragId,
-      id: signature.id,
-      identity: identity,
-      signature: signature.signature,
-      timestamp: signature.timestamp,
-      isValid: signature.isValid,
-    );
-
 }
