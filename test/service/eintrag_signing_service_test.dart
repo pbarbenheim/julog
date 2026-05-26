@@ -126,7 +126,7 @@ void main() {
       expect(result, isA<VoidSuccess>());
       expect(sigRepo.saves, hasLength(1));
       expect(sigRepo.saves.single.identityId, 'i1');
-      expect(sigRepo.saves.single.version, 4);
+      expect(sigRepo.saves.single.version, 5);
     });
 
     test('identity not found — returns Failure', () async {

@@ -61,7 +61,6 @@ void main() {
           "INSERT INTO test3 (id, name) VALUES (3, 'Charlie');",
         );
         await raceCompleter.future;
-        await Future.delayed(const Duration(seconds: 5));
         return await conn.select('select * from test3;');
       });
       final selectFuture = selectPrep.select();
@@ -70,6 +69,20 @@ void main() {
       final selectResult = await selectFuture;
       expect(selectResult.length, equals(3));
       expect(transactionResult.length, equals(3));
+    });
+
+    test('close() while request pending throws StateError', () async {
+      await database.execute(
+        'CREATE TABLE closetest (id INTEGER PRIMARY KEY);',
+      );
+      // Start a select but do not await it yet.
+      final pendingFuture = database.select('SELECT * FROM closetest;');
+      // Close the worker while the request is in-flight.
+      await database.close();
+      expect(
+        () async => await pendingFuture,
+        throwsA(isA<StateError>()),
+      );
     });
 
     tearDown(() {

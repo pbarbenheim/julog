@@ -56,13 +56,13 @@ class DatabaseMigrations {
     );
 
     create table eintrag_betreuer (
-      eintrag_id text not null references eintraege (id),
+      eintrag_id text not null references eintrag (id),
       betreuer_id text not null references betreuer (id),
       primary key (eintrag_id, betreuer_id)
     );
 
     create table eintrag_jugendlicher (
-      eintrag_id text not null references eintraege (id),
+      eintrag_id text not null references eintrag (id),
       jugendlicher_id text not null references jugendlicher (id),
       status integer not null,
       primary key (eintrag_id, jugendlicher_id)

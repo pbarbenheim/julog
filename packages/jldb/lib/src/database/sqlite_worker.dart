@@ -54,10 +54,13 @@ class SqliteWorker {
     if (!_closed) {
       _closed = true;
       _commands.send('shutdown');
-      if (_pendingRequests.isEmpty) {
-        _responses.close();
+      for (final completer in _pendingRequests.values) {
+        completer.completeError(
+          StateError('Database worker was closed before this request completed.'),
+        );
       }
-      Future.delayed(const Duration(seconds: 1));
+      _pendingRequests.clear();
+      _responses.close();
       _isolate.kill(priority: Isolate.beforeNextEvent);
     }
   }
@@ -84,9 +87,6 @@ class SqliteWorker {
       completer.complete(result);
     }
 
-    if (_closed && _pendingRequests.isEmpty) {
-      _responses.close();
-    }
   }
 
   static void _handleCommandsToIsolate(
@@ -128,7 +128,12 @@ class SqliteWorker {
         if (command == 'prepare') {
           final (String sql, bool peristent, bool vtab, bool checkNoTail) =
               args;
-          final stmt = db.prepare(sql);
+          final stmt = db.prepare(
+            sql,
+            persistent: peristent,
+            vtab: vtab,
+            checkNoTail: checkNoTail,
+          );
           final int stmtId = statementCounter++;
           preparedStatements[stmtId] = stmt;
           sp.send((id, stmtId));
@@ -146,7 +151,11 @@ class SqliteWorker {
         if (command == 'execute_statement') {
           final (int stmtId, List<Object?> parameters) = args;
           final stmt = preparedStatements[stmtId];
-          stmt?.execute(parameters);
+          if (stmt == null) {
+            sp.send((id, RemoteError('No prepared statement with id $stmtId', '')));
+            return;
+          }
+          stmt.execute(parameters);
           sp.send((id, null));
           return;
         }
@@ -154,14 +163,18 @@ class SqliteWorker {
         if (command == 'select_statement') {
           final (int stmtId, List<Object?> parameters) = args;
           final stmt = preparedStatements[stmtId];
-          final result = stmt?.select(parameters).rows;
+          if (stmt == null) {
+            sp.send((id, RemoteError('No prepared statement with id $stmtId', '')));
+            return;
+          }
+          final result = stmt.select(parameters).rows;
           sp.send((id, result));
           return;
         }
 
         throw UnsupportedError('Unknown command: $command');
-      } catch (e) {
-        sp.send((id, RemoteError(e.toString(), '')));
+      } catch (e, s) {
+        sp.send((id, RemoteError(e.toString(), s.toString())));
       }
     });
   }
@@ -179,6 +192,7 @@ class SqliteWorker {
   ]) async {
     _notClosedGuard();
     return await _mutex.protectRead(() async {
+      _notClosedGuard();
       final completer = Completer<void>.sync();
       final id = _idCounter++;
       _pendingRequests[id] = completer;
@@ -195,6 +209,7 @@ class SqliteWorker {
   ]) async {
     _notClosedGuard();
     return await _mutex.protectRead(() async {
+      _notClosedGuard();
       final completer = Completer<Object>.sync();
       final id = _idCounter++;
       _pendingRequests[id] = completer;
@@ -224,6 +239,7 @@ class SqliteWorker {
   }) async {
     _notClosedGuard();
     return await _mutex.protectRead(() async {
+      _notClosedGuard();
       final completer = Completer<Object>.sync();
       final id = _idCounter++;
       _pendingRequests[id] = completer;
@@ -260,6 +276,11 @@ class SqliteWorker {
   }
 }
 
+/// A prepared statement handle tied to a [SqliteWorker].
+///
+/// **Do not use a [WorkerStatement] inside a [SqliteWorker.transaction]
+/// callback.** [sendMessage] acquires a read lock; calling it while the
+/// transaction holds the write lock will deadlock.
 final class WorkerStatement {
   final int id;
   Future<Object?> Function((String, dynamic) message) sendMessage;

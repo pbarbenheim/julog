@@ -481,6 +481,7 @@ final class Jldb {
   ) async {
     final query = switch (version) {
       4 => signV4Query,
+      5 => signV5Query,
       _ => throw UnsupportedError('Unsupported signing version: $version'),
     };
     return Result.safeNullableAsync(() async {
@@ -488,10 +489,13 @@ final class Jldb {
       if (result.isEmpty) {
         return null;
       }
-      final row = result.first;
-      final json = row[0].toString();
-      final data = jsonDecode(json) as Map<String, dynamic>;
-      data.addAll({'timestamp': timestamp.millisecondsSinceEpoch});
+      final json = result.first[0].toString();
+      if (version >= 5) {
+        final data = jsonDecode(json) as Map<String, dynamic>;
+        data['timestamp'] = timestamp.millisecondsSinceEpoch;
+        return jsonEncode(data);
+      }
+      // v4: timestamp was not included in the signed payload (legacy behaviour).
       return json;
     });
   }

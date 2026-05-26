@@ -40,7 +40,7 @@ class EintragSigningService {
     required JulogRepository<Signature, SignatureApiModel, SignatureCreateData>
         signatureRepo,
   }) {
-    const currentVersion = 4;
+    const currentVersion = 5;
     return Result.voidSafeAsync(() async {
       final timestamp = DateTime.timestamp();
 
