@@ -6,7 +6,7 @@ cd "$(dirname "$0")"
 cd ../packages/jlcrypto
 echo "####### Installing jlcrypto dependencies #######"
 
-dart pub get --enforce-lockfile
+dart pub get
 
 echo "############## Finished jlcrypto ###############"
 echo ""
@@ -17,7 +17,7 @@ cd ../jldb
 
 echo "######### Installing jldb dependencies #########"
 
-dart pub get --enforce-lockfile
+dart pub get
 
 echo "######## Generating jldb intermediates #########"
 
