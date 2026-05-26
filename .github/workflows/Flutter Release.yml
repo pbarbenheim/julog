@@ -8,7 +8,7 @@ on:
 permissions:
   contents: write
 env:
-  flutterversion: "3.38"
+  flutterversion: "3.44.x"
 jobs:
   build-and-release-linux:
     runs-on: ubuntu-latest

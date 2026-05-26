@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
 env:
-  flutterversion: "3.38.x"
+  flutterversion: "3.44.x"
 jobs:
   flutter-status-check:
     runs-on: ubuntu-latest
