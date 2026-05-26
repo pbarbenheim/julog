@@ -3,11 +3,6 @@ description: A starting point for Dart libraries or applications.
 version: 1.0.0-experimental
 # repository: https://github.com/my_org/my_repo
 
-hooks:
-  user_defines:
-    sqlite3:
-      source: system
-
 environment:
   sdk: ^3.10.4
 
@@ -15,7 +10,7 @@ dependencies:
   freezed_annotation: ^3.1.0
   meta: ^1.17.0
   mutex: ^3.1.0
-  sqlite3: ^3.1.2
+  sqlite3: ^2.9.0
   uuid: ^4.5.2
 
 dev_dependencies:
