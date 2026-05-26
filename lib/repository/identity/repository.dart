@@ -7,6 +7,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart' hide AsyncResult;
 import '../../provider/jldb/jldb.dart';
 import '../../provider/jldb/julog_file.dart';
 import '../../provider/secure_storage/secure_storage.dart';
+import '../../service/eintrag_signing_service.dart';
 import '../model/identity/identity.dart';
 import '../repository_base.dart';
 import 'exception.dart';
@@ -21,7 +22,8 @@ typedef IdentityCreateData = ({
 });
 
 class IdentityRepository
-    extends JulogRepository<Identity, IdentityApiModel, IdentityCreateData> {
+    extends JulogRepository<Identity, IdentityApiModel, IdentityCreateData>
+    implements IdentityOpener {
   final Jldb _jldb;
   final FlutterSecureStorage _secureStorage;
 
@@ -31,6 +33,7 @@ class IdentityRepository
   }) : _jldb = jldb,
        _secureStorage = secureStorage;
 
+  @override
   AsyncResultOptional<OpenIdentity> openIdentity(String id, String password) =>
       Result.safeNullableAsync(() async {
         final recordResult = await _jldb.getIdentity(UUID.fromString(id));

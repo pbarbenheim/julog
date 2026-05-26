@@ -6,6 +6,7 @@ import '../../provider/jldb/jldb.dart';
 import '../../provider/jldb/julog_file.dart';
 import '../model/model.dart';
 import '../repository_base.dart';
+import '../../service/eintrag_signing_service.dart';
 
 part 'eintrag_repo.g.dart';
 
@@ -24,11 +25,13 @@ typedef EintragCreateData = ({
 });
 
 class EintragRepository
-    extends JulogRepository<Eintrag, EintragApiModel, EintragCreateData> {
+    extends JulogRepository<Eintrag, EintragApiModel, EintragCreateData>
+    implements EintragSigningDataSource {
   final Jldb _jldb;
 
   EintragRepository({required Jldb jldb}) : _jldb = jldb;
 
+  @override
   AsyncResult<Optional<String>> getEintragSigningData(
     String eintragId,
     int version,
