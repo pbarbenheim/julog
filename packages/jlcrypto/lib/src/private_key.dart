@@ -39,7 +39,7 @@ class PrivateKey {
   late final PublicKey _publicKey;
   late final String _encodedPrivateKey;
 
-  Identity get identity => _publicKey.identity;
+  KeyOwner get keyOwner => _publicKey.keyOwner;
   String get id => _publicKey.id;
   PublicKey get publicKey => _publicKey;
 

@@ -70,7 +70,7 @@ class IdentityRepository
     final newId = UUID.generate();
     final keypair = await compute(
       (message) => crypto.KeyPair.generate(
-        identity: crypto.Identity(message.name, message.function, message.mail),
+        identity: crypto.KeyOwner(message.name, message.function, message.mail),
         password: message.password,
       ),
       data,

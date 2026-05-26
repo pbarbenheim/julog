@@ -9,21 +9,21 @@ import 'signature.dart';
 @internal
 PublicKey createPublicKeyFromRsaKey(
   pc.RSAPublicKey rsaPublicKey,
-  Identity identity,
+  KeyOwner keyOwner,
   String id,
 ) {
-  return PublicKey._(rsaPublicKey, identity, id);
+  return PublicKey._(rsaPublicKey, keyOwner, id);
 }
 
 class PublicKey {
   late final pc.RSAPublicKey _rsaPublicKey;
-  late final Identity _identity;
+  late final KeyOwner _keyOwner;
   late final String _id;
 
-  Identity get identity => _identity;
+  KeyOwner get keyOwner => _keyOwner;
   String get id => _id;
 
-  PublicKey._(this._rsaPublicKey, this._identity, this._id);
+  PublicKey._(this._rsaPublicKey, this._keyOwner, this._id);
 
   PublicKey.fromString(String publicKeyString) {
     final json =
@@ -33,7 +33,7 @@ class PublicKey {
     final identityJson = json['identity'] as Map<String, dynamic>;
     final BigInt modulus = BigInt.parse(json['modulus'] as String);
     final BigInt exponent = BigInt.parse(json['exponent'] as String);
-    _identity = Identity(
+    _keyOwner = KeyOwner(
       identityJson['name']!,
       identityJson['function']!,
       identityJson['mail']!,
@@ -71,9 +71,9 @@ class PublicKey {
     final json = jsonEncode({
       'id': _id,
       'identity': {
-        'name': _identity.name,
-        'function': _identity.function,
-        'mail': _identity.mail,
+        'name': _keyOwner.name,
+        'function': _keyOwner.function,
+        'mail': _keyOwner.mail,
       },
       'modulus': _rsaPublicKey.modulus.toString(),
       'exponent': _rsaPublicKey.exponent.toString(),

@@ -3,8 +3,8 @@ import 'package:test/test.dart';
 
 void main() {
   group('library', () {
-    Identity? identity;
-    Identity? stringIdentity;
+    KeyOwner? identity;
+    KeyOwner? stringKeyOwner;
     String? password = 'securepassword123';
     KeyPair? keypair;
     bool? verified;
@@ -15,9 +15,9 @@ void main() {
     Message? message;
     String? signature;
     setUpAll(() {
-      identity = Identity('John Doe', 'JFW', 'john.doe@example.com');
+      identity = KeyOwner('John Doe', 'JFW', 'john.doe@example.com');
 
-      stringIdentity = Identity.fromString(
+      stringKeyOwner = KeyOwner.fromString(
         "Jane Smith <jane.smith@example.org> (Manager)",
       );
 
@@ -37,7 +37,7 @@ void main() {
       );
     });
 
-    test('Identity test', () {
+    test('KeyOwner test', () {
       expect(identity?.name == "John Doe", isTrue);
       expect(identity?.function == "JFW", isTrue);
       expect(identity?.mail == "john.doe@example.com", isTrue);
@@ -45,9 +45,9 @@ void main() {
         identity.toString() == "John Doe <john.doe@example.com> (JFW)",
         isTrue,
       );
-      expect(stringIdentity?.name, "Jane Smith");
-      expect(stringIdentity?.function, "Manager");
-      expect(stringIdentity?.mail, "jane.smith@example.org");
+      expect(stringKeyOwner?.name, "Jane Smith");
+      expect(stringKeyOwner?.function, "Manager");
+      expect(stringKeyOwner?.mail, "jane.smith@example.org");
     });
 
     test("keys test", () {

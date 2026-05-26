@@ -131,7 +131,7 @@ _Stub<Signature, SignatureApiModel, SignatureCreateData> _sigRepo(
 void main() {
   setUpAll(() async {
     final pair = await crypto.KeyPair.generateAsync(
-      identity: crypto.Identity('Test Name', 'Gruppenführer', 'test@example.com'),
+      identity: crypto.KeyOwner('Test Name', 'Gruppenführer', 'test@example.com'),
       password: 'test-password',
       keySize: 1024,
     );

@@ -40,13 +40,13 @@ class ClosedIdentity implements Identity {
   final bool isLocal;
 
   @override
-  String get name => publicKey.identity.name;
+  String get name => publicKey.keyOwner.name;
 
   @override
-  String get function => publicKey.identity.function;
+  String get function => publicKey.keyOwner.function;
 
   @override
-  String get mail => publicKey.identity.mail;
+  String get mail => publicKey.keyOwner.mail;
 
   const ClosedIdentity({
     required this.id,
@@ -75,13 +75,13 @@ class OpenIdentity implements Identity {
   PublicKey get publicKey => privateKey.publicKey;
 
   @override
-  String get name => publicKey.identity.name;
+  String get name => publicKey.keyOwner.name;
 
   @override
-  String get function => publicKey.identity.function;
+  String get function => publicKey.keyOwner.function;
 
   @override
-  String get mail => publicKey.identity.mail;
+  String get mail => publicKey.keyOwner.mail;
 
   const OpenIdentity({required this.id, required this.privateKey});
 

@@ -15,7 +15,7 @@ class KeyPair {
   KeyPair(this._privateKey) : _publicKey = _privateKey.publicKey;
 
   KeyPair.generate({
-    required Identity identity,
+    required KeyOwner identity,
     required String password,
     int keySize = 4069,
   }) {
@@ -54,7 +54,7 @@ class KeyPair {
   PrivateKey get privateKey => _privateKey;
 
   static Future<KeyPair> generateAsync({
-    required Identity identity,
+    required KeyOwner identity,
     required String password,
     int keySize = 4096,
   }) => Future(
