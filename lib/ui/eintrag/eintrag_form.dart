@@ -188,26 +188,44 @@ class _EintragFormState extends ConsumerState<EintragForm> {
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: jugendliche.entries.map((e) {
-                      return ListTile(
-                        title: Text(e.value),
-                        leading: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              final current = _jugendliche[e.key];
-                              if (current == Anwesenheit.anwesend) {
-                                _jugendliche[e.key] = Anwesenheit.entschuldigt;
-                              } else if (current == Anwesenheit.entschuldigt) {
-                                _jugendliche[e.key] = Anwesenheit.undefiniert;
-                              } else {
-                                _jugendliche[e.key] = Anwesenheit.anwesend;
-                              }
-                            });
-                          },
-                          icon: _jugendliche[e.key] == Anwesenheit.anwesend
-                              ? const Icon(Icons.check_box)
-                              : _jugendliche[e.key] == Anwesenheit.entschuldigt
-                              ? const Icon(Icons.check_box_outline_blank)
-                              : const Icon(Icons.indeterminate_check_box),
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                e.value,
+                                style: Theme.of(context).textTheme.bodyLarge,
+                              ),
+                            ),
+                            SegmentedButton<Anwesenheit>(
+                              showSelectedIcon: false,
+                              segments: const [
+                                ButtonSegment(
+                                  value: Anwesenheit.anwesend,
+                                  label: Text('Anwesend'),
+                                  icon: Icon(Icons.check),
+                                ),
+                                ButtonSegment(
+                                  value: Anwesenheit.entschuldigt,
+                                  label: Text('Entschuldigt'),
+                                  icon: Icon(Icons.event_busy),
+                                ),
+                                ButtonSegment(
+                                  value: Anwesenheit.undefiniert,
+                                  label: Text('–'),
+                                ),
+                              ],
+                              selected: {
+                                _jugendliche[e.key] ?? Anwesenheit.undefiniert,
+                              },
+                              onSelectionChanged: (selection) {
+                                setState(() {
+                                  _jugendliche[e.key] = selection.first;
+                                });
+                              },
+                            ),
+                          ],
                         ),
                       );
                     }).toList(),
