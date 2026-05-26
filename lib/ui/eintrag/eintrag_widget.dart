@@ -98,18 +98,19 @@ class EintragDisplay extends ConsumerWidget {
                 const SizedBox(height: 8),
                 if (eintrag.signatures.isNotEmpty) ...[
                   ...eintrag.signatures.map((s) {
-                    final validityText = s.isValid ? 'gültig' : 'ungültig';
                     return Row(
                       children: [
                         Icon(
                           s.isValid ? Icons.check : Icons.error,
-                          color: s.isValid ? Colors.green.shade900 : Colors.red.shade900,
+                          color: s.isValid
+                              ? Colors.green.shade900
+                              : Colors.red.shade900,
                         ),
                         Text(
                           '${s.identity.name}, ${s.identity.function}, am ${MaterialLocalizations.of(context).formatFullDate(s.timestamp)}',
                           style: Theme.of(context).textTheme.bodyMedium,
-                        )
-                      ]
+                        ),
+                      ],
                     );
                   }),
                   const SizedBox(height: 8),
@@ -210,7 +211,9 @@ class EintragDisplay extends ConsumerWidget {
     if (!context.mounted) return null;
     if (password == null || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Das Passwort wird zum Unterschreiben benötigt')),
+        const SnackBar(
+          content: Text('Das Passwort wird zum Unterschreiben benötigt'),
+        ),
       );
       return null;
     }
