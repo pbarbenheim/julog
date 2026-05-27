@@ -45,6 +45,20 @@ class JugendlicherViewModel extends _$JugendlicherViewModel {
     }
   }
 
+  Future<void> exitJugendlicher(
+    String id,
+    DateTime exitDate,
+    AustrittsGrund grund,
+  ) async {
+    final result = await ref
+        .read(jugendlicheRepositoryProvider)
+        .exitJugendlicher(id, exitDate, grund);
+    if (result is Failure<Unit>) {
+      throw Exception('Failed to exit Jugendlicher: ${result.error}');
+    }
+    ref.invalidateSelf();
+  }
+
   AsyncVoidResult deleteJugendlicher(String id) {
     final result = ref.read(jugendlicheRepositoryProvider).delete(id);
     // Refresh the list after deleting a Jugendlicher

@@ -399,7 +399,7 @@ final class Jldb {
           exitDate: row[6] != null
               ? DateTime.fromMillisecondsSinceEpoch(row[6] as int)
               : null,
-          exitReason: row[7] != null ? row[7] as int : null,
+          exitReason: row[7] != null ? ExitReason.fromInt(row[7] as int) : null,
           replacedById: row[8]?.toString().toUUID(),
           replacesId: row[9]?.toString().toUUID(),
           eintragIds: row[10] != null
@@ -536,6 +536,22 @@ final class Jldb {
     await _database.execute(sql, [id.toString()]);
   });
 
+  AsyncVoidResult setAustrittJugendlicher(
+    UUID id,
+    DateTime exitDate,
+    ExitReason exitReason,
+  ) {
+    const sql =
+        'update jugendlicher set exit_date = ?, exit_reason = ? where id = ?;';
+    return Result.voidSafeAsync(() async {
+      await _database.execute(sql, [
+        exitDate.millisecondsSinceEpoch,
+        exitReason.toInt(),
+        id.toString(),
+      ]);
+    });
+  }
+
   AsyncResultOptional<JugendlicherApiModel> getJugendlicher(UUID id) async {
     const sql = '''
       select 
@@ -579,7 +595,7 @@ final class Jldb {
         exitDate: row[6] != null
             ? DateTime.fromMillisecondsSinceEpoch(row[6] as int)
             : null,
-        exitReason: row[7] != null ? row[7] as int : null,
+        exitReason: row[7] != null ? ExitReason.fromInt(row[7] as int) : null,
         replacedById: row[8]?.toString().toUUID(),
         replacesId: row[9]?.toString().toUUID(),
         eintragIds: row[10] != null

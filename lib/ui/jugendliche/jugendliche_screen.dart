@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../router/router.dart';
 import '../../view_model/jugendlicher/jugendlicher_view.dart';
 import '../list_detail/list_detail.dart';
+import 'austritt_dialog.dart';
 import 'jugendliche_form.dart';
 
 class JugendlicheScreen extends ConsumerWidget {
@@ -18,12 +19,26 @@ class JugendlicheScreen extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stackTrace) => Center(child: Text('Error: $error')),
       data: (jugendliche) {
-        jugendliche.sort(
-          (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
-        );
-        final items = jugendliche
-            .map((e) => ListItem(title: Text(e.name)))
-            .toList();
+        final today = DateTime.now();
+        jugendliche.sort((a, b) {
+          final aExited = a.isAusgetreten(today);
+          final bExited = b.isAusgetreten(today);
+          if (aExited != bExited) return aExited ? 1 : -1;
+          return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+        });
+        final items = jugendliche.map((e) {
+          final exited = e.isAusgetreten(today);
+          return ListItem(
+            title: Text(
+              e.name,
+              style: exited
+                  ? TextStyle(
+                      color: Theme.of(context).disabledColor,
+                    )
+                  : null,
+            ),
+          );
+        }).toList();
         var index = jugendlicherId != null
             ? jugendliche.indexWhere((element) => element.id == jugendlicherId)
             : null;
@@ -61,7 +76,29 @@ class JugendlicheScreen extends ConsumerWidget {
             final deletable =
                 selectedJugendlicher.eintragIds.isEmpty &&
                 selectedJugendlicher.replacesId == null;
+            final canExit =
+                selectedJugendlicher.exitDate == null &&
+                selectedJugendlicher.replacedBy == null;
             return [
+              if (canExit)
+                IconButton(
+                  tooltip: 'Austritt erfassen',
+                  onPressed: () {
+                    showDialog<void>(
+                      context: context,
+                      builder: (_) => AustrittDialog(
+                        onConfirm: (exitDate, grund) => ref
+                            .read(jugendlicherViewModelProvider.notifier)
+                            .exitJugendlicher(
+                              selectedJugendlicher.id,
+                              exitDate,
+                              grund,
+                            ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.logout),
+                ),
               if (deletable)
                 IconButton(
                   onPressed: () {
@@ -108,7 +145,7 @@ class JugendlicheScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        "Grund für Austritt: ${selectedJugendlicher.exitReason ?? 'Keine Angabe'}",
+                        "Grund für Austritt: ${selectedJugendlicher.exitReason?.display ?? 'Keine Angabe'}",
                       ),
                     ],
                     if (selectedJugendlicher.eintragIds.isNotEmpty) ...[

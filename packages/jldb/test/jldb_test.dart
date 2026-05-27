@@ -14,14 +14,13 @@ JugendlicherCreateDTO _makeJugDto({
   String name = 'Alice',
   Sex sex = Sex.female,
   UUID? replacesId,
-}) =>
-    JugendlicherCreateDTO(
-      name: name,
-      sex: sex,
-      birthDate: DateTime(2010),
-      memberSince: DateTime(2020),
-      replacesId: replacesId,
-    );
+}) => JugendlicherCreateDTO(
+  name: name,
+  sex: sex,
+  birthDate: DateTime(2010),
+  memberSince: DateTime(2020),
+  replacesId: replacesId,
+);
 
 /// Creates a full eintrag that satisfies the signing-query inner-join requirement
 /// (at least one betreuer AND one jugendlicher linked).
@@ -117,8 +116,11 @@ void main() {
 
     test('all Sex variants survive the DB round-trip', () async {
       for (final sex in Sex.values) {
-        final betreuer =
-            BetreuerApiModel(id: UUID.generate(), name: 'X', sex: sex);
+        final betreuer = BetreuerApiModel(
+          id: UUID.generate(),
+          name: 'X',
+          sex: sex,
+        );
         final created = await db.createBetreuer(betreuer).unwrap();
         expect(created.sex, equals(sex));
       }
@@ -170,53 +172,66 @@ void main() {
       expect(after is None, isTrue);
     });
 
-    test('deleteJugendlicher fails when the jugendlicher has eintraege', () async {
-      final katId = UUID.generate();
-      await db
-          .createKategorie(KategorieApiModel(id: katId, name: 'K'))
-          .unwrap();
-      final jugId = await db.createJugendlicher(_makeJugDto()).unwrap();
-      await db
-          .createEintrag(
-            EintragApiModel(
-              id: UUID.generate(),
-              start: DateTime(2024),
-              end: DateTime(2024, 1, 1, 2),
-              kategorieId: katId,
-              thema: 'Test',
-              betreuerIds: const {},
-              anwesendeJugendlicherIds: {jugId},
-              entschuldigteJugendlicherIds: const {},
-            ),
-          )
-          .unwrap();
+    test(
+      'deleteJugendlicher fails when the jugendlicher has eintraege',
+      () async {
+        final katId = UUID.generate();
+        await db
+            .createKategorie(KategorieApiModel(id: katId, name: 'K'))
+            .unwrap();
+        final jugId = await db.createJugendlicher(_makeJugDto()).unwrap();
+        await db
+            .createEintrag(
+              EintragApiModel(
+                id: UUID.generate(),
+                start: DateTime(2024),
+                end: DateTime(2024, 1, 1, 2),
+                kategorieId: katId,
+                thema: 'Test',
+                betreuerIds: const {},
+                anwesendeJugendlicherIds: {jugId},
+                entschuldigteJugendlicherIds: const {},
+              ),
+            )
+            .unwrap();
 
-      final result = await db.deleteJugendlicher(jugId);
-      expect(result, isA<Failure>());
-    });
+        final result = await db.deleteJugendlicher(jugId);
+        expect(result, isA<Failure>());
+      },
+    );
 
-    test('createJugendlicher with replacesId links the replacement chain', () async {
-      final aId = await db.createJugendlicher(_makeJugDto(name: 'A')).unwrap();
-      final bId = await db
-          .createJugendlicher(_makeJugDto(name: 'A', replacesId: aId))
-          .unwrap();
+    test(
+      'createJugendlicher with replacesId links the replacement chain',
+      () async {
+        final aId = await db
+            .createJugendlicher(_makeJugDto(name: 'A'))
+            .unwrap();
+        final bId = await db
+            .createJugendlicher(_makeJugDto(name: 'A', replacesId: aId))
+            .unwrap();
 
-      final a = (await db.getJugendlicher(aId).unwrap()).unwrap();
-      final b = (await db.getJugendlicher(bId).unwrap()).unwrap();
+        final a = (await db.getJugendlicher(aId).unwrap()).unwrap();
+        final b = (await db.getJugendlicher(bId).unwrap()).unwrap();
 
-      expect(a.replacedById, equals(bId));
-      expect(b.replacesId, equals(aId));
-    });
+        expect(a.replacedById, equals(bId));
+        expect(b.replacesId, equals(aId));
+      },
+    );
 
-    test('deleteJugendlicher fails for a record that is itself a replacement', () async {
-      final aId = await db.createJugendlicher(_makeJugDto(name: 'A')).unwrap();
-      final bId = await db
-          .createJugendlicher(_makeJugDto(name: 'A', replacesId: aId))
-          .unwrap();
+    test(
+      'deleteJugendlicher fails for a record that is itself a replacement',
+      () async {
+        final aId = await db
+            .createJugendlicher(_makeJugDto(name: 'A'))
+            .unwrap();
+        final bId = await db
+            .createJugendlicher(_makeJugDto(name: 'A', replacesId: aId))
+            .unwrap();
 
-      final result = await db.deleteJugendlicher(bId);
-      expect(result, isA<Failure>());
-    });
+        final result = await db.deleteJugendlicher(bId);
+        expect(result, isA<Failure>());
+      },
+    );
   });
 
   // -------------------------------------------------------------------------
@@ -285,47 +300,48 @@ void main() {
           )
           .unwrap();
       betreuerId = b.id;
-      jugAnwesendId =
-          await db.createJugendlicher(_makeJugDto(name: 'Alice')).unwrap();
-      jugEntschuldigtId =
-          await db.createJugendlicher(_makeJugDto(name: 'Ben', sex: Sex.male)).unwrap();
+      jugAnwesendId = await db
+          .createJugendlicher(_makeJugDto(name: 'Alice'))
+          .unwrap();
+      jugEntschuldigtId = await db
+          .createJugendlicher(_makeJugDto(name: 'Ben', sex: Sex.male))
+          .unwrap();
     });
     tearDown(() async => db.close());
 
-    EintragApiModel _makeEintrag({
+    EintragApiModel makeEintrag({
       String thema = 'Sportabend',
       String? ort,
       String? raum,
       String? dienstverlauf,
       String? besonderheiten,
-    }) =>
-        EintragApiModel(
-          id: UUID.generate(),
-          start: DateTime.fromMillisecondsSinceEpoch(
-            DateTime(2024, 6, 1, 10).millisecondsSinceEpoch,
-          ),
-          end: DateTime.fromMillisecondsSinceEpoch(
-            DateTime(2024, 6, 1, 12).millisecondsSinceEpoch,
-          ),
-          kategorieId: katId,
-          thema: thema,
-          ort: ort,
-          raum: raum,
-          dienstverlauf: dienstverlauf,
-          besonderheiten: besonderheiten,
-          betreuerIds: {betreuerId},
-          anwesendeJugendlicherIds: {jugAnwesendId},
-          entschuldigteJugendlicherIds: {jugEntschuldigtId},
-        );
+    }) => EintragApiModel(
+      id: UUID.generate(),
+      start: DateTime.fromMillisecondsSinceEpoch(
+        DateTime(2024, 6, 1, 10).millisecondsSinceEpoch,
+      ),
+      end: DateTime.fromMillisecondsSinceEpoch(
+        DateTime(2024, 6, 1, 12).millisecondsSinceEpoch,
+      ),
+      kategorieId: katId,
+      thema: thema,
+      ort: ort,
+      raum: raum,
+      dienstverlauf: dienstverlauf,
+      besonderheiten: besonderheiten,
+      betreuerIds: {betreuerId},
+      anwesendeJugendlicherIds: {jugAnwesendId},
+      entschuldigteJugendlicherIds: {jugEntschuldigtId},
+    );
 
     test('createEintrag round-trips the full model', () async {
-      final eintrag = _makeEintrag();
+      final eintrag = makeEintrag();
       final created = await db.createEintrag(eintrag).unwrap();
       expect(created, equals(eintrag));
     });
 
     test('getEintrag returns Some and reconstructs the full model', () async {
-      final eintrag = _makeEintrag();
+      final eintrag = makeEintrag();
       await db.createEintrag(eintrag).unwrap();
 
       final result = await db.getEintrag(eintrag.id).unwrap();
@@ -339,13 +355,13 @@ void main() {
     });
 
     test('getAllEintraege returns all created entries', () async {
-      await db.createEintrag(_makeEintrag(thema: 'A')).unwrap();
-      await db.createEintrag(_makeEintrag(thema: 'B')).unwrap();
+      await db.createEintrag(makeEintrag(thema: 'A')).unwrap();
+      await db.createEintrag(makeEintrag(thema: 'B')).unwrap();
       expect((await db.getAllEintraege().unwrap()).length, equals(2));
     });
 
     test('attendance sets are stored and separated correctly', () async {
-      final eintrag = _makeEintrag();
+      final eintrag = makeEintrag();
       await db.createEintrag(eintrag).unwrap();
       final fetched = (await db.getEintrag(eintrag.id).unwrap()).unwrap();
 
@@ -362,7 +378,7 @@ void main() {
     });
 
     test('optional text fields survive the round-trip', () async {
-      final eintrag = _makeEintrag(
+      final eintrag = makeEintrag(
         ort: 'Berlin',
         raum: 'Raum 1',
         dienstverlauf: 'Verlauf',
@@ -377,22 +393,25 @@ void main() {
       expect(fetched.besonderheiten, equals('Besonderes'));
     });
 
-    test('eintrag with no betreuer and no jugendliche is stored correctly', () async {
-      final eintrag = EintragApiModel(
-        id: UUID.generate(),
-        start: DateTime(2024, 6, 1, 10),
-        end: DateTime(2024, 6, 1, 12),
-        kategorieId: katId,
-        thema: 'Leeres Treffen',
-        betreuerIds: const {},
-        anwesendeJugendlicherIds: const {},
-        entschuldigteJugendlicherIds: const {},
-      );
-      final created = await db.createEintrag(eintrag).unwrap();
-      expect(created.betreuerIds, isEmpty);
-      expect(created.anwesendeJugendlicherIds, isEmpty);
-      expect(created.entschuldigteJugendlicherIds, isEmpty);
-    });
+    test(
+      'eintrag with no betreuer and no jugendliche is stored correctly',
+      () async {
+        final eintrag = EintragApiModel(
+          id: UUID.generate(),
+          start: DateTime(2024, 6, 1, 10),
+          end: DateTime(2024, 6, 1, 12),
+          kategorieId: katId,
+          thema: 'Leeres Treffen',
+          betreuerIds: const {},
+          anwesendeJugendlicherIds: const {},
+          entschuldigteJugendlicherIds: const {},
+        );
+        final created = await db.createEintrag(eintrag).unwrap();
+        expect(created.betreuerIds, isEmpty);
+        expect(created.anwesendeJugendlicherIds, isEmpty);
+        expect(created.entschuldigteJugendlicherIds, isEmpty);
+      },
+    );
   });
 
   // -------------------------------------------------------------------------
@@ -406,14 +425,18 @@ void main() {
     tearDown(() async => db.close());
 
     test('createIdentity returns the model verbatim', () async {
-      final identity =
-          IdentityApiModel(id: UUID.generate(), publicKey: 'pk_abc123');
+      final identity = IdentityApiModel(
+        id: UUID.generate(),
+        publicKey: 'pk_abc123',
+      );
       expect(await db.createIdentity(identity).unwrap(), equals(identity));
     });
 
     test('getIdentity returns Some for an existing id', () async {
-      final identity =
-          IdentityApiModel(id: UUID.generate(), publicKey: 'pk_xyz');
+      final identity = IdentityApiModel(
+        id: UUID.generate(),
+        publicKey: 'pk_xyz',
+      );
       await db.createIdentity(identity).unwrap();
 
       final result = await db.getIdentity(identity.id).unwrap();
@@ -428,10 +451,14 @@ void main() {
 
     test('getAllIdentities returns all created records', () async {
       await db
-          .createIdentity(IdentityApiModel(id: UUID.generate(), publicKey: 'k1'))
+          .createIdentity(
+            IdentityApiModel(id: UUID.generate(), publicKey: 'k1'),
+          )
           .unwrap();
       await db
-          .createIdentity(IdentityApiModel(id: UUID.generate(), publicKey: 'k2'))
+          .createIdentity(
+            IdentityApiModel(id: UUID.generate(), publicKey: 'k2'),
+          )
           .unwrap();
       expect((await db.getAllIdentities().unwrap()).length, equals(2));
     });
@@ -450,8 +477,11 @@ void main() {
       // Signature requires a referenced eintrag and identity.
       final eintrag = await _createSignableEintrag(db);
       eintragId = eintrag.id;
-      final identity =
-          await db.createIdentity(IdentityApiModel(id: UUID.generate(), publicKey: 'pk1')).unwrap();
+      final identity = await db
+          .createIdentity(
+            IdentityApiModel(id: UUID.generate(), publicKey: 'pk1'),
+          )
+          .unwrap();
       identityId = identity.id;
     });
     tearDown(() async => db.close());
@@ -468,13 +498,12 @@ void main() {
       expect(await db.createSignature(sig).unwrap(), equals(sig));
     });
 
-    test('getSignaturesByEintragId returns empty list when no signatures exist',
-        () async {
-      expect(
-        await db.getSignaturesByEintragId(eintragId).unwrap(),
-        isEmpty,
-      );
-    });
+    test(
+      'getSignaturesByEintragId returns empty list when no signatures exist',
+      () async {
+        expect(await db.getSignaturesByEintragId(eintragId).unwrap(), isEmpty);
+      },
+    );
 
     test('getSignaturesByEintragId returns the created signature', () async {
       final ts = DateTime.fromMillisecondsSinceEpoch(1_700_000_000_000);
@@ -492,55 +521,65 @@ void main() {
       expect(sigs.first, equals(sig));
     });
 
-    test('version and timestamp are preserved at millisecond precision', () async {
-      final ts = DateTime.fromMillisecondsSinceEpoch(1_700_000_000_123);
-      final sig = SignatureApiModel(
-        eintragId: eintragId,
-        identityId: identityId,
-        signature: 'sig',
-        timestamp: ts,
-        version: 5,
-      );
-      await db.createSignature(sig).unwrap();
-      final fetched =
-          (await db.getSignaturesByEintragId(eintragId).unwrap()).first;
+    test(
+      'version and timestamp are preserved at millisecond precision',
+      () async {
+        final ts = DateTime.fromMillisecondsSinceEpoch(1_700_000_000_123);
+        final sig = SignatureApiModel(
+          eintragId: eintragId,
+          identityId: identityId,
+          signature: 'sig',
+          timestamp: ts,
+          version: 5,
+        );
+        await db.createSignature(sig).unwrap();
+        final fetched =
+            (await db.getSignaturesByEintragId(eintragId).unwrap()).first;
 
-      expect(fetched.version, equals(5));
-      expect(fetched.timestamp.millisecondsSinceEpoch, equals(ts.millisecondsSinceEpoch));
-    });
+        expect(fetched.version, equals(5));
+        expect(
+          fetched.timestamp.millisecondsSinceEpoch,
+          equals(ts.millisecondsSinceEpoch),
+        );
+      },
+    );
 
-    test('two signatures for the same eintrag from different identities are both returned',
-        () async {
-      final identity2 = await db
-          .createIdentity(IdentityApiModel(id: UUID.generate(), publicKey: 'pk2'))
-          .unwrap();
-      final ts = DateTime.fromMillisecondsSinceEpoch(1_700_000_000_000);
-      await db
-          .createSignature(
-            SignatureApiModel(
-              eintragId: eintragId,
-              identityId: identityId,
-              signature: 'sig1',
-              timestamp: ts,
-              version: 4,
-            ),
-          )
-          .unwrap();
-      await db
-          .createSignature(
-            SignatureApiModel(
-              eintragId: eintragId,
-              identityId: identity2.id,
-              signature: 'sig2',
-              timestamp: ts,
-              version: 4,
-            ),
-          )
-          .unwrap();
+    test(
+      'two signatures for the same eintrag from different identities are both returned',
+      () async {
+        final identity2 = await db
+            .createIdentity(
+              IdentityApiModel(id: UUID.generate(), publicKey: 'pk2'),
+            )
+            .unwrap();
+        final ts = DateTime.fromMillisecondsSinceEpoch(1_700_000_000_000);
+        await db
+            .createSignature(
+              SignatureApiModel(
+                eintragId: eintragId,
+                identityId: identityId,
+                signature: 'sig1',
+                timestamp: ts,
+                version: 4,
+              ),
+            )
+            .unwrap();
+        await db
+            .createSignature(
+              SignatureApiModel(
+                eintragId: eintragId,
+                identityId: identity2.id,
+                signature: 'sig2',
+                timestamp: ts,
+                version: 4,
+              ),
+            )
+            .unwrap();
 
-      final sigs = await db.getSignaturesByEintragId(eintragId).unwrap();
-      expect(sigs.length, equals(2));
-    });
+        final sigs = await db.getSignaturesByEintragId(eintragId).unwrap();
+        expect(sigs.length, equals(2));
+      },
+    );
   });
 
   // -------------------------------------------------------------------------
@@ -592,37 +631,43 @@ void main() {
       expect(await db.getVersion(), equals(3));
     });
 
-    test('open() succeeds for a file previously created with create()', () async {
-      final dir = await Directory.systemTemp.createTemp('jldb_test_');
-      addTearDown(() => dir.delete(recursive: true));
-      final path = '${dir.path}/test.db';
+    test(
+      'open() succeeds for a file previously created with create()',
+      () async {
+        final dir = await Directory.systemTemp.createTemp('jldb_test_');
+        addTearDown(() => dir.delete(recursive: true));
+        final path = '${dir.path}/test.db';
 
-      // Use SqliteWorker + DatabaseMigrations directly to avoid the
-      // setConfigValue fire-and-forget race that occurs when closing
-      // immediately after Jldb.create().
-      final worker = await SqliteWorker.spawn(path, createDatabase: true);
-      for (final sql in DatabaseMigrations.getMigrations()) {
-        await worker.execute(sql);
-      }
-      await worker.close();
+        // Use SqliteWorker + DatabaseMigrations directly to avoid the
+        // setConfigValue fire-and-forget race that occurs when closing
+        // immediately after Jldb.create().
+        final worker = await SqliteWorker.spawn(path, createDatabase: true);
+        for (final sql in DatabaseMigrations.getMigrations()) {
+          await worker.execute(sql);
+        }
+        await worker.close();
 
-      final opened = await Jldb.open(path).unwrap();
-      addTearDown(opened.close);
-      expect(await opened.getVersion(), equals(3));
-    });
+        final opened = await Jldb.open(path).unwrap();
+        addTearDown(opened.close);
+        expect(await opened.getVersion(), equals(3));
+      },
+    );
 
-    test('open() fails for a database with user_version below minimum', () async {
-      final dir = await Directory.systemTemp.createTemp('jldb_test_');
-      addTearDown(() => dir.delete(recursive: true));
-      final path = '${dir.path}/old.db';
+    test(
+      'open() fails for a database with user_version below minimum',
+      () async {
+        final dir = await Directory.systemTemp.createTemp('jldb_test_');
+        addTearDown(() => dir.delete(recursive: true));
+        final path = '${dir.path}/old.db';
 
-      final worker = await SqliteWorker.spawn(path, createDatabase: true);
-      await worker.execute('PRAGMA user_version = 2;');
-      await worker.close();
+        final worker = await SqliteWorker.spawn(path, createDatabase: true);
+        await worker.execute('PRAGMA user_version = 2;');
+        await worker.close();
 
-      final result = await Jldb.open(path);
-      expect(result, isA<Failure>());
-    });
+        final result = await Jldb.open(path);
+        expect(result, isA<Failure>());
+      },
+    );
   });
 
   // -------------------------------------------------------------------------
@@ -651,8 +696,7 @@ void main() {
       final optional = await db
           .getEintragForSigning(eintrag.id, 4, DateTime.now())
           .unwrap();
-      final decoded =
-          jsonDecode(optional.unwrap()) as Map<String, dynamic>;
+      final decoded = jsonDecode(optional.unwrap()) as Map<String, dynamic>;
       expect(decoded.containsKey('timestamp'), isFalse);
     });
 
@@ -670,8 +714,7 @@ void main() {
       final optional = await db
           .getEintragForSigning(eintrag.id, 5, ts)
           .unwrap();
-      final decoded =
-          jsonDecode(optional.unwrap()) as Map<String, dynamic>;
+      final decoded = jsonDecode(optional.unwrap()) as Map<String, dynamic>;
       expect(decoded['timestamp'], equals(ts.millisecondsSinceEpoch));
     });
 
@@ -680,8 +723,7 @@ void main() {
         final optional = await db
             .getEintragForSigning(eintrag.id, version, DateTime.now())
             .unwrap();
-        final decoded =
-            jsonDecode(optional.unwrap()) as Map<String, dynamic>;
+        final decoded = jsonDecode(optional.unwrap()) as Map<String, dynamic>;
         expect(decoded['id'], equals(eintrag.id.toString()));
         expect(decoded['thema'], equals(eintrag.thema));
       }
@@ -721,11 +763,14 @@ void main() {
       expect(result is None, isTrue);
     });
 
-    test('throws UnsupportedError for an unrecognised signing version', () async {
-      expect(
-        () => db.getEintragForSigning(eintrag.id, 99, DateTime.now()),
-        throwsA(isA<UnsupportedError>()),
-      );
-    });
+    test(
+      'throws UnsupportedError for an unrecognised signing version',
+      () async {
+        expect(
+          () => db.getEintragForSigning(eintrag.id, 99, DateTime.now()),
+          throwsA(isA<UnsupportedError>()),
+        );
+      },
+    );
   });
 }

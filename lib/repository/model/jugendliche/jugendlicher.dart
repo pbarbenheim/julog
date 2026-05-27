@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:jldb/jldb.dart';
 
+import '../austritts_grund.dart';
 import '../gender.dart';
 
 part 'jugendlicher.freezed.dart';
@@ -15,7 +16,7 @@ abstract class Jugendlicher with _$Jugendlicher {
     required DateTime birthDate,
     required DateTime memberSince,
     DateTime? exitDate,
-    int? exitReason,
+    AustrittsGrund? exitReason,
     Jugendlicher? replacedBy,
     // ID of the Jugendlicher this one replaces, is id because we want to avoid cycles
     String? replacesId,
@@ -23,6 +24,13 @@ abstract class Jugendlicher with _$Jugendlicher {
   }) = _Jugendlicher;
 
   String get currentId => replacedBy?.currentId ?? id;
+
+  bool isAusgetreten(DateTime today) {
+    if (exitDate == null) return false;
+    final todayDate = DateTime(today.year, today.month, today.day);
+    final exitDateOnly = DateTime(exitDate!.year, exitDate!.month, exitDate!.day);
+    return exitDateOnly.isBefore(todayDate);
+  }
 
   const Jugendlicher._();
 
@@ -46,7 +54,16 @@ abstract class Jugendlicher with _$Jugendlicher {
       birthDate: record.birthDate,
       memberSince: record.memberSince,
       exitDate: record.exitDate,
-      exitReason: record.exitReason,
+      exitReason: switch (record.exitReason) {
+        null => null,
+        ExitReason.uebernahme => AustrittsGrund.uebernahme,
+        ExitReason.wohnortwechsel => AustrittsGrund.wohnortwechsel,
+        ExitReason.noInterest => AustrittsGrund.noInterest,
+        ExitReason.schule => AustrittsGrund.schule,
+        ExitReason.ausbildung => AustrittsGrund.ausbildung,
+        ExitReason.ausschluss => AustrittsGrund.ausschluss,
+        ExitReason.noUebernahme => AustrittsGrund.noUebernahme,
+      },
       replacedBy: replacedBy,
       eintragIds: record.eintragIds.map((e) => e.toString()).toSet(),
       replacesId: record.replacesId?.toString(),

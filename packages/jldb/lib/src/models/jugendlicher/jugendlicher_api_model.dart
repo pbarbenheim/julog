@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../exit_reason.dart';
 import '../sex.dart';
 import '../uuid.dart';
 
@@ -15,7 +16,7 @@ abstract class JugendlicherApiModel with _$JugendlicherApiModel {
     required DateTime birthDate,
     required DateTime memberSince,
     DateTime? exitDate,
-    int? exitReason,
+    ExitReason? exitReason,
     UUID? replacedById,
     UUID? replacesId,
     required Set<UUID> eintragIds,

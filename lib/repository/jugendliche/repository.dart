@@ -27,6 +27,31 @@ class JugendlicheRepository
   final Jldb _jldb;
   JugendlicheRepository({required Jldb jldb}) : _jldb = jldb;
 
+  AsyncVoidResult exitJugendlicher(
+    String id,
+    DateTime exitDate,
+    AustrittsGrund grund,
+  ) async {
+    final result = await _jldb.setAustrittJugendlicher(
+      UUID.fromString(id),
+      exitDate,
+      switch (grund) {
+        AustrittsGrund.uebernahme => ExitReason.uebernahme,
+        AustrittsGrund.wohnortwechsel => ExitReason.wohnortwechsel,
+        AustrittsGrund.noInterest => ExitReason.noInterest,
+        AustrittsGrund.schule => ExitReason.schule,
+        AustrittsGrund.ausbildung => ExitReason.ausbildung,
+        AustrittsGrund.ausschluss => ExitReason.ausschluss,
+        AustrittsGrund.noUebernahme => ExitReason.noUebernahme,
+      },
+    );
+    if (result is Failure<Unit>) {
+      return Failure(result.error);
+    }
+    invalidateCache();
+    return Result.voidSuccess();
+  }
+
   AsyncVoidResult delete(String id) async {
     final result = await _jldb.deleteJugendlicher(UUID.fromString(id));
     if (result is Failure<Unit>) {

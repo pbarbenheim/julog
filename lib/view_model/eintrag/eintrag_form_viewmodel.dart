@@ -19,12 +19,17 @@ Future<EintragFormOptions> eintragFormViewmodel(Ref ref) async {
   final betreuer = await betreuerRepo.getAll().unwrap();
   final jugendliche = await jugendlicheRepo.getAll().unwrap();
 
+  final today = DateTime.now();
+  final aktiveJugendliche = jugendliche
+      .where((j) => j.replacedBy == null && !j.isAusgetreten(today))
+      .toList();
+
   return EintragFormOptions(
     kategorieOptions: {
       for (var kategorie in kategorien) kategorie.id: kategorie.name,
     },
     betreuerOptions: {for (var b in betreuer) b.id: b.name},
-    jugendlicheOptions: {for (var j in jugendliche) j.id: j.name},
+    jugendlicheOptions: {for (var j in aktiveJugendliche) j.id: j.name},
   );
 }
 
