@@ -23,12 +23,14 @@ class SelectedEintragViewModel extends _$SelectedEintragViewModel {
       final signatureRepo = ref.read(
         signatureRepositoryProvider(state.asData!.value.id),
       );
-      await service.sign(
-        eintragId: state.asData!.value.id,
-        identityId: identityId,
-        password: password,
-        signatureRepo: signatureRepo,
-      );
+      await service
+          .sign(
+            eintragId: state.asData!.value.id,
+            identityId: identityId,
+            password: password,
+            signatureRepo: signatureRepo,
+          )
+          .unwrap();
       ref.invalidateSelf();
     });
   }
