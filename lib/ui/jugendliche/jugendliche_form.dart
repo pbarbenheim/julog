@@ -15,8 +15,9 @@ class JugendlicherForm extends StatefulWidget {
     String? pass,
   )?
   onSave;
+  final Jugendlicher? initialJugendlicher;
 
-  const JugendlicherForm({super.key, this.onSave});
+  const JugendlicherForm({super.key, this.onSave, this.initialJugendlicher});
 
   @override
   State<JugendlicherForm> createState() => _JugendlicherFormState();
@@ -31,6 +32,19 @@ class _JugendlicherFormState extends State<JugendlicherForm> {
   final TextEditingController _passController = TextEditingController();
 
   bool _loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final initial = widget.initialJugendlicher;
+    if (initial != null) {
+      _nameController.text = initial.name;
+      _selectedGender = initial.gender;
+      _birthDate = initial.birthDate;
+      _memberSince = initial.memberSince;
+      _passController.text = initial.pass ?? '';
+    }
+  }
 
   @override
   void dispose() {
@@ -48,7 +62,9 @@ class _JugendlicherFormState extends State<JugendlicherForm> {
         child: Column(
           children: [
             Text(
-              AppLocalizations.of(context)!.addNewJugendlicher,
+              widget.initialJugendlicher != null
+                  ? 'Jugendlichen bearbeiten'
+                  : AppLocalizations.of(context)!.addNewJugendlicher,
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(height: 16),
@@ -74,12 +90,12 @@ class _JugendlicherFormState extends State<JugendlicherForm> {
             const SizedBox(height: 16),
             InputDatePickerFormField(
               initialDate: _birthDate,
-              firstDate: DateTime.now().subtract(
-                const Duration(days: 365 * 27), // 27 years ago
-              ),
-              lastDate: DateTime.now().subtract(
-                const Duration(days: 365 * 3), // 3 years ago
-              ),
+              firstDate: widget.initialJugendlicher != null
+                  ? DateTime(1900)
+                  : DateTime.now().subtract(const Duration(days: 365 * 27)),
+              lastDate: widget.initialJugendlicher != null
+                  ? DateTime.now()
+                  : DateTime.now().subtract(const Duration(days: 365 * 3)),
               fieldLabelText: AppLocalizations.of(context)!.birthdate,
               onDateSaved: (date) {
                 _birthDate = date;

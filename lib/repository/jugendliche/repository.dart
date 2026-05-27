@@ -17,6 +17,15 @@ typedef JugendlicheCreateData = ({
   String? pass,
 });
 
+typedef JugendlicheEditData = ({
+  String id,
+  String name,
+  Gender gender,
+  DateTime birthDate,
+  DateTime memberSince,
+  String? pass,
+});
+
 class JugendlicheRepository
     extends
         JulogRepository<
@@ -50,6 +59,53 @@ class JugendlicheRepository
     }
     invalidateCache();
     return Result.voidSuccess();
+  }
+
+  AsyncResult<String> editJugendlicher(JugendlicheEditData data) async {
+    final currentResult = await getById(data.id);
+    if (currentResult is Failure<Optional<Jugendlicher>>) {
+      return Failure(currentResult.error);
+    }
+    final currentOpt = currentResult.unwrap();
+    if (currentOpt is None<Jugendlicher>) {
+      return Failure(
+        Exception('Jugendlicher mit ID ${data.id} nicht gefunden.'),
+      );
+    }
+    final current = currentOpt.unwrap();
+
+    final sex = switch (data.gender) {
+      Gender.diverse => Sex.diverse,
+      Gender.female => Sex.female,
+      Gender.male => Sex.male,
+    };
+
+    if (data.name == current.name) {
+      final result = await _jldb.updateJugendlicher(
+        UUID.fromString(data.id),
+        sex: sex,
+        pass: data.pass,
+        birthDate: data.birthDate,
+        memberSince: data.memberSince,
+      );
+      if (result is Failure<Unit>) return Failure(result.error);
+      invalidateCache();
+      return Success(data.id);
+    } else {
+      final result = await _jldb.createJugendlicher(
+        JugendlicherCreateDTO(
+          name: data.name,
+          sex: sex,
+          pass: data.pass,
+          birthDate: data.birthDate,
+          memberSince: data.memberSince,
+          replacesId: UUID.fromString(data.id),
+        ),
+      );
+      if (result is Failure<UUID>) return Failure(result.error);
+      invalidateCache();
+      return Success(result.unwrap().toString());
+    }
   }
 
   AsyncVoidResult delete(String id) async {

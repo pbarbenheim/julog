@@ -59,6 +59,30 @@ class JugendlicherViewModel extends _$JugendlicherViewModel {
     ref.invalidateSelf();
   }
 
+  Future<String> editJugendlicher({
+    required String id,
+    required String name,
+    required Gender gender,
+    required DateTime birthDate,
+    required DateTime memberSince,
+    String? pass,
+  }) async {
+    final repo = ref.read(jugendlicheRepositoryProvider);
+    final result = await repo.editJugendlicher((
+      id: id,
+      name: name,
+      gender: gender,
+      birthDate: birthDate,
+      memberSince: memberSince,
+      pass: pass,
+    ));
+    if (result is Failure<String>) {
+      throw Exception('Failed to edit Jugendlicher: ${result.error}');
+    }
+    ref.invalidateSelf();
+    return result.unwrap();
+  }
+
   AsyncVoidResult deleteJugendlicher(String id) {
     final result = ref.read(jugendlicheRepositoryProvider).delete(id);
     // Refresh the list after deleting a Jugendlicher

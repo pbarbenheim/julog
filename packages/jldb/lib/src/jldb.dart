@@ -72,6 +72,7 @@ final class Jldb {
   WorkerStatement? _setConfigStmnt;
   WorkerStatement? _getAllBetreuerStmnt;
   WorkerStatement? _insertNewJugendlicherStmnt;
+  WorkerStatement? _updateJugendlicherStmnt;
   WorkerStatement? _createSignatureStmnt;
   WorkerStatement? _getAllEintraegeStmnt;
   WorkerStatement? _getEintragStmnt;
@@ -535,6 +536,33 @@ final class Jldb {
     const sql = 'delete from jugendlicher where id = ?;';
     await _database.execute(sql, [id.toString()]);
   });
+
+  AsyncVoidResult updateJugendlicher(
+    UUID id, {
+    required Sex sex,
+    String? pass,
+    required DateTime birthDate,
+    required DateTime memberSince,
+  }) {
+    const sql = '''
+      update jugendlicher
+      set sex = ?, pass = ?, birth_date = ?, member_since = ?
+      where id = ?;
+    ''';
+    return Result.voidSafeAsync(() async {
+      _updateJugendlicherStmnt ??= await _database.prepare(
+        sql,
+        peristent: true,
+      );
+      await _updateJugendlicherStmnt!.execute([
+        sex.toInt(),
+        pass,
+        birthDate.millisecondsSinceEpoch,
+        memberSince.millisecondsSinceEpoch,
+        id.toString(),
+      ]);
+    });
+  }
 
   AsyncVoidResult setAustrittJugendlicher(
     UUID id,

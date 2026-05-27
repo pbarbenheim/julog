@@ -8,18 +8,28 @@ import '../list_detail/list_detail.dart';
 import 'austritt_dialog.dart';
 import 'jugendliche_form.dart';
 
-class JugendlicheScreen extends ConsumerWidget {
+class JugendlicheScreen extends ConsumerStatefulWidget {
   final String? jugendlicherId;
   const JugendlicheScreen({super.key, this.jugendlicherId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<JugendlicheScreen> createState() => _JugendlicheScreenState();
+}
+
+class _JugendlicheScreenState extends ConsumerState<JugendlicheScreen> {
+  bool _isEditing = false;
+
+  @override
+  Widget build(BuildContext context) {
     final jugendlicherValue = ref.watch(jugendlicherViewModelProvider);
     return jugendlicherValue.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stackTrace) => Center(child: Text('Error: $error')),
-      data: (jugendliche) {
+      data: (allJugendliche) {
         final today = DateTime.now();
+        final jugendliche = allJugendliche
+            .where((j) => j.replacedBy == null)
+            .toList();
         jugendliche.sort((a, b) {
           final aExited = a.isAusgetreten(today);
           final bExited = b.isAusgetreten(today);
@@ -32,15 +42,15 @@ class JugendlicheScreen extends ConsumerWidget {
             title: Text(
               e.name,
               style: exited
-                  ? TextStyle(
-                      color: Theme.of(context).disabledColor,
-                    )
+                  ? TextStyle(color: Theme.of(context).disabledColor)
                   : null,
             ),
           );
         }).toList();
-        var index = jugendlicherId != null
-            ? jugendliche.indexWhere((element) => element.id == jugendlicherId)
+        var index = widget.jugendlicherId != null
+            ? jugendliche.indexWhere(
+                (element) => element.id == widget.jugendlicherId,
+              )
             : null;
         if (index == -1) {
           index = null;
@@ -69,17 +79,34 @@ class JugendlicheScreen extends ConsumerWidget {
             },
           ),
           actionsBuilder: (context, selectedIndex) {
-            if (selectedIndex == null) {
-              return null;
-            }
+            if (selectedIndex == null) return null;
             final selectedJugendlicher = jugendliche[selectedIndex];
+
+            if (_isEditing) {
+              return [
+                IconButton(
+                  tooltip: 'Bearbeitung abbrechen',
+                  onPressed: () => setState(() => _isEditing = false),
+                  icon: const Icon(Icons.close),
+                ),
+              ];
+            }
+
             final deletable =
                 selectedJugendlicher.eintragIds.isEmpty &&
                 selectedJugendlicher.replacesId == null;
             final canExit =
                 selectedJugendlicher.exitDate == null &&
                 selectedJugendlicher.replacedBy == null;
+            final canEdit = !selectedJugendlicher.isAusgetreten(today);
+
             return [
+              if (canEdit)
+                IconButton(
+                  tooltip: 'Bearbeiten',
+                  onPressed: () => setState(() => _isEditing = true),
+                  icon: const Icon(Icons.edit),
+                ),
               if (canExit)
                 IconButton(
                   tooltip: 'Austritt erfassen',
@@ -112,6 +139,30 @@ class JugendlicheScreen extends ConsumerWidget {
           },
           detailBuilder: (context, index) {
             final selectedJugendlicher = jugendliche[index];
+
+            if (_isEditing) {
+              return JugendlicherForm(
+                initialJugendlicher: selectedJugendlicher,
+                onSave: (name, gender, birthDate, memberSince, pass) async {
+                  final newId = await ref
+                      .read(jugendlicherViewModelProvider.notifier)
+                      .editJugendlicher(
+                        id: selectedJugendlicher.id,
+                        name: name,
+                        gender: gender,
+                        birthDate: birthDate,
+                        memberSince: memberSince,
+                        pass: pass,
+                      );
+                  if (!context.mounted) return;
+                  setState(() => _isEditing = false);
+                  if (newId != selectedJugendlicher.id) {
+                    JugendlicheRoute(jugendlicheId: newId).go(context);
+                  }
+                },
+              );
+            }
+
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -145,7 +196,7 @@ class JugendlicheScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        "Grund für Austritt: ${selectedJugendlicher.exitReason?.display ?? 'Keine Angabe'}",
+                        'Grund für Austritt: ${selectedJugendlicher.exitReason?.display ?? 'Keine Angabe'}',
                       ),
                     ],
                     if (selectedJugendlicher.eintragIds.isNotEmpty) ...[

@@ -232,6 +232,76 @@ void main() {
         expect(result, isA<Failure>());
       },
     );
+
+    test('updateJugendlicher persists non-sensitive field changes', () async {
+      final id = await db.createJugendlicher(_makeJugDto()).unwrap();
+      final newBirth = DateTime(2012, 3, 15);
+      final newMember = DateTime(2022, 1, 1);
+
+      await db
+          .updateJugendlicher(
+            id,
+            sex: Sex.male,
+            pass: 'P123',
+            birthDate: newBirth,
+            memberSince: newMember,
+          )
+          .unwrap();
+
+      final jug = (await db.getJugendlicher(id).unwrap()).unwrap();
+      expect(jug.sex, equals(Sex.male));
+      expect(jug.pass, equals('P123'));
+      expect(jug.birthDate, equals(newBirth));
+      expect(jug.memberSince, equals(newMember));
+    });
+
+    test(
+      'updateJugendlicher does not affect name or replacement chain',
+      () async {
+        final id = await db.createJugendlicher(_makeJugDto()).unwrap();
+
+        await db
+            .updateJugendlicher(
+              id,
+              sex: Sex.male,
+              pass: null,
+              birthDate: DateTime(2011),
+              memberSince: DateTime(2021),
+            )
+            .unwrap();
+
+        final jug = (await db.getJugendlicher(id).unwrap()).unwrap();
+        expect(jug.name, equals('Alice'));
+        expect(jug.replacedById, isNull);
+      },
+    );
+
+    test('updateJugendlicher clears pass when null', () async {
+      final id = await db
+          .createJugendlicher(
+            JugendlicherCreateDTO(
+              name: 'Bob',
+              sex: Sex.male,
+              birthDate: DateTime(2010),
+              memberSince: DateTime(2020),
+              pass: 'OLD',
+            ),
+          )
+          .unwrap();
+
+      await db
+          .updateJugendlicher(
+            id,
+            sex: Sex.male,
+            pass: null,
+            birthDate: DateTime(2010),
+            memberSince: DateTime(2020),
+          )
+          .unwrap();
+
+      final jug = (await db.getJugendlicher(id).unwrap()).unwrap();
+      expect(jug.pass, isNull);
+    });
   });
 
   // -------------------------------------------------------------------------
