@@ -1,5 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:jldb/types.dart';
+import 'package:jlcore/jlcore.dart';
 
 import '../../repository/kategorie/repository.dart';
 import '../../repository/model/model.dart';

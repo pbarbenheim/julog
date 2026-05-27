@@ -4,7 +4,7 @@ import 'database/sqlite_worker.dart';
 import 'migrations.dart';
 import 'models/models.dart';
 import 'signing.dart';
-import 'types/types.dart';
+import 'package:jlcore/jlcore.dart';
 
 const jldbCompatibleSinceVersion = 3;
 

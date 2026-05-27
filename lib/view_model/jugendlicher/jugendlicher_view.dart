@@ -1,4 +1,4 @@
-import 'package:jldb/types.dart';
+import 'package:jlcore/jlcore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../repository/jugendliche/repository.dart';

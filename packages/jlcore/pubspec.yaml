@@ -1,0 +1,12 @@
+name: jlcore
+description: Functional type utilities (Result, Optional, Unit) shared across JuLog packages.
+version: 0.1.0
+publish_to: 'none'
+
+resolution: workspace
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  meta: ^1.17.0

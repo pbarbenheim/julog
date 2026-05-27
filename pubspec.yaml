@@ -7,6 +7,7 @@ license: GNU General Public License v3.0
 publish_to: "none"
 
 workspace:
+  - packages/jlcore
   - packages/jldb
   - packages/jlcrypto
 
@@ -26,6 +27,8 @@ dependencies:
   material_symbols_icons: ^4.2906.0
   shared_preferences: ^2.5.4
   vector_graphics: ^1.1.19
+  jlcore:
+    path: ./packages/jlcore
   jldb:
     path: ./packages/jldb
   jlcrypto:

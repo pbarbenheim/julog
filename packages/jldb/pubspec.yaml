@@ -9,6 +9,8 @@ environment:
   sdk: ^3.10.4
 
 dependencies:
+  jlcore:
+    path: ../jlcore
   freezed_annotation: ^3.1.0
   meta: ^1.17.0
   mutex: ^3.1.0

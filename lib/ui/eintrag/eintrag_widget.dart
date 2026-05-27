@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:jldb/types.dart';
+import 'package:jlcore/jlcore.dart';
 
 import '../../repository/model/model.dart';
 import '../../view_model/eintrag/selected_eintrag_viewmodel.dart';

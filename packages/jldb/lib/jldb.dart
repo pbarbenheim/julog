@@ -10,5 +10,4 @@ export 'src/models/models.dart'
         eintragStatusAnwesend,
         eintragStatusEntschuldigt,
         UUIDExtension;
-export 'src/types/types.dart'
-    hide AsyncResultDart, ResultDart, SuccessDart, FailureDart;
+export 'package:jlcore/jlcore.dart';
