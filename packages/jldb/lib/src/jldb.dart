@@ -449,7 +449,13 @@ final class Jldb {
     return Result.safeNullableAsync(() async {
       _getConfigStmnt ??= await _database.prepare(sql, peristent: true);
       final result = await _getConfigStmnt!.select([key]);
-      final val = result[0][0];
+      if (result.isEmpty) {
+        return null;
+      }
+      if (result.first.isEmpty) {
+        return null;
+      }
+      final val = result.first.first;
       if (val == null) {
         return null;
       } else {
@@ -647,7 +653,7 @@ final class Jldb {
     ''';
     return Result.voidSafeAsync(() async {
       _setConfigStmnt ??= await _database.prepare(sql, peristent: true);
-      _setConfigStmnt!.execute([key, value, value]);
+      await _setConfigStmnt!.execute([key, value, value]);
     });
   }
 
