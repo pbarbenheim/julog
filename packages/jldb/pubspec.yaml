@@ -1,7 +1,9 @@
 name: jldb
-description: A starting point for Dart libraries or applications.
+description: SQLite persistence layer and domain models for JuLog.
 version: 1.0.0-experimental
-# repository: https://github.com/my_org/my_repo
+publish_to: 'none'
+
+resolution: workspace
 
 environment:
   sdk: ^3.10.4

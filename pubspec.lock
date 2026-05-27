@@ -89,6 +89,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.15.0"
+  build_test:
+    dependency: transitive
+    description:
+      name: build_test
+      sha256: e69ade870705d5ad4d8b7e479d0ca71d0a9932ca04be6d278d97de45a32da07e
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.5.15"
   build_verify:
     dependency: "direct dev"
     description:
@@ -209,6 +217,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.7"
+  csslib:
+    dependency: transitive
+    description:
+      name: csslib
+      sha256: "09bad715f418841f976c77db72d5398dc1253c21fb9c0c7f0b0b985860b2d58e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.2"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -485,6 +501,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
+  html:
+    dependency: transitive
+    description:
+      name: html
+      sha256: "6d1264f2dffa1b1101c25a91dff0dc2daee4c18e87cd8538729773c073dbf602"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.15.6"
   http:
     dependency: transitive
     description:
@@ -533,20 +557,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
-  jlcrypto:
-    dependency: "direct main"
-    description:
-      path: "packages/jlcrypto"
-      relative: true
-    source: path
-    version: "1.0.0"
-  jldb:
-    dependency: "direct main"
-    description:
-      path: "packages/jldb"
-      relative: true
-    source: path
-    version: "1.0.0-experimental"
   jni:
     dependency: transitive
     description:
