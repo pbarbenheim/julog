@@ -19,3 +19,5 @@ jobs:
         run: ./scripts/install_dependencies.sh
       - name: Flutter analyze
         run: ./scripts/analyze.sh
+      - name: Run tests
+        run: ./scripts/test.sh
