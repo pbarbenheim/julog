@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../provider/jldb/jldb.dart';
 import '../provider/jldb/julog_file.dart';
 import '../ui/betreuer/screen.dart';
+import '../ui/dashboard/dashboard_screen.dart';
 import '../ui/eintrag/eintrag_screen.dart';
 import '../ui/identity/identity_screen.dart';
 import '../ui/jugendliche/jugendliche_screen.dart';
@@ -72,7 +73,7 @@ class DashboardRoute extends JulogRouteData with $DashboardRoute {
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return const Center(child: Text('Dashboard'));
+    return const DashboardScreen();
   }
 }
 
