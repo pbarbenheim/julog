@@ -27,8 +27,9 @@ class AttendanceRateCalculator {
         return true;
       }).length;
 
-      if (aktivCount == 0)
+      if (aktivCount == 0) {
         return AttendancePoint(date: eintragDate, attendanceRate: 0.0);
+      }
 
       final anwesendeCount = eintrag.anwesendeJugendlicherIds.length;
       return AttendancePoint(
