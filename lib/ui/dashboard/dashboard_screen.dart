@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' show DateFormat;
 import 'package:jldb/jldb.dart';
 
 import '../../view_model/dashboard/dashboard_viewmodel.dart';
@@ -251,9 +251,9 @@ class _AttendanceChartPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final chartLeft = _leftMargin;
+    const chartLeft = _leftMargin;
     final chartRight = size.width - _rightMargin;
-    final chartTop = _topMargin;
+    const chartTop = _topMargin;
     final chartBottom = size.height - _bottomMargin;
     final chartWidth = chartRight - chartLeft;
     final chartHeight = chartBottom - chartTop;
@@ -279,7 +279,7 @@ class _AttendanceChartPainter extends CustomPainter {
       canvas.drawLine(Offset(chartLeft, y), Offset(chartRight, y), gridPaint);
       _drawText(
         canvas,
-        '${pct}%',
+        '$pct%',
         Offset(0, y - 6),
         labelStyle,
         _leftMargin - 4,
