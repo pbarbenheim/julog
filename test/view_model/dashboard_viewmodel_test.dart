@@ -3,9 +3,6 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jldb/jldb.dart';
 
-import 'package:julog/repository/eintrag/eintrag_repo.dart';
-import 'package:julog/repository/jugendliche/repository.dart';
-import 'package:julog/repository/kategorie/repository.dart';
 import 'package:julog/repository/model/model.dart';
 import 'package:julog/repository/repository_base.dart';
 import 'package:julog/view_model/dashboard/dashboard_viewmodel.dart';
