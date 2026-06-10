@@ -289,7 +289,7 @@ class _AttendanceChartPainter extends CustomPainter {
 
     // Vertical axis line
     canvas.drawLine(
-      Offset(chartLeft, chartTop),
+      const Offset(chartLeft, chartTop),
       Offset(chartLeft, chartBottom),
       gridPaint,
     );
