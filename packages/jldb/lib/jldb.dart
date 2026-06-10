@@ -3,6 +3,7 @@
 /// More dartdocs go here.
 library;
 
+export 'src/attendance_rate_calculator.dart';
 export 'src/jldb.dart' show Jldb, jldbCompatibleSinceVersion;
 export 'src/models/models.dart'
     hide
