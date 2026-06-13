@@ -56,13 +56,6 @@ class _JugendlicheScreenState extends ConsumerState<JugendlicheScreen> {
         if (index == -1) {
           index = null;
         }
-        final aktiveJugendliche =
-            allJugendliche
-                .where((j) => j.replacedBy == null && !j.isAusgetreten(today))
-                .toList()
-              ..sort(
-                (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
-              );
         return ListDetailLayout(
           items: items,
           initialSelectedIndex: index,
@@ -78,7 +71,7 @@ class _JugendlicheScreenState extends ConsumerState<JugendlicheScreen> {
               onPressed: () => showDialog<void>(
                 context: context,
                 builder: (_) =>
-                    JugendlicheExportDialog(jugendliche: aktiveJugendliche),
+                    JugendlicheExportDialog(jugendliche: jugendliche),
               ),
             ),
           ],
