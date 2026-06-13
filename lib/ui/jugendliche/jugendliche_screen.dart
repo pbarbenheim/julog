@@ -6,6 +6,7 @@ import '../../router/router.dart';
 import '../../view_model/jugendlicher/jugendlicher_view.dart';
 import '../list_detail/list_detail.dart';
 import 'austritt_dialog.dart';
+import 'export_dialog.dart';
 import 'jugendliche_form.dart';
 
 class JugendlicheScreen extends ConsumerStatefulWidget {
@@ -55,6 +56,13 @@ class _JugendlicheScreenState extends ConsumerState<JugendlicheScreen> {
         if (index == -1) {
           index = null;
         }
+        final aktiveJugendliche =
+            allJugendliche
+                .where((j) => j.replacedBy == null && !j.isAusgetreten(today))
+                .toList()
+              ..sort(
+                (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+              );
         return ListDetailLayout(
           items: items,
           initialSelectedIndex: index,
@@ -63,6 +71,17 @@ class _JugendlicheScreenState extends ConsumerState<JugendlicheScreen> {
               'Wähle einen Jugendlichen aus der Liste aus, um Details zu sehen.',
             ),
           ),
+          listActionsBuilder: (context) => [
+            IconButton(
+              tooltip: 'PDF exportieren',
+              icon: const Icon(Icons.download),
+              onPressed: () => showDialog<void>(
+                context: context,
+                builder: (_) =>
+                    JugendlicheExportDialog(jugendliche: aktiveJugendliche),
+              ),
+            ),
+          ],
           form: JugendlicherForm(
             onSave: (name, gender, birthDate, memberSince, pass) async {
               final id = await ref
