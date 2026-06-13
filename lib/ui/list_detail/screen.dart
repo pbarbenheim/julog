@@ -11,6 +11,7 @@ class ListDetailLayout extends StatefulWidget {
   final bool showEmptyHint;
   final List<Widget>? Function(BuildContext context, int? selectedIndex)?
   actionsBuilder;
+  final List<Widget>? Function(BuildContext context)? listActionsBuilder;
 
   const ListDetailLayout({
     super.key,
@@ -21,6 +22,7 @@ class ListDetailLayout extends StatefulWidget {
     this.form,
     this.showEmptyHint = true,
     this.actionsBuilder,
+    this.listActionsBuilder,
   });
 
   @override
@@ -85,59 +87,68 @@ class _ListDetailLayoutState extends State<ListDetailLayout> {
             Flexible(
               flex: 1,
               fit: FlexFit.tight,
-              child: Stack(
+              child: Column(
                 children: [
-                  widget.items.isEmpty
-                      ? SizedBox.expand(
-                          child: Column(
-                            children: [
-                              const Padding(padding: EdgeInsets.all(16.0)),
-                              widget.showEmptyHint
-                                  ? emptyHint
-                                  : const SizedBox.shrink(),
-                            ],
-                          ),
-                        )
-                      : ListView(
-                          children: widget.items
-                              .map(
-                                (e) => Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 4,
-                                  ),
-                                  child: ListTile(
-                                    title: e.title,
-                                    subtitle: e.subtitle,
-                                    leading: e.leading,
-                                    selected:
-                                        widget.items.indexOf(e) ==
-                                        _selectedIndex,
-                                    onTap: () {
-                                      setState(() {
-                                        _selectedIndex = widget.items.indexOf(
-                                          e,
-                                        );
-                                      });
-                                    },
-                                  ),
+                  if (widget.listActionsBuilder != null)
+                    Row(children: widget.listActionsBuilder!(context) ?? []),
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        widget.items.isEmpty
+                            ? SizedBox.expand(
+                                child: Column(
+                                  children: [
+                                    const Padding(
+                                      padding: EdgeInsets.all(16.0),
+                                    ),
+                                    widget.showEmptyHint
+                                        ? emptyHint
+                                        : const SizedBox.shrink(),
+                                  ],
                                 ),
                               )
-                              .toList(),
-                        ),
-                  if (widget.form != null)
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: FloatingActionButton(
-                        onPressed: () {
-                          setState(() {
-                            _selectedIndex = null;
-                            _showForm = true;
-                          });
-                        },
-                        child: const Icon(Icons.add),
-                      ),
+                            : ListView(
+                                children: widget.items
+                                    .map(
+                                      (e) => Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 4,
+                                        ),
+                                        child: ListTile(
+                                          title: e.title,
+                                          subtitle: e.subtitle,
+                                          leading: e.leading,
+                                          selected:
+                                              widget.items.indexOf(e) ==
+                                              _selectedIndex,
+                                          onTap: () {
+                                            setState(() {
+                                              _selectedIndex = widget.items
+                                                  .indexOf(e);
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
+                        if (widget.form != null)
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: FloatingActionButton(
+                              onPressed: () {
+                                setState(() {
+                                  _selectedIndex = null;
+                                  _showForm = true;
+                                });
+                              },
+                              child: const Icon(Icons.add),
+                            ),
+                          ),
+                      ],
                     ),
+                  ),
                 ],
               ),
             ),
