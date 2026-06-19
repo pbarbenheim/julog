@@ -55,7 +55,7 @@ class EintragScreen extends ConsumerWidget {
                 onPressed: () async {
                   final selectedEintrag = ref
                       .read(selectedEintragViewModelProvider(eintragId))
-                      .valueOrNull;
+                      .value;
                   if (selectedEintrag == null) return;
                   await Printing.layoutPdf(
                     onLayout: (_) =>
