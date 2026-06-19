@@ -49,4 +49,8 @@ app.*.map.json
 *.g.dart
 *.freezed.dart
 
-domain*
+# Claude Code
+.claude/settings.local.json
+.agents/
+skills-lock.json
+.claude/skills/
