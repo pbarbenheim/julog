@@ -55,4 +55,52 @@ void main() {
       expect(loadedPrivate, isNotNull);
     });
   });
+
+  group('PrivateKey.fromString exception behaviour', () {
+    late String validEncoded;
+
+    setUpAll(() {
+      final kp = KeyPair.generate(
+        identity: KeyOwner('Test', 'Tester', 'test@example.com'),
+        password: 'correct-password',
+      );
+      validEncoded = kp.privateKey.toString();
+    });
+
+    test('correct key and password — no exception', () {
+      expect(
+        () => PrivateKey.fromString(validEncoded, 'correct-password'),
+        returnsNormally,
+      );
+    });
+
+    test('wrong password — throws PasswortWrongException', () {
+      expect(
+        () => PrivateKey.fromString(validEncoded, 'wrong-password'),
+        throwsA(isA<PasswortWrongException>()),
+      );
+    });
+
+    test(
+      'corrupted outer container (invalid base64) — throws CorruptedKeyContainerException',
+      () {
+        expect(
+          () => PrivateKey.fromString('not-valid-base64!!!', 'any-password'),
+          throwsA(isA<CorruptedKeyContainerException>()),
+        );
+      },
+    );
+
+    test(
+      'corrupted outer container (valid base64, invalid JSON) — throws CorruptedKeyContainerException',
+      () {
+        // base64-encode a string that is not valid JSON
+        const encoded = 'dGhpcyBpcyBub3QganNvbg=='; // "this is not json"
+        expect(
+          () => PrivateKey.fromString(encoded, 'any-password'),
+          throwsA(isA<CorruptedKeyContainerException>()),
+        );
+      },
+    );
+  });
 }

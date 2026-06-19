@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:meta/meta.dart';
 import 'package:pointycastle/export.dart' as pc;
 
+import 'exceptions.dart';
 import 'identity.dart';
 import 'public_key.dart';
 import 'signature.dart';
@@ -46,20 +47,29 @@ class PrivateKey {
   PrivateKey._(this._rsaPrivateKey, this._publicKey, this._encodedPrivateKey);
 
   PrivateKey.fromString(String privateKeyString, String password) {
-    final json =
-        jsonDecode(utf8.decode(base64Decode(privateKeyString)))
-            as Map<String, dynamic>;
-    _encodedPrivateKey = json['private'] as String;
-    _publicKey = PublicKey.fromString(json['public'] as String);
-    final decrypted =
-        jsonDecode(decrypt(_encodedPrivateKey, password))
-            as Map<String, dynamic>;
-    _rsaPrivateKey = pc.RSAPrivateKey(
-      BigInt.parse(decrypted['modulus'] as String),
-      BigInt.parse(decrypted['privateExponent'] as String),
-      BigInt.parse(decrypted['p'] as String),
-      BigInt.parse(decrypted['q'] as String),
-    );
+    final Map<String, dynamic> json;
+    try {
+      json =
+          jsonDecode(utf8.decode(base64Decode(privateKeyString)))
+              as Map<String, dynamic>;
+      _encodedPrivateKey = json['private'] as String;
+      _publicKey = PublicKey.fromString(json['public'] as String);
+    } catch (_) {
+      throw CorruptedKeyContainerException();
+    }
+    try {
+      final decrypted =
+          jsonDecode(decrypt(_encodedPrivateKey, password))
+              as Map<String, dynamic>;
+      _rsaPrivateKey = pc.RSAPrivateKey(
+        BigInt.parse(decrypted['modulus'] as String),
+        BigInt.parse(decrypted['privateExponent'] as String),
+        BigInt.parse(decrypted['p'] as String),
+        BigInt.parse(decrypted['q'] as String),
+      );
+    } catch (_) {
+      throw PasswortWrongException();
+    }
   }
 
   Signature signSHA512(Message message) => _sign(message, 'SHA-512/RSA');

@@ -51,15 +51,16 @@ class IdentityRepository
         final crypto.PrivateKey privateKey;
         try {
           privateKey = await compute(
-                (message) =>
-                crypto.PrivateKey.fromString(
-                  message.privateKeyString,
-                  message.password,
-                ),
+            (message) => crypto.PrivateKey.fromString(
+              message.privateKeyString,
+              message.password,
+            ),
             (privateKeyString: privateKeyString, password: password),
           );
-        } catch(e) {
-          throw PasswortWrongException();
+        } on crypto.CorruptedKeyContainerException {
+          rethrow;
+        } on Exception {
+          throw crypto.PasswortWrongException();
         }
 
         return OpenIdentity(id: id, privateKey: privateKey);
