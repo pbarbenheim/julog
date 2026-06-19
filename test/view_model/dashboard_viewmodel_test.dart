@@ -88,6 +88,7 @@ Eintrag _eintrag({
   betreuerIds: const {},
   anwesendeJugendlicherIds: anwesendeIds,
   entschuldigteJugendlicherIds: const {},
+  undefinierteJugendlicherIds: const {},
 );
 
 Kategorie _kategorie(String id) => Kategorie(id: id, name: 'Kategorie $id');

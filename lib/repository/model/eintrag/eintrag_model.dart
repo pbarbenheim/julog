@@ -18,6 +18,7 @@ abstract class Eintrag with _$Eintrag {
     required Set<String> betreuerIds,
     required Set<String> anwesendeJugendlicherIds,
     required Set<String> entschuldigteJugendlicherIds,
+    required Set<String> undefinierteJugendlicherIds,
   }) = _Eintrag;
 
   static Eintrag fromApiModel(EintragApiModel model) {
@@ -36,6 +37,9 @@ abstract class Eintrag with _$Eintrag {
           .map((e) => e.toString())
           .toSet(),
       entschuldigteJugendlicherIds: model.entschuldigteJugendlicherIds
+          .map((e) => e.toString())
+          .toSet(),
+      undefinierteJugendlicherIds: model.undefinierteJugendlicherIds
           .map((e) => e.toString())
           .toSet(),
     );
