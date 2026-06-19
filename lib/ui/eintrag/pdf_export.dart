@@ -25,7 +25,7 @@ Future<Uint8List> generateEintragPdf({required SelectedEintrag eintrag}) {
         // Header
         pw.Text(
           eintrag.thema ?? '',
-          style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
+          style: const pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
         ),
         pw.SizedBox(height: 4),
         pw.Text('Kategorie: ${eintrag.kategorie.name}'),
@@ -103,7 +103,7 @@ Future<Uint8List> generateEintragPdf({required SelectedEintrag eintrag}) {
 
 pw.Widget _sectionHeader(String title) => pw.Padding(
   padding: const pw.EdgeInsets.only(bottom: 2),
-  child: pw.Text(title, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+  child: pw.Text(title, style: const pw.TextStyle(fontWeight: pw.FontWeight.bold)),
 );
 
 pw.Widget _signatureBlock(ShowingSignature sig, DateFormat dateTimeFormat) {

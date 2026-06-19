@@ -46,7 +46,7 @@ Future<Uint8List> generateJugendlichePdf({
           if (title.isNotEmpty)
             pw.Text(
               title,
-              style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
+              style: const pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
             ),
           pw.Text('Exportiert am: ${dateFormat.format(exportDate)}'),
           pw.SizedBox(height: 8),
@@ -69,7 +69,7 @@ Future<Uint8List> generateJugendlichePdf({
                       padding: const pw.EdgeInsets.all(4),
                       child: pw.Text(
                         h,
-                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                        style: const pw.TextStyle(fontWeight: pw.FontWeight.bold),
                       ),
                     ),
                   )
