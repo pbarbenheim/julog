@@ -5,7 +5,7 @@ Source: "..\..\README.md"; DestDir: "{app}"; Flags: isreadme
 
 [Setup]
 AppName=Julog
-AppVerName=Julog 1.0
+AppVerName=Julog 3.2.0
 DefaultDirName={autopf}\Julog
 DefaultGroupName=Julog
 ChangesAssociations=yes
