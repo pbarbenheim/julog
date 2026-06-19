@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:printing/printing.dart';
 
 import '../../router/router.dart';
 import '../../view_model/eintrag/eintrag_viewmodel.dart';
+import '../../view_model/eintrag/selected_eintrag_viewmodel.dart';
 import '../list_detail/list_detail.dart';
 import 'eintrag_form.dart';
 import 'eintrag_widget.dart';
+import 'pdf_export.dart';
 
 class EintragScreen extends ConsumerWidget {
   final String? eintragId;
@@ -43,6 +46,25 @@ class EintragScreen extends ConsumerWidget {
               'Wähle einen Eintrag aus der Liste aus, um Details zu sehen.',
             ),
           ),
+          actionsBuilder: (context, selectedIndex) {
+            if (selectedIndex == null) return null;
+            final eintragId = eintrage[selectedIndex].id;
+            return [
+              IconButton(
+                icon: const Icon(Icons.picture_as_pdf),
+                onPressed: () async {
+                  final selectedEintrag = ref
+                      .read(selectedEintragViewModelProvider(eintragId))
+                      .valueOrNull;
+                  if (selectedEintrag == null) return;
+                  await Printing.layoutPdf(
+                    onLayout: (_) =>
+                        generateEintragPdf(eintrag: selectedEintrag),
+                  );
+                },
+              ),
+            ];
+          },
           form: EintragForm(
             onSave:
                 (
