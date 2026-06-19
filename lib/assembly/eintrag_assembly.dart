@@ -16,31 +16,54 @@ part 'eintrag_assembly.g.dart';
 part 'eintrag_assembly.freezed.dart';
 
 class EintragAssembly {
-  final JulogRepository<Eintrag, EintragApiModel, EintragCreateData> _eintragRepo;
-  final JulogRepository<Kategorie, KategorieApiModel, KategorieCreate> _kategorieRepo;
-  final JulogRepository<Jugendlicher, JugendlicherApiModel, JugendlicheCreateData>
-      _jugendlicheRepo;
-  final JulogRepository<Betreuer, BetreuerApiModel, ({String name, Gender gender})>
-      _betreuerRepo;
-  final JulogRepository<Identity, IdentityApiModel, IdentityCreateData> _identityRepo;
+  final JulogRepository<Eintrag, EintragApiModel, EintragCreateData>
+  _eintragRepo;
+  final JulogRepository<Kategorie, KategorieApiModel, KategorieCreate>
+  _kategorieRepo;
+  final JulogRepository<
+    Jugendlicher,
+    JugendlicherApiModel,
+    JugendlicheCreateData
+  >
+  _jugendlicheRepo;
+  final JulogRepository<
+    Betreuer,
+    BetreuerApiModel,
+    ({String name, Gender gender})
+  >
+  _betreuerRepo;
+  final JulogRepository<Identity, IdentityApiModel, IdentityCreateData>
+  _identityRepo;
 
   const EintragAssembly({
-    required JulogRepository<Eintrag, EintragApiModel, EintragCreateData> eintragRepo,
-    required JulogRepository<Kategorie, KategorieApiModel, KategorieCreate> kategorieRepo,
-    required JulogRepository<Jugendlicher, JugendlicherApiModel, JugendlicheCreateData>
-        jugendlicheRepo,
-    required JulogRepository<Betreuer, BetreuerApiModel, ({String name, Gender gender})>
-        betreuerRepo,
-    required JulogRepository<Identity, IdentityApiModel, IdentityCreateData> identityRepo,
-  })  : _eintragRepo = eintragRepo,
-        _kategorieRepo = kategorieRepo,
-        _jugendlicheRepo = jugendlicheRepo,
-        _betreuerRepo = betreuerRepo,
-        _identityRepo = identityRepo;
+    required JulogRepository<Eintrag, EintragApiModel, EintragCreateData>
+    eintragRepo,
+    required JulogRepository<Kategorie, KategorieApiModel, KategorieCreate>
+    kategorieRepo,
+    required JulogRepository<
+      Jugendlicher,
+      JugendlicherApiModel,
+      JugendlicheCreateData
+    >
+    jugendlicheRepo,
+    required JulogRepository<
+      Betreuer,
+      BetreuerApiModel,
+      ({String name, Gender gender})
+    >
+    betreuerRepo,
+    required JulogRepository<Identity, IdentityApiModel, IdentityCreateData>
+    identityRepo,
+  }) : _eintragRepo = eintragRepo,
+       _kategorieRepo = kategorieRepo,
+       _jugendlicheRepo = jugendlicheRepo,
+       _betreuerRepo = betreuerRepo,
+       _identityRepo = identityRepo;
 
   AsyncResult<SelectedEintrag> assemble(
     String eintragId,
-    JulogRepository<Signature, SignatureApiModel, SignatureCreateData> signatureRepo,
+    JulogRepository<Signature, SignatureApiModel, SignatureCreateData>
+    signatureRepo,
   ) {
     return Result.safeAsync(() async {
       final eintragOpt = await _eintragRepo.getById(eintragId).unwrap();
@@ -49,8 +72,9 @@ class EintragAssembly {
       }
       final eintrag = eintragOpt.unwrap();
 
-      final kategorieOpt =
-          await _kategorieRepo.getById(eintrag.kategorieId).unwrap();
+      final kategorieOpt = await _kategorieRepo
+          .getById(eintrag.kategorieId)
+          .unwrap();
       if (kategorieOpt is None<Kategorie>) {
         throw Exception('Kategorie not found: ${eintrag.kategorieId}');
       }
@@ -59,8 +83,9 @@ class EintragAssembly {
       final signatures = await signatureRepo
           .getAll()
           .mapIterable((signature) async {
-            final identity =
-                await _identityRepo.getById(signature.identityId).unwrapAll();
+            final identity = await _identityRepo
+                .getById(signature.identityId)
+                .unwrapAll();
             return ShowingSignature.fromSignature(
               signature: signature,
               identity: identity,
@@ -83,12 +108,18 @@ class EintragAssembly {
         return opt.unwrap();
       }
 
-      final betreuerList =
-          await Future.wait(eintrag.betreuerIds.map(resolveBetreuer));
+      final betreuerList = await Future.wait(
+        eintrag.betreuerIds.map(resolveBetreuer),
+      );
       final anwesendeJugendlicheList = await Future.wait(
-          eintrag.anwesendeJugendlicherIds.map(resolveJugendlicher));
+        eintrag.anwesendeJugendlicherIds.map(resolveJugendlicher),
+      );
       final entschuldigteJugendlicheList = await Future.wait(
-          eintrag.entschuldigteJugendlicherIds.map(resolveJugendlicher));
+        eintrag.entschuldigteJugendlicherIds.map(resolveJugendlicher),
+      );
+      final undefinierteJugendlicheList = await Future.wait(
+        eintrag.undefinierteJugendlicherIds.map(resolveJugendlicher),
+      );
 
       final possibleSigners = await _identityRepo.getAll().unwrap();
 
@@ -105,6 +136,7 @@ class EintragAssembly {
         betreuer: betreuerList,
         anwesendeJugendliche: anwesendeJugendlicheList,
         entschuldigteJugendliche: entschuldigteJugendlicheList,
+        undefinierteJugendliche: undefinierteJugendlicheList,
         signatures: signatures,
         possibleSigners: possibleSigners,
       );
@@ -138,6 +170,7 @@ abstract class SelectedEintrag with _$SelectedEintrag {
     required List<Betreuer> betreuer,
     required List<Jugendlicher> anwesendeJugendliche,
     required List<Jugendlicher> entschuldigteJugendliche,
+    required List<Jugendlicher> undefinierteJugendliche,
     required List<ShowingSignature> signatures,
     required List<Identity> possibleSigners,
   }) = _SelectedEintrag;
@@ -159,11 +192,11 @@ abstract class ShowingSignature with _$ShowingSignature {
     required Signature signature,
     required Identity identity,
   }) => ShowingSignature(
-        eintragId: signature.eintragId,
-        id: signature.id,
-        identity: identity,
-        signature: signature.signature,
-        timestamp: signature.timestamp,
-        isValid: signature.isValid,
-      );
+    eintragId: signature.eintragId,
+    id: signature.id,
+    identity: identity,
+    signature: signature.signature,
+    timestamp: signature.timestamp,
+    isValid: signature.isValid,
+  );
 }
