@@ -166,6 +166,7 @@ class DashboardViewModel {
         entschuldigteJugendlicherIds: e.entschuldigteJugendlicherIds
             .map(UUID.fromString)
             .toSet(),
+        undefinierteJugendlicherIds: const {},
       );
     }).toList();
 
