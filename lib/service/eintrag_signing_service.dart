@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:jlcrypto/jlcrypto.dart' as crypto;
 import 'package:jldb/jldb.dart';
+import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart' hide AsyncResult;
 
 import '../repository/eintrag/eintrag_repo.dart';
@@ -24,59 +25,75 @@ abstract interface class EintragSigningDataSource {
 }
 
 class EintragSigningService {
+  static final _log = Logger('signing');
+
   final IdentityOpener _identityOpener;
   final EintragSigningDataSource _signingDataSource;
 
   const EintragSigningService({
     required IdentityOpener identityOpener,
     required EintragSigningDataSource signingDataSource,
-  })  : _identityOpener = identityOpener,
-        _signingDataSource = signingDataSource;
+  }) : _identityOpener = identityOpener,
+       _signingDataSource = signingDataSource;
 
   AsyncVoidResult sign({
     required String eintragId,
     required String identityId,
     required String password,
     required JulogRepository<Signature, SignatureApiModel, SignatureCreateData>
-        signatureRepo,
+    signatureRepo,
   }) {
     const currentVersion = 5;
     return Result.voidSafeAsync(() async {
       final timestamp = DateTime.timestamp();
 
-      final identityOpt =
-          await _identityOpener.openIdentity(identityId, password).unwrap();
-      if (identityOpt is None<OpenIdentity>) {
-        throw Exception('Identity not found: $identityId');
+      try {
+        final identityOpt = await _identityOpener
+            .openIdentity(identityId, password)
+            .unwrap();
+        if (identityOpt is None<OpenIdentity>) {
+          throw Exception('Identity not found: $identityId');
+        }
+        final identity = identityOpt.unwrap();
+
+        final signingDataOpt = await _signingDataSource
+            .getEintragSigningData(eintragId, currentVersion, timestamp)
+            .unwrap();
+        if (signingDataOpt is None<String>) {
+          throw Exception('Signing data not found for eintrag: $eintragId');
+        }
+        final signingData = signingDataOpt.unwrap();
+
+        final signature = await compute(
+          ((crypto.PrivateKey, String) data) =>
+              data.$1.signSHA512(crypto.Message.fromString(data.$2)),
+          (identity.privateKey, signingData),
+        );
+
+        await signatureRepo.save((
+          identityId: identityId,
+          signature: signature,
+          timestamp: timestamp,
+          version: currentVersion,
+        ));
+
+        _log.info(
+          'Signed eintrag=$eintragId identity=$identityId version=$currentVersion',
+        );
+      } on Exception catch (e, st) {
+        _log.severe(
+          'Signing failed eintrag=$eintragId identity=$identityId: ${e.runtimeType}',
+          e,
+          st,
+        );
+        rethrow;
       }
-      final identity = identityOpt.unwrap();
-
-      final signingDataOpt = await _signingDataSource
-          .getEintragSigningData(eintragId, currentVersion, timestamp)
-          .unwrap();
-      if (signingDataOpt is None<String>) {
-        throw Exception('Signing data not found for eintrag: $eintragId');
-      }
-      final signingData = signingDataOpt.unwrap();
-
-      final signature = await compute(
-        ((crypto.PrivateKey, String) data) =>
-            data.$1.signSHA512(crypto.Message.fromString(data.$2)),
-        (identity.privateKey, signingData),
-      );
-
-      await signatureRepo.save((
-        identityId: identityId,
-        signature: signature,
-        timestamp: timestamp,
-        version: currentVersion,
-      ));
     });
   }
 }
 
 @riverpod
 EintragSigningService eintragSigningService(Ref ref) => EintragSigningService(
-      identityOpener: ref.watch(identityRepositoryProvider),
-      signingDataSource: ref.watch(eintragRepositoryProvider),
-    );
+  identityOpener: ref.watch(identityRepositoryProvider),
+  signingDataSource: ref.watch(eintragRepositoryProvider),
+);
