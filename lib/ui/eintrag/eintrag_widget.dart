@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jlcore/jlcore.dart';
+import 'package:jlcrypto/jlcrypto.dart' as crypto;
 
+import '../../provider/logging/logging.dart';
+import '../../repository/identity/exception.dart';
 import '../../repository/model/model.dart';
 import '../../view_model/eintrag/selected_eintrag_viewmodel.dart';
 
@@ -139,11 +143,34 @@ class EintragDisplay extends ConsumerWidget {
                         );
                       case Failure<Unit>():
                         if (!context.mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Fehler beim Signieren: ${signResult.error.toString()}',
-                            ),
+                        final logPath = ref.read(loggingServiceProvider);
+                        final error = signResult.error;
+                        final message = switch (error) {
+                          crypto.PasswortWrongException() =>
+                            'Das eingegebene Passwort ist falsch oder der private Schlüssel ist beschädigt.',
+                          PrivateKeyNotFoundException() =>
+                            'Der private Schlüssel wurde nicht auf diesem Gerät gefunden. Die Identität wurde möglicherweise auf einem anderen Gerät erstellt.',
+                          crypto.CorruptedKeyContainerException() =>
+                            'Der gespeicherte Schlüssel ist beschädigt und kann nicht gelesen werden.',
+                          _ => 'Ein unbekannter Fehler ist aufgetreten.',
+                        };
+                        await showDialog<void>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Fehler beim Signieren'),
+                            content: Text(message),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Clipboard.setData(
+                                  ClipboardData(text: logPath),
+                                ),
+                                child: const Text('Pfad der Logdatei kopieren'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('OK'),
+                              ),
+                            ],
                           ),
                         );
                     }
