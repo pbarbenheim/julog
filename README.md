@@ -2,7 +2,7 @@
 
 Digitales Dienstbuch für Jugendfeuerwehr-Gruppen. julog ermöglicht die strukturierte Erfassung von Diensten (Einträgen), die Verwaltung von Jugendlichen und Betreuern sowie die kryptografisch gesicherte Dokumentation — lokal, ohne Cloud-Abhängigkeit.
 
-Aktuelle Version: **3.1.0** · Lizenz: **GPL-3.0**
+Aktuelle Version: **3.2.0** · Lizenz: **GPL-3.0**
 
 ---
 
