@@ -80,9 +80,9 @@ Future<Uint8List> generateEintragPdf({required SelectedEintrag eintrag}) {
           ...eintrag.entschuldigteJugendliche.map((j) => pw.Text(j.name)),
         pw.SizedBox(height: 8),
 
-        // Nicht erfasst (omitted when empty)
+        // Abwesende Jugendliche die nicht entschuldigt waren (omitted when empty)
         if (eintrag.undefinierteJugendliche.isNotEmpty) ...[
-          _sectionHeader('Nicht erfasst'),
+          _sectionHeader('Abwesende Jugendliche'),
           ...eintrag.undefinierteJugendliche.map((j) => pw.Text(j.name)),
           pw.SizedBox(height: 8),
         ],
