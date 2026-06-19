@@ -66,6 +66,7 @@ class EintragRepository
             entschuldigteJugendlicherIds: data.entschuldigteJugendlicherIds
                 .map(UUID.fromString)
                 .toSet(),
+            undefinierteJugendlicherIds: const {},
           ),
         )
         .map((savedRecord) {

@@ -50,6 +50,7 @@ Future<EintragApiModel> _createSignableEintrag(Jldb db) async {
           betreuerIds: {betreuer.id},
           anwesendeJugendlicherIds: {jugId},
           entschuldigteJugendlicherIds: const {},
+          undefinierteJugendlicherIds: const {},
         ),
       )
       .unwrap();
@@ -191,6 +192,7 @@ void main() {
                 betreuerIds: const {},
                 anwesendeJugendlicherIds: {jugId},
                 entschuldigteJugendlicherIds: const {},
+                undefinierteJugendlicherIds: const {},
               ),
             )
             .unwrap();
@@ -402,6 +404,7 @@ void main() {
       betreuerIds: {betreuerId},
       anwesendeJugendlicherIds: {jugAnwesendId},
       entschuldigteJugendlicherIds: {jugEntschuldigtId},
+      undefinierteJugendlicherIds: const {},
     );
 
     test('createEintrag round-trips the full model', () async {
@@ -475,6 +478,7 @@ void main() {
           betreuerIds: const {},
           anwesendeJugendlicherIds: const {},
           entschuldigteJugendlicherIds: const {},
+          undefinierteJugendlicherIds: const {},
         );
         final created = await db.createEintrag(eintrag).unwrap();
         expect(created.betreuerIds, isEmpty);
@@ -823,6 +827,7 @@ void main() {
               betreuerIds: const {},
               anwesendeJugendlicherIds: {jugId},
               entschuldigteJugendlicherIds: const {},
+              undefinierteJugendlicherIds: const {},
             ),
           )
           .unwrap();

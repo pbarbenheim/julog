@@ -22,6 +22,7 @@ abstract class EintragApiModel with _$EintragApiModel {
     required Set<UUID> betreuerIds,
     required Set<UUID> anwesendeJugendlicherIds,
     required Set<UUID> entschuldigteJugendlicherIds,
+    required Set<UUID> undefinierteJugendlicherIds,
   }) = _EintragApiModel;
 }
 
@@ -54,6 +55,7 @@ EintragApiModel eintragApiModelFromDbArray(
 
   final anwesendeJugendlicherIds = <UUID>{};
   final entschuldigteJugendlicherIds = <UUID>{};
+  final undefinierteJugendlicherIds = <UUID>{};
 
   final statusJugendlicherIds =
       (data[statusJugendlicherIdsIndex] as String?)
@@ -72,6 +74,8 @@ EintragApiModel eintragApiModelFromDbArray(
       anwesendeJugendlicherIds.add(jugendlicherId);
     } else if (status == eintragStatusEntschuldigt) {
       entschuldigteJugendlicherIds.add(jugendlicherId);
+    } else {
+      undefinierteJugendlicherIds.add(jugendlicherId);
     }
   }
 
@@ -98,5 +102,6 @@ EintragApiModel eintragApiModelFromDbArray(
         {},
     anwesendeJugendlicherIds: anwesendeJugendlicherIds,
     entschuldigteJugendlicherIds: entschuldigteJugendlicherIds,
+    undefinierteJugendlicherIds: undefinierteJugendlicherIds,
   );
 }

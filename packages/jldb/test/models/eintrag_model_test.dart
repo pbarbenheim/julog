@@ -35,20 +35,19 @@ void main() {
       String? raum,
       String? dienstverlauf,
       String? besonderheiten,
-    }) =>
-        [
-          eintragId,
-          startMs,
-          endMs,
-          kategorieId,
-          'Sportabend',
-          ort,
-          raum,
-          dienstverlauf,
-          besonderheiten,
-          jugendliche,
-          betreuer,
-        ];
+    }) => [
+      eintragId,
+      startMs,
+      endMs,
+      kategorieId,
+      'Sportabend',
+      ort,
+      raum,
+      dienstverlauf,
+      besonderheiten,
+      jugendliche,
+      betreuer,
+    ];
 
     test('parses minimal row with no jugendliche and no betreuer', () {
       final model = eintragApiModelFromDbArray(makeRow(), fullColumns);
@@ -56,14 +55,12 @@ void main() {
       expect(model.id, equals(UUID.fromString(eintragId)));
       expect(model.kategorieId, equals(UUID.fromString(kategorieId)));
       expect(model.thema, equals('Sportabend'));
-      expect(
-        model.start,
-        equals(DateTime.fromMillisecondsSinceEpoch(startMs)),
-      );
+      expect(model.start, equals(DateTime.fromMillisecondsSinceEpoch(startMs)));
       expect(model.end, equals(DateTime.fromMillisecondsSinceEpoch(endMs)));
       expect(model.betreuerIds, isEmpty);
       expect(model.anwesendeJugendlicherIds, isEmpty);
       expect(model.entschuldigteJugendlicherIds, isEmpty);
+      expect(model.undefinierteJugendlicherIds, isEmpty);
       expect(model.ort, isNull);
       expect(model.raum, isNull);
       expect(model.dienstverlauf, isNull);
@@ -88,19 +85,20 @@ void main() {
     });
 
     test('classifies status 1 as anwesend', () {
-      final model =
-          eintragApiModelFromDbArray(makeRow(jugendliche: '$jugId1:1'), fullColumns);
-
-      expect(
-        model.anwesendeJugendlicherIds,
-        contains(UUID.fromString(jugId1)),
+      final model = eintragApiModelFromDbArray(
+        makeRow(jugendliche: '$jugId1:1'),
+        fullColumns,
       );
+
+      expect(model.anwesendeJugendlicherIds, contains(UUID.fromString(jugId1)));
       expect(model.entschuldigteJugendlicherIds, isEmpty);
     });
 
     test('classifies status 2 as entschuldigt', () {
-      final model =
-          eintragApiModelFromDbArray(makeRow(jugendliche: '$jugId1:2'), fullColumns);
+      final model = eintragApiModelFromDbArray(
+        makeRow(jugendliche: '$jugId1:2'),
+        fullColumns,
+      );
 
       expect(
         model.entschuldigteJugendlicherIds,
@@ -115,10 +113,7 @@ void main() {
         fullColumns,
       );
 
-      expect(
-        model.anwesendeJugendlicherIds,
-        contains(UUID.fromString(jugId1)),
-      );
+      expect(model.anwesendeJugendlicherIds, contains(UUID.fromString(jugId1)));
       expect(
         model.entschuldigteJugendlicherIds,
         contains(UUID.fromString(jugId2)),
@@ -128,8 +123,10 @@ void main() {
     });
 
     test('parses a single betreuer id', () {
-      final model =
-          eintragApiModelFromDbArray(makeRow(betreuer: betreuerId), fullColumns);
+      final model = eintragApiModelFromDbArray(
+        makeRow(betreuer: betreuerId),
+        fullColumns,
+      );
 
       expect(model.betreuerIds, contains(UUID.fromString(betreuerId)));
     });
@@ -145,15 +142,18 @@ void main() {
       expect(model.betreuerIds, contains(UUID.fromString(jugId1)));
     });
 
-    test('throws FormatException for a malformed jugendlicher status entry', () {
-      expect(
-        () => eintragApiModelFromDbArray(
-          makeRow(jugendliche: 'no-colon-here'),
-          fullColumns,
-        ),
-        throwsFormatException,
-      );
-    });
+    test(
+      'throws FormatException for a malformed jugendlicher status entry',
+      () {
+        expect(
+          () => eintragApiModelFromDbArray(
+            makeRow(jugendliche: 'no-colon-here'),
+            fullColumns,
+          ),
+          throwsFormatException,
+        );
+      },
+    );
 
     test('works without optional columns returning null for absent fields', () {
       const minColumns = [
@@ -165,7 +165,15 @@ void main() {
         'status_jugendlicher_ids',
         'betreuer_ids',
       ];
-      final minRow = [eintragId, startMs, endMs, kategorieId, 'Test', null, null];
+      final minRow = [
+        eintragId,
+        startMs,
+        endMs,
+        kategorieId,
+        'Test',
+        null,
+        null,
+      ];
       final model = eintragApiModelFromDbArray(minRow, minColumns);
 
       expect(model.ort, isNull);
@@ -186,6 +194,52 @@ void main() {
       expect(
         () => eintragApiModelFromDbArray([], noId),
         throwsA(isA<AssertionError>()),
+      );
+    });
+
+    test('classifies status 0 as undefiniert', () {
+      final model = eintragApiModelFromDbArray(
+        makeRow(jugendliche: '$jugId1:0'),
+        fullColumns,
+      );
+
+      expect(
+        model.undefinierteJugendlicherIds,
+        contains(UUID.fromString(jugId1)),
+      );
+      expect(model.anwesendeJugendlicherIds, isEmpty);
+      expect(model.entschuldigteJugendlicherIds, isEmpty);
+    });
+
+    test('classifies unknown status (99) as undefiniert', () {
+      final model = eintragApiModelFromDbArray(
+        makeRow(jugendliche: '$jugId1:99'),
+        fullColumns,
+      );
+
+      expect(
+        model.undefinierteJugendlicherIds,
+        contains(UUID.fromString(jugId1)),
+      );
+      expect(model.anwesendeJugendlicherIds, isEmpty);
+      expect(model.entschuldigteJugendlicherIds, isEmpty);
+    });
+
+    test('splits mixed attendance correctly across all three groups', () {
+      const jugId3 = '550e8400-e29b-41d4-a716-446655440006';
+      final model = eintragApiModelFromDbArray(
+        makeRow(jugendliche: '$jugId1:1,$jugId2:2,$jugId3:0'),
+        fullColumns,
+      );
+
+      expect(model.anwesendeJugendlicherIds, equals({UUID.fromString(jugId1)}));
+      expect(
+        model.entschuldigteJugendlicherIds,
+        equals({UUID.fromString(jugId2)}),
+      );
+      expect(
+        model.undefinierteJugendlicherIds,
+        equals({UUID.fromString(jugId3)}),
       );
     });
   });

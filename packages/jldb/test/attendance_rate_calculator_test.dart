@@ -18,6 +18,7 @@ EintragApiModel _makeEintrag({
   betreuerIds: const {},
   anwesendeJugendlicherIds: anwesend ?? const {},
   entschuldigteJugendlicherIds: entschuldigt ?? const {},
+  undefinierteJugendlicherIds: const {},
 );
 
 JugendlicherApiModel _makeJugendlicher({
