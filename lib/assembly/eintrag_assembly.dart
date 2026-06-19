@@ -185,6 +185,7 @@ abstract class ShowingSignature with _$ShowingSignature {
     required Identity identity,
     required crypto.Signature signature,
     required DateTime timestamp,
+    required int version,
     required bool isValid,
   }) = _ShowingSignature;
 
@@ -197,6 +198,7 @@ abstract class ShowingSignature with _$ShowingSignature {
     identity: identity,
     signature: signature.signature,
     timestamp: signature.timestamp,
+    version: signature.version,
     isValid: signature.isValid,
   );
 }
