@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:jlcrypto/jlcrypto.dart' as crypto;
 import 'package:jldb/jldb.dart';
 
+import 'package:julog/repository/identity/exception.dart';
 import 'package:julog/repository/model/model.dart';
 import 'package:julog/repository/repository_base.dart';
 import 'package:julog/repository/signature/signature_repository.dart';
@@ -21,9 +22,11 @@ class _Stub<M extends Object, A extends Object, S extends Object>
   _Stub(this._items, this._idOf);
 
   @override
-  AsyncResult<Optional<M>> getById(String id) async =>
-      Success(Optional.fromNullable(
-          _items.where((item) => _idOf(item) == id).firstOrNull));
+  AsyncResult<Optional<M>> getById(String id) async => Success(
+    Optional.fromNullable(
+      _items.where((item) => _idOf(item) == id).firstOrNull,
+    ),
+  );
 
   @override
   AsyncResult<List<M>> getAll() async => Success(List.of(_items));
@@ -52,14 +55,16 @@ class _SavingSignatureStub
   @override
   AsyncResult<Signature> createInJldb(SignatureCreateData data) async {
     saves.add(data);
-    return Success(Signature(
-      eintragId: eintragId,
-      identityId: data.identityId,
-      signature: data.signature,
-      timestamp: data.timestamp,
-      version: data.version,
-      isValid: false,
-    ));
+    return Success(
+      Signature(
+        eintragId: eintragId,
+        identityId: data.identityId,
+        signature: data.signature,
+        timestamp: data.timestamp,
+        version: data.version,
+        isValid: false,
+      ),
+    );
   }
 }
 
@@ -73,8 +78,20 @@ class _IdentityOpenerStub implements IdentityOpener {
 
   @override
   AsyncResultOptional<OpenIdentity> openIdentity(
-          String id, String password) async =>
-      Success(Optional.fromNullable(_result));
+    String id,
+    String password,
+  ) async => Success(Optional.fromNullable(_result));
+}
+
+class _FailingIdentityOpenerStub implements IdentityOpener {
+  final Exception _exception;
+  _FailingIdentityOpenerStub(this._exception);
+
+  @override
+  AsyncResultOptional<OpenIdentity> openIdentity(
+    String id,
+    String password,
+  ) async => Failure(_exception);
 }
 
 class _SigningDataStub implements EintragSigningDataSource {
@@ -83,8 +100,10 @@ class _SigningDataStub implements EintragSigningDataSource {
 
   @override
   AsyncResult<Optional<String>> getEintragSigningData(
-          String eintragId, int version, DateTime timestamp) async =>
-      Success(Optional.fromNullable(_data));
+    String eintragId,
+    int version,
+    DateTime timestamp,
+  ) async => Success(Optional.fromNullable(_data));
 }
 
 // ---------------------------------------------------------------------------
@@ -98,8 +117,11 @@ late crypto.KeyPair _testKeyPair;
 void main() {
   setUpAll(() async {
     _testKeyPair = await crypto.KeyPair.generateAsync(
-      identity:
-          crypto.KeyOwner('Test Name', 'Gruppenführer', 'test@example.com'),
+      identity: crypto.KeyOwner(
+        'Test Name',
+        'Gruppenführer',
+        'test@example.com',
+      ),
       password: 'test-password',
       keySize: 1024,
     );
@@ -107,8 +129,10 @@ void main() {
 
   group('EintragSigningService.sign', () {
     test('happy path — returns VoidSuccess', () async {
-      final openIdentity =
-          OpenIdentity(id: 'i1', privateKey: _testKeyPair.privateKey);
+      final openIdentity = OpenIdentity(
+        id: 'i1',
+        privateKey: _testKeyPair.privateKey,
+      );
 
       final service = EintragSigningService(
         identityOpener: _IdentityOpenerStub(openIdentity),
@@ -148,8 +172,10 @@ void main() {
     });
 
     test('signing data not found — returns Failure', () async {
-      final openIdentity =
-          OpenIdentity(id: 'i1', privateKey: _testKeyPair.privateKey);
+      final openIdentity = OpenIdentity(
+        id: 'i1',
+        privateKey: _testKeyPair.privateKey,
+      );
 
       final service = EintragSigningService(
         identityOpener: _IdentityOpenerStub(openIdentity),
@@ -167,5 +193,74 @@ void main() {
       expect(result, isA<VoidFailure>());
       expect(sigRepo.saves, isEmpty);
     });
+
+    test(
+      'PasswortWrongException from openIdentity — returns Failure',
+      () async {
+        final service = EintragSigningService(
+          identityOpener: _FailingIdentityOpenerStub(
+            crypto.PasswortWrongException(),
+          ),
+          signingDataSource: _SigningDataStub('signing data string'),
+        );
+        final sigRepo = _SavingSignatureStub('e1');
+
+        final result = await service.sign(
+          eintragId: 'e1',
+          identityId: 'i1',
+          password: 'wrong-password',
+          signatureRepo: sigRepo,
+        );
+
+        expect(result, isA<VoidFailure>());
+        expect(sigRepo.saves, isEmpty);
+      },
+    );
+
+    test(
+      'CorruptedKeyContainerException from openIdentity — returns Failure',
+      () async {
+        final service = EintragSigningService(
+          identityOpener: _FailingIdentityOpenerStub(
+            crypto.CorruptedKeyContainerException(),
+          ),
+          signingDataSource: _SigningDataStub('signing data string'),
+        );
+        final sigRepo = _SavingSignatureStub('e1');
+
+        final result = await service.sign(
+          eintragId: 'e1',
+          identityId: 'i1',
+          password: 'test-password',
+          signatureRepo: sigRepo,
+        );
+
+        expect(result, isA<VoidFailure>());
+        expect(sigRepo.saves, isEmpty);
+      },
+    );
+
+    test(
+      'PrivateKeyNotFoundException from openIdentity — returns Failure',
+      () async {
+        final service = EintragSigningService(
+          identityOpener: _FailingIdentityOpenerStub(
+            PrivateKeyNotFoundException(),
+          ),
+          signingDataSource: _SigningDataStub('signing data string'),
+        );
+        final sigRepo = _SavingSignatureStub('e1');
+
+        final result = await service.sign(
+          eintragId: 'e1',
+          identityId: 'i1',
+          password: 'test-password',
+          signatureRepo: sigRepo,
+        );
+
+        expect(result, isA<VoidFailure>());
+        expect(sigRepo.saves, isEmpty);
+      },
+    );
   });
 }
