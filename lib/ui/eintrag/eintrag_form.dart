@@ -113,6 +113,12 @@ class _EintragFormState extends ConsumerState<EintragForm> {
                         )
                         .toList(),
                     onSaved: (newValue) => _kategorieId = newValue,
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Bitte Kategorie auswählen';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
@@ -240,43 +246,46 @@ class _EintragFormState extends ConsumerState<EintragForm> {
                             setState(() {
                               _loading = true;
                             });
-                            _formKey.currentState!.save();
+                            try {
+                              _formKey.currentState!.save();
 
-                            final anwesendeIds = _jugendliche.entries
-                                .where((e) => e.value == Anwesenheit.anwesend)
-                                .map((e) => e.key)
-                                .toList();
-                            final entschuldigteIds = _jugendliche.entries
-                                .where(
-                                  (e) => e.value == Anwesenheit.entschuldigt,
-                                )
-                                .map((e) => e.key)
-                                .toList();
-                            await widget.onSave!(
-                              _start!,
-                              _end!,
-                              _kategorieId!,
-                              _themaController.text,
-                              _ortController.text.isEmpty
-                                  ? null
-                                  : _ortController.text,
-                              _raumController.text.isEmpty
-                                  ? null
-                                  : _raumController.text,
-                              _dienstverlaufController.text.isEmpty
-                                  ? null
-                                  : _dienstverlaufController.text,
-                              _besonderheitenController.text.isEmpty
-                                  ? null
-                                  : _besonderheitenController.text,
-                              _betreuerIds,
-                              anwesendeIds,
-                              entschuldigteIds,
-                            );
-                            if (mounted) {
-                              setState(() {
-                                _loading = false;
-                              });
+                              final anwesendeIds = _jugendliche.entries
+                                  .where((e) => e.value == Anwesenheit.anwesend)
+                                  .map((e) => e.key)
+                                  .toList();
+                              final entschuldigteIds = _jugendliche.entries
+                                  .where(
+                                    (e) => e.value == Anwesenheit.entschuldigt,
+                                  )
+                                  .map((e) => e.key)
+                                  .toList();
+                              await widget.onSave!(
+                                _start!,
+                                _end!,
+                                _kategorieId!,
+                                _themaController.text,
+                                _ortController.text.isEmpty
+                                    ? null
+                                    : _ortController.text,
+                                _raumController.text.isEmpty
+                                    ? null
+                                    : _raumController.text,
+                                _dienstverlaufController.text.isEmpty
+                                    ? null
+                                    : _dienstverlaufController.text,
+                                _besonderheitenController.text.isEmpty
+                                    ? null
+                                    : _besonderheitenController.text,
+                                _betreuerIds,
+                                anwesendeIds,
+                                entschuldigteIds,
+                              );
+                            } finally {
+                              if (mounted) {
+                                setState(() {
+                                  _loading = false;
+                                });
+                              }
                             }
                           }
                         : null,
