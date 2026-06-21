@@ -12,6 +12,7 @@ class ListDetailLayout extends StatefulWidget {
   final List<Widget>? Function(BuildContext context, int? selectedIndex)?
   actionsBuilder;
   final List<Widget>? Function(BuildContext context)? listActionsBuilder;
+  final void Function(int? index)? onSelectionChanged;
 
   const ListDetailLayout({
     super.key,
@@ -23,6 +24,7 @@ class ListDetailLayout extends StatefulWidget {
     this.showEmptyHint = true,
     this.actionsBuilder,
     this.listActionsBuilder,
+    this.onSelectionChanged,
   });
 
   @override
@@ -43,8 +45,18 @@ class _ListDetailLayoutState extends State<ListDetailLayout> {
   void didUpdateWidget(covariant ListDetailLayout oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.initialSelectedIndex != oldWidget.initialSelectedIndex) {
-      _selectedIndex = widget.initialSelectedIndex;
+      setState(() {
+        _selectedIndex = widget.initialSelectedIndex;
+      });
     }
+  }
+
+  void _select(int? index) {
+    setState(() {
+      _selectedIndex = index;
+      if (index != null) _showForm = false;
+    });
+    widget.onSelectionChanged?.call(index);
   }
 
   @override
@@ -121,12 +133,8 @@ class _ListDetailLayoutState extends State<ListDetailLayout> {
                                           selected:
                                               widget.items.indexOf(e) ==
                                               _selectedIndex,
-                                          onTap: () {
-                                            setState(() {
-                                              _selectedIndex = widget.items
-                                                  .indexOf(e);
-                                            });
-                                          },
+                                          onTap: () =>
+                                              _select(widget.items.indexOf(e)),
                                         ),
                                       ),
                                     )
@@ -142,6 +150,7 @@ class _ListDetailLayoutState extends State<ListDetailLayout> {
                                   _selectedIndex = null;
                                   _showForm = true;
                                 });
+                                widget.onSelectionChanged?.call(null);
                               },
                               child: const Icon(Icons.add),
                             ),
@@ -170,11 +179,7 @@ class _ListDetailLayoutState extends State<ListDetailLayout> {
                         children: [
                           if (_selectedIndex != null)
                             IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  _selectedIndex = null;
-                                });
-                              },
+                              onPressed: () => _select(null),
                               icon: const Icon(Icons.arrow_back),
                             ),
                           Expanded(child: Container()),

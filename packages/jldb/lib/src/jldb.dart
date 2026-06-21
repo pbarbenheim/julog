@@ -524,6 +524,84 @@ final class Jldb {
     });
   }
 
+  AsyncVoidResult deleteEintrag(UUID id) => Result.voidSafeAsync(() async {
+    final signatures = await getSignaturesByEintragId(id).unwrap();
+    if (signatures.isNotEmpty) {
+      throw Exception(
+        'Eintrag $id hat Signaturen und kann nicht gelöscht werden.',
+      );
+    }
+    await _database.transaction((db) async {
+      await db.execute(
+        'delete from eintrag_jugendlicher where eintrag_id = ?;',
+        [id.toString()],
+      );
+      await db.execute('delete from eintrag_betreuer where eintrag_id = ?;', [
+        id.toString(),
+      ]);
+      await db.execute('delete from eintrag where id = ?;', [id.toString()]);
+    });
+  });
+
+  AsyncVoidResult updateEintrag(
+    EintragApiModel eintrag,
+  ) => Result.voidSafeAsync(() async {
+    await _database.transaction((db) async {
+      await db.execute(
+        '''
+            update eintrag
+            set start = ?, end = ?, kategorie_id = ?, thema = ?, ort = ?,
+                raum = ?, dienstverlauf = ?, besonderheiten = ?
+            where id = ?;
+          ''',
+        [
+          eintrag.start.millisecondsSinceEpoch,
+          eintrag.end.millisecondsSinceEpoch,
+          eintrag.kategorieId.toString(),
+          eintrag.thema,
+          eintrag.ort,
+          eintrag.raum,
+          eintrag.dienstverlauf,
+          eintrag.besonderheiten,
+          eintrag.id.toString(),
+        ],
+      );
+      await db.execute('delete from eintrag_betreuer where eintrag_id = ?;', [
+        eintrag.id.toString(),
+      ]);
+      for (final betreuerId in eintrag.betreuerIds) {
+        await db.execute(
+          'insert into eintrag_betreuer (eintrag_id, betreuer_id) values (?, ?);',
+          [eintrag.id.toString(), betreuerId.toString()],
+        );
+      }
+      await db.execute(
+        'delete from eintrag_jugendlicher where eintrag_id = ?;',
+        [eintrag.id.toString()],
+      );
+      for (final jugendlicherId in eintrag.anwesendeJugendlicherIds) {
+        await db.execute(
+          'insert into eintrag_jugendlicher (eintrag_id, jugendlicher_id, status) values (?, ?, ?);',
+          [
+            eintrag.id.toString(),
+            jugendlicherId.toString(),
+            eintragStatusAnwesend,
+          ],
+        );
+      }
+      for (final jugendlicherId in eintrag.entschuldigteJugendlicherIds) {
+        await db.execute(
+          'insert into eintrag_jugendlicher (eintrag_id, jugendlicher_id, status) values (?, ?, ?);',
+          [
+            eintrag.id.toString(),
+            jugendlicherId.toString(),
+            eintragStatusEntschuldigt,
+          ],
+        );
+      }
+    });
+  });
+
   AsyncVoidResult deleteJugendlicher(UUID id) => Result.voidSafeAsync(() async {
     final current = await getJugendlicher(id).unwrap().unsafe();
     if (current == null) {

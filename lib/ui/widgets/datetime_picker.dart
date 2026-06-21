@@ -8,8 +8,8 @@ class DateTimePickerFormField extends FormField<DateTime> {
     super.validator,
     ValueChanged<DateTime>? onChanged,
     String labelText = '',
-    required DateTime firstDate,
-    required DateTime lastDate,
+    DateTime? firstDate,
+    DateTime? lastDate,
   }) : super(
          builder: (FormFieldState<DateTime> state) {
            Future<void> pickDateTime(BuildContext context) async {
@@ -18,8 +18,8 @@ class DateTimePickerFormField extends FormField<DateTime> {
              final date = await showDatePicker(
                context: context,
                initialDate: currentValue,
-               firstDate: firstDate,
-               lastDate: lastDate,
+               firstDate: firstDate ?? DateTime(1900),
+               lastDate: lastDate ?? DateTime(2100),
              );
 
              if (date == null) return;
