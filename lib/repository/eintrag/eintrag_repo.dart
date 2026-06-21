@@ -24,12 +24,61 @@ typedef EintragCreateData = ({
   List<String> entschuldigteJugendlicherIds,
 });
 
+typedef EintragUpdateData = ({
+  String id,
+  DateTime start,
+  DateTime end,
+  String kategorieId,
+  String thema,
+  String? ort,
+  String? raum,
+  String? dienstverlauf,
+  String? besonderheiten,
+  List<String> betreuerIds,
+  List<String> anwesendeJugendlicherIds,
+  List<String> entschuldigteJugendlicherIds,
+});
+
 class EintragRepository
     extends JulogRepository<Eintrag, EintragApiModel, EintragCreateData>
     implements EintragSigningDataSource {
   final Jldb _jldb;
 
   EintragRepository({required Jldb jldb}) : _jldb = jldb;
+
+  AsyncVoidResult delete(String id) async {
+    final result = await _jldb.deleteEintrag(UUID.fromString(id));
+    if (result is Failure<Unit>) return Failure(result.error);
+    invalidateCache();
+    return Result.voidSuccess();
+  }
+
+  AsyncVoidResult update(EintragUpdateData data) async {
+    final result = await _jldb.updateEintrag(
+      EintragApiModel(
+        id: UUID.fromString(data.id),
+        start: data.start,
+        end: data.end,
+        kategorieId: UUID.fromString(data.kategorieId),
+        thema: data.thema,
+        ort: data.ort,
+        raum: data.raum,
+        dienstverlauf: data.dienstverlauf,
+        besonderheiten: data.besonderheiten,
+        betreuerIds: data.betreuerIds.map(UUID.fromString).toSet(),
+        anwesendeJugendlicherIds: data.anwesendeJugendlicherIds
+            .map(UUID.fromString)
+            .toSet(),
+        entschuldigteJugendlicherIds: data.entschuldigteJugendlicherIds
+            .map(UUID.fromString)
+            .toSet(),
+        undefinierteJugendlicherIds: const {},
+      ),
+    );
+    if (result is Failure<Unit>) return Failure(result.error);
+    invalidateCache();
+    return Result.voidSuccess();
+  }
 
   @override
   AsyncResult<Optional<String>> getEintragSigningData(

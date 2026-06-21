@@ -6,6 +6,32 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../view_model/eintrag/eintrag_form_viewmodel.dart';
 import '../widgets/datetime_picker.dart';
 
+class EintragInitialValues {
+  final DateTime start;
+  final DateTime end;
+  final String kategorieId;
+  final String thema;
+  final String? ort;
+  final String? raum;
+  final String? dienstverlauf;
+  final String? besonderheiten;
+  final List<String> betreuerIds;
+  final Map<String, Anwesenheit> jugendliche;
+
+  const EintragInitialValues({
+    required this.start,
+    required this.end,
+    required this.kategorieId,
+    required this.thema,
+    this.ort,
+    this.raum,
+    this.dienstverlauf,
+    this.besonderheiten,
+    required this.betreuerIds,
+    required this.jugendliche,
+  });
+}
+
 class EintragForm extends ConsumerStatefulWidget {
   final FutureOr<void> Function(
     DateTime start,
@@ -21,7 +47,9 @@ class EintragForm extends ConsumerStatefulWidget {
     List<String> entschuldigteJugendlicherIds,
   )?
   onSave;
-  const EintragForm({super.key, this.onSave});
+  final EintragInitialValues? initialValues;
+
+  const EintragForm({super.key, this.onSave, this.initialValues});
 
   @override
   ConsumerState<EintragForm> createState() => _EintragFormState();
@@ -29,25 +57,54 @@ class EintragForm extends ConsumerStatefulWidget {
 
 class _EintragFormState extends ConsumerState<EintragForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _themaController = TextEditingController();
-  final TextEditingController _ortController = TextEditingController();
-  final TextEditingController _raumController = TextEditingController();
-  final TextEditingController _dienstverlaufController =
-      TextEditingController();
-  final TextEditingController _besonderheitenController =
-      TextEditingController();
+  late final TextEditingController _themaController;
+  late final TextEditingController _ortController;
+  late final TextEditingController _raumController;
+  late final TextEditingController _dienstverlaufController;
+  late final TextEditingController _besonderheitenController;
 
   DateTime? _start;
   DateTime? _end;
   String? _kategorieId;
-  final List<String> _betreuerIds = [];
-  final Map<String, Anwesenheit> _jugendliche = {};
+  late List<String> _betreuerIds;
+  late Map<String, Anwesenheit> _jugendliche;
 
   bool _loading = false;
 
   @override
+  void initState() {
+    super.initState();
+    final iv = widget.initialValues;
+    _themaController = TextEditingController(text: iv?.thema ?? '');
+    _ortController = TextEditingController(text: iv?.ort ?? '');
+    _raumController = TextEditingController(text: iv?.raum ?? '');
+    _dienstverlaufController = TextEditingController(
+      text: iv?.dienstverlauf ?? '',
+    );
+    _besonderheitenController = TextEditingController(
+      text: iv?.besonderheiten ?? '',
+    );
+    _start = iv?.start;
+    _end = iv?.end;
+    _kategorieId = iv?.kategorieId;
+    _betreuerIds = List.of(iv?.betreuerIds ?? []);
+    _jugendliche = Map.of(iv?.jugendliche ?? {});
+  }
+
+  @override
+  void dispose() {
+    _themaController.dispose();
+    _ortController.dispose();
+    _raumController.dispose();
+    _dienstverlaufController.dispose();
+    _besonderheitenController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final options = ref.watch(eintragFormViewmodelProvider);
+    final isEdit = widget.initialValues != null;
     return options.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stack) => Center(child: Text('Fehler: $error')),
@@ -63,15 +120,12 @@ class _EintragFormState extends ConsumerState<EintragForm> {
               child: Column(
                 children: [
                   Text(
-                    'Neuen Eintrag hinzufügen',
+                    isEdit ? 'Eintrag bearbeiten' : 'Neuen Eintrag hinzufügen',
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   const SizedBox(height: 16),
                   DateTimePickerFormField(
-                    firstDate: DateTime.now().subtract(
-                      const Duration(days: 30),
-                    ),
-                    lastDate: DateTime.now().add(const Duration(days: 2)),
+                    initialValue: _start,
                     labelText: 'Startzeit',
                     onSaved: (newValue) => _start = newValue,
                     onChanged: (value) {
@@ -86,10 +140,7 @@ class _EintragFormState extends ConsumerState<EintragForm> {
                   ),
                   const SizedBox(height: 16),
                   DateTimePickerFormField(
-                    firstDate: DateTime.now().subtract(
-                      const Duration(days: 30),
-                    ),
-                    lastDate: DateTime.now().add(const Duration(days: 2)),
+                    initialValue: _end,
                     labelText: 'Endzeit',
                     onSaved: (newValue) => _end = newValue,
                     validator: (value) {
@@ -106,6 +157,7 @@ class _EintragFormState extends ConsumerState<EintragForm> {
                   const SizedBox(height: 16),
                   DropdownMenuFormField(
                     label: const Text('Kategorie'),
+                    initialSelection: _kategorieId,
                     dropdownMenuEntries: kategorien.entries
                         .map(
                           (e) =>
