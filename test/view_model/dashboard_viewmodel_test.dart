@@ -89,6 +89,7 @@ Eintrag _eintrag({
   anwesendeJugendlicherIds: anwesendeIds,
   entschuldigteJugendlicherIds: const {},
   undefinierteJugendlicherIds: const {},
+  isSigned: false,
 );
 
 Kategorie _kategorie(String id) => Kategorie(id: id, name: 'Kategorie $id');

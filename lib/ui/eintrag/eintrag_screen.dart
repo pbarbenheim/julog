@@ -47,8 +47,18 @@ class _EintragScreenState extends ConsumerState<EintragScreen> {
             .map(
               (e) => ListItem(
                 title: Text(e.thema),
-                subtitle: Text(
-                  MaterialLocalizations.of(context).formatFullDate(e.start),
+                subtitle: Row(
+                  children: [
+                    Icon(
+                      e.isSigned ? Icons.verified : Icons.edit,
+                      size: 16,
+                      color: e.isSigned ? null : Colors.amber,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      MaterialLocalizations.of(context).formatFullDate(e.start),
+                    ),
+                  ],
                 ),
               ),
             )

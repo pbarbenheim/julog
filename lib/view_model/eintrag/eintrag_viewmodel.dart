@@ -21,6 +21,7 @@ class EintragViewModel extends _$EintragViewModel {
             start: e.start,
             end: e.end,
             thema: e.thema,
+            isSigned: e.isSigned,
           ),
         )
         .toList();
@@ -72,5 +73,6 @@ abstract class SmallEintrag with _$SmallEintrag {
     required DateTime start,
     required DateTime end,
     required String thema,
+    required bool isSigned,
   }) = _SmallEintrag;
 }
