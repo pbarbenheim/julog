@@ -10,7 +10,7 @@ const jldbCompatibleSinceVersion = 3;
 
 final class Jldb {
   static const _getAllEintraegeSql = '''
-    select 
+    select
       e.id,
       e.start,
       e.end,
@@ -21,22 +21,28 @@ final class Jldb {
       e.dienstverlauf,
       e.besonderheiten,
       j.jugendliche,
-      b.betreuer
+      b.betreuer,
+      (sig.eid is not null) as is_signed
     from eintrag as e
       left join (
-        select 
+        select
           ej.eintrag_id as eid,
           group_concat(concat(ej.jugendlicher_id, ':', ej.status), ',') as jugendliche
         from eintrag_jugendlicher as ej
         group by ej.eintrag_id
       ) as j on e.id = j.eid
       left join (
-        select 
+        select
           eb.eintrag_id as eid,
           group_concat(eb.betreuer_id, ',') as betreuer
         from eintrag_betreuer as eb
         group by eb.eintrag_id
       ) as b on e.id = b.eid
+      left join (
+        select eintrag_id as eid
+        from signature
+        group by eintrag_id
+      ) as sig on e.id = sig.eid
       %COND%
   ;
   ''';
@@ -52,6 +58,7 @@ final class Jldb {
     'besonderheiten',
     'status_jugendlicher_ids',
     'betreuer_ids',
+    'is_signed',
   ];
 
   final String filename;

@@ -82,6 +82,7 @@ Eintrag _eintrag({
   anwesendeJugendlicherIds: anwesendeIds,
   entschuldigteJugendlicherIds: entschuldigteIds,
   undefinierteJugendlicherIds: undefinierteIds,
+  isSigned: false,
 );
 
 Kategorie _kategorie(String id) => Kategorie(id: id, name: 'Test Kategorie');

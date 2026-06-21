@@ -23,6 +23,7 @@ abstract class EintragApiModel with _$EintragApiModel {
     required Set<UUID> anwesendeJugendlicherIds,
     required Set<UUID> entschuldigteJugendlicherIds,
     required Set<UUID> undefinierteJugendlicherIds,
+    @Default(false) bool isSigned,
   }) = _EintragApiModel;
 }
 
@@ -52,6 +53,7 @@ EintragApiModel eintragApiModelFromDbArray(
   final besonderheitenIndex = columns.indexOf('besonderheiten');
   final betreuerIdsIndex = columns.indexOf('betreuer_ids');
   final statusJugendlicherIdsIndex = columns.indexOf('status_jugendlicher_ids');
+  final isSignedIndex = columns.indexOf('is_signed');
 
   final anwesendeJugendlicherIds = <UUID>{};
   final entschuldigteJugendlicherIds = <UUID>{};
@@ -103,5 +105,8 @@ EintragApiModel eintragApiModelFromDbArray(
     anwesendeJugendlicherIds: anwesendeJugendlicherIds,
     entschuldigteJugendlicherIds: entschuldigteJugendlicherIds,
     undefinierteJugendlicherIds: undefinierteJugendlicherIds,
+    isSigned: isSignedIndex != -1
+        ? (data[isSignedIndex] as int? ?? 0) != 0
+        : false,
   );
 }
