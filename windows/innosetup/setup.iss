@@ -1,7 +1,7 @@
 [Files]
 Source: "..\..\build\windows\x64\runner\Release\*"; Excludes: "*.zip"; DestDir: "{app}"; Flags: recursesubdirs
-Source: "..\..\LICENSE"; DestDir: "{app}"; Flags: isreadme
-Source: "..\..\README.md"; DestDir: "{app}"; Flags: isreadme
+Source: "..\..\LICENSE"; DestDir: "{app}"
+Source: "..\..\README.md"; DestDir: "{app}"
 
 [Setup]
 AppName=Julog
@@ -11,6 +11,7 @@ DefaultGroupName=Julog
 ChangesAssociations=yes
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
+CloseApplications=yes
 
 [Icons]
 Name: "{group}\Julog"; Filename: "{app}\julog.exe"; WorkingDir: "{app}"
@@ -34,3 +35,8 @@ Root: HKCR; Subkey: "JFDB.File\shell\open"; ValueType: string; \
   ValueName: ""; ValueData: "Mit Julog öffnen"
 Root: HKCR; Subkey: "JFDB.File\shell"; ValueType: string; \
   ValueName: ""; ValueData: "open"
+
+[Run]
+Filename: "{app}\julog.exe"; Description: "Julog starten"; \
+  Flags: postinstall nowait skipifsilent
+Filename: "{app}\julog.exe"; Flags: nowait; Check: WizardSilent

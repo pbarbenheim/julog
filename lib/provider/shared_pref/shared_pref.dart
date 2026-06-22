@@ -13,7 +13,11 @@ SharedPreferencesWithCache sharedPreferences(Ref ref) {
 Future<SharedPreferencesWithCache> createSharedPreferences() {
   return SharedPreferencesWithCache.create(
     cacheOptions: const SharedPreferencesWithCacheOptions(
-      allowList: <String>{'theme_mode', JulogService.lastOpenedFileKey},
+      allowList: <String>{
+        'theme_mode',
+        JulogService.lastOpenedFileKey,
+        'update_last_checked',
+      },
     ),
   );
 }

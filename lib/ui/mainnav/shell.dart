@@ -4,6 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../provider/darkmode/darkmode.dart';
 import '../../provider/jldb/jldb.dart';
 import '../../provider/jldb/julog_file.dart';
+import '../../update/update_banner.dart';
+import '../../update/update_service.dart';
+import '../../update/update_state.dart';
 import '../widgets/about.dart';
 import '../widgets/theme_button.dart';
 import 'destination.dart';
@@ -17,47 +20,69 @@ class Shell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final mode = ref.watch(themeModeProvider);
     final julogFile = ref.watch(julogServiceProvider);
+
+    ref.listen(updateServiceProvider, (_, next) {
+      if (!context.mounted) return;
+      if (next case AsyncData(:final value)) {
+        if (value case UpdateStateReadyToInstall(
+          :final installerPath,
+          :final info,
+        )) {
+          showInstallConfirmDialog(context, ref, installerPath, info);
+        }
+      }
+    });
+
     return Scaffold(
-      body: Row(
+      body: Column(
         children: [
-          NavigationRail(
-            backgroundColor: Theme.of(context).colorScheme.surfaceDim,
-            destinations: Destination.values
-                .map((e) => e.railDestination)
-                .toList(),
-            onDestinationSelected: (value) {
-              final destination = Destination.values[value];
-              destination.route().go(context);
-            },
-            selectedIndex: destination.index,
-            labelType: NavigationRailLabelType.all,
-            leadingAtTop: true,
-            trailingAtBottom: true,
-            trailing: Column(
-              mainAxisSize: MainAxisSize.min,
+          const UpdateBanner(),
+          Expanded(
+            child: Row(
               children: [
-                ThemeButton(
-                  mode: mode,
-                  onPressed: (newMode) {
-                    ref.read(themeModeProvider.notifier).setThemeMode(newMode);
+                NavigationRail(
+                  backgroundColor: Theme.of(context).colorScheme.surfaceDim,
+                  destinations: Destination.values
+                      .map((e) => e.railDestination)
+                      .toList(),
+                  onDestinationSelected: (value) {
+                    final destination = Destination.values[value];
+                    destination.route().go(context);
                   },
-                ),
-                const SizedBox(width: 8),
-                if (julogFile is JulogFileLoaded) ...[
-                  IconButton(
-                    onPressed: () {
-                      ref.read(julogServiceProvider.notifier).close();
-                    },
-                    icon: const Icon(Icons.logout),
-                    tooltip: 'Julog-Datei schließen',
+                  selectedIndex: destination.index,
+                  labelType: NavigationRailLabelType.all,
+                  leadingAtTop: true,
+                  trailingAtBottom: true,
+                  trailing: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ThemeButton(
+                        mode: mode,
+                        onPressed: (newMode) {
+                          ref
+                              .read(themeModeProvider.notifier)
+                              .setThemeMode(newMode);
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      if (julogFile is JulogFileLoaded) ...[
+                        IconButton(
+                          onPressed: () {
+                            ref.read(julogServiceProvider.notifier).close();
+                          },
+                          icon: const Icon(Icons.logout),
+                          tooltip: 'Julog-Datei schließen',
+                        ),
+                      ],
+                      const AboutButton(),
+                      const SizedBox(height: 16),
+                    ],
                   ),
-                ],
-                const AboutButton(),
-                const SizedBox(height: 16),
+                ),
+                Expanded(child: child),
               ],
             ),
           ),
-          Expanded(child: child),
         ],
       ),
     );
