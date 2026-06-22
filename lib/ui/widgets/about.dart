@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../provider/logging/logging.dart';
 import '../../pubspec.g.dart';
+import '../../update/update_service.dart';
+import '../../update/update_state.dart';
 import 'logo.dart';
 
 class AboutButton extends ConsumerWidget {
@@ -52,6 +54,7 @@ void showJulogAbout(BuildContext context, {String? logPath}) {
         ),
       ),
       if (logFileExists) _LogFileSection(logPath: logPath),
+      const _UpdateSection(),
     ],
   );
 }
@@ -84,6 +87,58 @@ class _LogFileSection extends StatelessWidget {
             },
             icon: const Icon(Icons.copy, size: 16),
             label: const Text('Pfad kopieren'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _UpdateSection extends ConsumerWidget {
+  const _UpdateSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final updateState = ref.watch(updateServiceProvider);
+
+    final statusText = switch (updateState) {
+      AsyncLoading() => 'Wird geprüft…',
+      AsyncData(:final value) => switch (value) {
+        UpdateStateIdle() => 'Julog ist aktuell (${Pubspec.version})',
+        UpdateStateUpdateAvailable(:final info) =>
+          'Version ${info.version} verfügbar',
+        UpdateStateDownloading(:final progress) =>
+          'Wird heruntergeladen… ${(progress * 100).toStringAsFixed(0)} %',
+        UpdateStateReadyToInstall(:final info) =>
+          'Version ${info.version} bereit zur Installation',
+        UpdateStateError() => 'Prüfung fehlgeschlagen',
+      },
+      _ => '',
+    };
+
+    final canCheck = switch (updateState) {
+      AsyncLoading() => false,
+      AsyncData(:final value) => value is! UpdateStateDownloading,
+      _ => true,
+    };
+
+    return Container(
+      padding: const EdgeInsets.only(top: 10.0),
+      constraints: BoxConstraints.loose(const Size.fromWidth(200)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Updates', style: TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          Text(statusText, style: const TextStyle(fontSize: 12)),
+          const SizedBox(height: 4),
+          TextButton.icon(
+            onPressed: canCheck
+                ? () =>
+                      ref.read(updateServiceProvider.notifier).checkForUpdate()
+                : null,
+            icon: const Icon(Icons.refresh, size: 16),
+            label: const Text('Auf Updates prüfen'),
           ),
         ],
       ),
