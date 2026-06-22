@@ -121,7 +121,9 @@ class EintragAssembly {
         eintrag.undefinierteJugendlicherIds.map(resolveJugendlicher),
       );
 
-      final possibleSigners = await _identityRepo.getAll().unwrap();
+      final possibleSigners = signatures.isEmpty
+          ? await _identityRepo.getAll().unwrap()
+          : <Identity>[];
 
       return SelectedEintrag(
         id: eintrag.id,

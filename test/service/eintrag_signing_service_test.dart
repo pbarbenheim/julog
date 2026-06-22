@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jlcrypto/jlcrypto.dart' as crypto;
@@ -50,7 +51,8 @@ class _SavingSignatureStub
   final List<SignatureCreateData> saves = [];
   final String eintragId;
 
-  _SavingSignatureStub(this.eintragId) : super([], (s) => s.id);
+  _SavingSignatureStub(this.eintragId, [List<Signature> initial = const []])
+    : super(initial, (s) => s.id);
 
   @override
   AsyncResult<Signature> createInJldb(SignatureCreateData data) async {
@@ -239,6 +241,33 @@ void main() {
         expect(sigRepo.saves, isEmpty);
       },
     );
+
+    test('eintrag already signed — returns Failure without saving', () async {
+      final existingSig = Signature(
+        eintragId: 'e1',
+        identityId: 'i2',
+        signature: crypto.Signature(Uint8List.fromList([1, 2, 3])),
+        timestamp: DateTime(2024),
+        version: 5,
+        isValid: true,
+      );
+
+      final service = EintragSigningService(
+        identityOpener: _IdentityOpenerStub(null),
+        signingDataSource: _SigningDataStub('signing data string'),
+      );
+      final sigRepo = _SavingSignatureStub('e1', [existingSig]);
+
+      final result = await service.sign(
+        eintragId: 'e1',
+        identityId: 'i1',
+        password: 'test-password',
+        signatureRepo: sigRepo,
+      );
+
+      expect(result, isA<VoidFailure>());
+      expect(sigRepo.saves, isEmpty);
+    });
 
     test(
       'PrivateKeyNotFoundException from openIdentity — returns Failure',

@@ -48,6 +48,11 @@ class EintragSigningService {
       final timestamp = DateTime.timestamp();
 
       try {
+        final existingSignatures = await signatureRepo.getAll().unwrap();
+        if (existingSignatures.isNotEmpty) {
+          throw Exception('Eintrag $eintragId already has a signature');
+        }
+
         final identityOpt = await _identityOpener
             .openIdentity(identityId, password)
             .unwrap();
