@@ -186,7 +186,7 @@ void main() {
       expect(s.entschuldigteJugendliche.single.id, 'j2');
       expect(s.signatures.single.identity.id, 'i1');
       expect(s.signatures.single.isValid, isTrue);
-      expect(s.possibleSigners.single.id, 'i1');
+      expect(s.possibleSigners, isEmpty);
     });
 
     test('empty attendance and signatures — produces empty lists', () async {
@@ -262,7 +262,7 @@ void main() {
         };
         expect(byIdentityId['i1']!.isValid, isTrue);
         expect(byIdentityId['i2']!.isValid, isFalse);
-        expect(s.possibleSigners.map((i) => i.id).toSet(), {'i1', 'i2'});
+        expect(s.possibleSigners, isEmpty);
       },
     );
 
