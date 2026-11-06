@@ -3,6 +3,7 @@ import 'package:jldb/jldb.dart';
 
 import '../austritts_grund.dart';
 import '../gender.dart';
+import '../herkunft.dart';
 
 part 'jugendlicher.freezed.dart';
 
@@ -15,6 +16,7 @@ abstract class Jugendlicher with _$Jugendlicher {
     String? pass,
     required DateTime birthDate,
     required DateTime memberSince,
+    required Herkunft herkunft,
     DateTime? exitDate,
     AustrittsGrund? exitReason,
     Jugendlicher? replacedBy,
@@ -53,6 +55,11 @@ abstract class Jugendlicher with _$Jugendlicher {
       pass: record.pass,
       birthDate: record.birthDate,
       memberSince: record.memberSince,
+      herkunft: switch (record.origin) {
+        Origin.neu => Herkunft.neu,
+        Origin.andereOrganisation => Herkunft.andereOrganisation,
+        Origin.kinderfeuerwehr => Herkunft.kinderfeuerwehr,
+      },
       exitDate: record.exitDate,
       exitReason: switch (record.exitReason) {
         null => null,

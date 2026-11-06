@@ -1,3 +1,4 @@
+import 'package:jldb/src/models/origin.dart';
 import 'package:jldb/src/models/jugendlicher/jugendlicher_api_model.dart';
 import 'package:jldb/src/models/sex.dart';
 import 'package:jldb/src/models/uuid.dart';
@@ -16,6 +17,7 @@ void main() {
           sex: Sex.male,
           birthDate: baseDate,
           memberSince: baseDate,
+          origin: Origin.neu,
           eintragIds: const {},
         );
 

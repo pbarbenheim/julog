@@ -218,8 +218,9 @@ final class Jldb {
             sex,
             pass,
             birth_date,
-            member_since
-          ) values (?, ?, ?, ?, ?, ?);
+            member_since,
+            herkunft
+          ) values (?, ?, ?, ?, ?, ?, ?);
         ''';
     const updateReplacedSql = '''
           update jugendlicher
@@ -237,6 +238,7 @@ final class Jldb {
             jugendlicher.pass,
             jugendlicher.birthDate.millisecondsSinceEpoch,
             jugendlicher.memberSince.millisecondsSinceEpoch,
+            jugendlicher.origin.toInt(),
           ]);
           await db.execute(updateReplacedSql, [
             id.toString(),
@@ -256,6 +258,7 @@ final class Jldb {
           jugendlicher.pass,
           jugendlicher.birthDate.millisecondsSinceEpoch,
           jugendlicher.memberSince.millisecondsSinceEpoch,
+          jugendlicher.origin.toInt(),
         ]);
       }
 
@@ -381,6 +384,7 @@ final class Jldb {
         j.exit_date,
         j.exit_reason,
         j.replaced_by_id,
+        j.herkunft,
         j2.id as replaces_id,
         je.eintrag_ids as eintrag_ids
       from jugendlicher as j
@@ -409,9 +413,10 @@ final class Jldb {
               : null,
           exitReason: row[7] != null ? ExitReason.fromInt(row[7] as int) : null,
           replacedById: row[8]?.toString().toUUID(),
-          replacesId: row[9]?.toString().toUUID(),
-          eintragIds: row[10] != null
-              ? (row[10] as String).split(',').map((e) => e.toUUID()).toSet()
+          origin: Origin.fromInt(row[9] as int),
+          replacesId: row[10]?.toString().toUUID(),
+          eintragIds: row[11] != null
+              ? (row[11] as String).split(',').map((e) => e.toUUID()).toSet()
               : <UUID>{},
         );
       }).toList();
@@ -628,10 +633,11 @@ final class Jldb {
     String? pass,
     required DateTime birthDate,
     required DateTime memberSince,
+    required Origin origin,
   }) {
     const sql = '''
       update jugendlicher
-      set sex = ?, pass = ?, birth_date = ?, member_since = ?
+      set sex = ?, pass = ?, birth_date = ?, member_since = ?, herkunft = ?
       where id = ?;
     ''';
     return Result.voidSafeAsync(() async {
@@ -644,6 +650,7 @@ final class Jldb {
         pass,
         birthDate.millisecondsSinceEpoch,
         memberSince.millisecondsSinceEpoch,
+        origin.toInt(),
         id.toString(),
       ]);
     });
@@ -677,6 +684,7 @@ final class Jldb {
         j.exit_date,
         j.exit_reason,
         j.replaced_by_id,
+        j.herkunft,
         j2.id as replaces_id,
         je.eintrag_ids as eintrag_ids
       from jugendlicher as j
@@ -710,9 +718,10 @@ final class Jldb {
             : null,
         exitReason: row[7] != null ? ExitReason.fromInt(row[7] as int) : null,
         replacedById: row[8]?.toString().toUUID(),
-        replacesId: row[9]?.toString().toUUID(),
-        eintragIds: row[10] != null
-            ? (row[10] as String).split(',').map((e) => e.toUUID()).toSet()
+        origin: Origin.fromInt(row[9] as int),
+        replacesId: row[10]?.toString().toUUID(),
+        eintragIds: row[11] != null
+            ? (row[11] as String).split(',').map((e) => e.toUUID()).toSet()
             : <UUID>{},
       );
       return jug;

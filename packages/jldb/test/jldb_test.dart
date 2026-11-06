@@ -14,9 +14,11 @@ JugendlicherCreateDTO _makeJugDto({
   String name = 'Alice',
   Sex sex = Sex.female,
   UUID? replacesId,
+  Origin origin = Origin.neu,
 }) => JugendlicherCreateDTO(
   name: name,
   sex: sex,
+  origin: origin,
   birthDate: DateTime(2010),
   memberSince: DateTime(2020),
   replacesId: replacesId,
@@ -247,6 +249,7 @@ void main() {
             pass: 'P123',
             birthDate: newBirth,
             memberSince: newMember,
+            origin: Origin.neu,
           )
           .unwrap();
 
@@ -269,6 +272,7 @@ void main() {
               pass: null,
               birthDate: DateTime(2011),
               memberSince: DateTime(2021),
+              origin: Origin.neu,
             )
             .unwrap();
 
@@ -277,6 +281,68 @@ void main() {
         expect(jug.replacedById, isNull);
       },
     );
+
+    test('createJugendlicher defaults Origin to neu', () async {
+      final id = await db
+          .createJugendlicher(
+            JugendlicherCreateDTO(
+              name: 'Bob',
+              sex: Sex.male,
+              birthDate: DateTime(2010),
+              memberSince: DateTime(2020),
+            ),
+          )
+          .unwrap();
+      final jug = (await db.getJugendlicher(id).unwrap()).unwrap();
+      expect(jug.origin, equals(Origin.neu));
+    });
+
+    test('createJugendlicher persists the given Origin', () async {
+      for (final herkunft in Origin.values) {
+        final id = await db
+            .createJugendlicher(_makeJugDto(origin: herkunft))
+            .unwrap();
+        final jug = (await db.getJugendlicher(id).unwrap()).unwrap();
+        expect(jug.origin, equals(herkunft));
+        final all = await db.getAllJugendliche().unwrap();
+        expect(all.firstWhere((j) => j.id == id).origin, equals(herkunft));
+      }
+    });
+
+    test('updateJugendlicher changes the Origin', () async {
+      final id = await db.createJugendlicher(_makeJugDto()).unwrap();
+
+      await db
+          .updateJugendlicher(
+            id,
+            sex: Sex.female,
+            pass: null,
+            birthDate: DateTime(2010),
+            memberSince: DateTime(2020),
+            origin: Origin.kinderfeuerwehr,
+          )
+          .unwrap();
+
+      final jug = (await db.getJugendlicher(id).unwrap()).unwrap();
+      expect(jug.origin, equals(Origin.kinderfeuerwehr));
+    });
+
+    test('replacement record keeps the Origin it is created with', () async {
+      final aId = await db
+          .createJugendlicher(_makeJugDto(origin: Origin.andereOrganisation))
+          .unwrap();
+      final bId = await db
+          .createJugendlicher(
+            _makeJugDto(
+              name: 'A2',
+              replacesId: aId,
+              origin: Origin.andereOrganisation,
+            ),
+          )
+          .unwrap();
+      final b = (await db.getJugendlicher(bId).unwrap()).unwrap();
+      expect(b.origin, equals(Origin.andereOrganisation));
+    });
 
     test('updateJugendlicher clears pass when null', () async {
       final id = await db
@@ -298,6 +364,7 @@ void main() {
             pass: null,
             birthDate: DateTime(2010),
             memberSince: DateTime(2020),
+            origin: Origin.neu,
           )
           .unwrap();
 
@@ -699,10 +766,10 @@ void main() {
   // Database version / open
   // -------------------------------------------------------------------------
   group('Database', () {
-    test('getVersion() returns 3 after create()', () async {
+    test('getVersion() returns 4 after create()', () async {
       final db = await Jldb.create(':memory:', domain: 'test.org').unwrap();
       addTearDown(db.close);
-      expect(await db.getVersion(), equals(3));
+      expect(await db.getVersion(), equals(4));
     });
 
     test(
@@ -723,9 +790,38 @@ void main() {
 
         final opened = await Jldb.open(path).unwrap();
         addTearDown(opened.close);
-        expect(await opened.getVersion(), equals(3));
+        expect(await opened.getVersion(), equals(4));
       },
     );
+
+    test('open() migrates a v3 file and sets Origin neu on all Jugendliche',
+        () async {
+      final dir = await Directory.systemTemp.createTemp('jldb_test_');
+      addTearDown(() => dir.delete(recursive: true));
+      final path = '${dir.path}/v3.db';
+
+      final worker = await SqliteWorker.spawn(path, createDatabase: true);
+      final v3 = DatabaseMigrations.getMigrations().first;
+      await worker.execute(v3);
+      for (final (id, name) in [
+        ('550e8400-e29b-41d4-a716-446655440001', 'Alt A'),
+        ('550e8400-e29b-41d4-a716-446655440002', 'Alt B'),
+      ]) {
+        await worker.execute(
+          'insert into jugendlicher (id, name, sex, birth_date, member_since) '
+          'values (?, ?, 0, 1, 2);',
+          [id, name],
+        );
+      }
+      await worker.close();
+
+      final opened = await Jldb.open(path).unwrap();
+      addTearDown(opened.close);
+      expect(await opened.getVersion(), equals(4));
+      final all = await opened.getAllJugendliche().unwrap();
+      expect(all, hasLength(2));
+      expect(all.every((j) => j.origin == Origin.neu), isTrue);
+    });
 
     test(
       'open() fails for a database with user_version below minimum',

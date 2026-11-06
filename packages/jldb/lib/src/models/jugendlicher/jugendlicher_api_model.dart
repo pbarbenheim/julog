@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../exit_reason.dart';
+import '../origin.dart';
 import '../sex.dart';
 import '../uuid.dart';
 
@@ -15,6 +16,7 @@ abstract class JugendlicherApiModel with _$JugendlicherApiModel {
     String? pass,
     required DateTime birthDate,
     required DateTime memberSince,
+    required Origin origin,
     DateTime? exitDate,
     ExitReason? exitReason,
     UUID? replacedById,
@@ -37,6 +39,7 @@ abstract class JugendlicherCreateDTO with _$JugendlicherCreateDTO {
     String? pass,
     required DateTime birthDate,
     required DateTime memberSince,
+    @Default(Origin.neu) Origin origin,
     UUID? replacesId,
   }) = _JugendlicherCreateDTO;
 }

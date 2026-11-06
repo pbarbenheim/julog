@@ -7,3 +7,4 @@ export 'signature/signature_api_model.dart';
 export 'uuid.dart';
 export 'sex.dart';
 export 'exit_reason.dart';
+export 'origin.dart';

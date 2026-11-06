@@ -25,6 +25,7 @@ class JugendlicherViewModel extends _$JugendlicherViewModel {
     required DateTime birthDate,
     required DateTime memberSince,
     String? pass,
+    required Herkunft herkunft,
   }) async {
     final repo = ref.read(jugendlicheRepositoryProvider);
     final result = await repo.save((
@@ -33,6 +34,7 @@ class JugendlicherViewModel extends _$JugendlicherViewModel {
       birthDate: birthDate,
       memberSince: memberSince,
       pass: pass,
+      herkunft: herkunft,
     ));
     if (result is Failure<Jugendlicher>) {
       throw Exception('Failed to save Jugendlicher: ${result.error}');
@@ -66,6 +68,7 @@ class JugendlicherViewModel extends _$JugendlicherViewModel {
     required DateTime birthDate,
     required DateTime memberSince,
     String? pass,
+    required Herkunft herkunft,
   }) async {
     final repo = ref.read(jugendlicheRepositoryProvider);
     final result = await repo.editJugendlicher((
@@ -75,6 +78,7 @@ class JugendlicherViewModel extends _$JugendlicherViewModel {
       birthDate: birthDate,
       memberSince: memberSince,
       pass: pass,
+      herkunft: herkunft,
     ));
     if (result is Failure<String>) {
       throw Exception('Failed to edit Jugendlicher: ${result.error}');

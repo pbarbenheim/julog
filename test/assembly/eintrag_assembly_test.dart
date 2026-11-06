@@ -96,6 +96,7 @@ Jugendlicher _jugendlicher(String id) => Jugendlicher(
   gender: Gender.male,
   birthDate: DateTime(2005),
   memberSince: DateTime(2020),
+  herkunft: Herkunft.neu,
   eintragIds: {},
 );
 
