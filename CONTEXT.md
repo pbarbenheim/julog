@@ -31,7 +31,7 @@ A group leader/supervisor. Linked to Einträge as facilitators.
 A classification tag for an Eintrag.
 
 ## Signatur
-A cryptographic signature (Ed25519/SHA512) attached to an Eintrag by an Identity. An Eintrag carries at most one Signatur. Each Signatur records the signer's Identity, a timestamp, a version, and a validity flag.
+A cryptographic signature (RSA with SHA-512) attached to an Eintrag by an Identity. An Eintrag carries at most one Signatur. Each Signatur records the signer's Identity, a timestamp, a version, and a validity flag.
 
 ## Unsignierter Eintrag
 An Eintrag that carries no Signatur. An unsignierter Eintrag is considered a draft — it has not yet been finalised and may be edited or deleted. Once a Signatur is added (regardless of validity), the Eintrag is considered signiert and can no longer be modified or deleted.
