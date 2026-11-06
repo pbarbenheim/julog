@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class KategorieForm extends StatefulWidget {
   final FutureOr<void> Function(String name)? onSave;
