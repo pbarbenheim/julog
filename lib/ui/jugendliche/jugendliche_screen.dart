@@ -76,19 +76,21 @@ class _JugendlicheScreenState extends ConsumerState<JugendlicheScreen> {
             ),
           ],
           form: JugendlicherForm(
-            onSave: (name, gender, birthDate, memberSince, pass) async {
-              final id = await ref
-                  .read(jugendlicherViewModelProvider.notifier)
-                  .addJugendlicher(
-                    name: name,
-                    gender: gender,
-                    birthDate: birthDate,
-                    memberSince: memberSince,
-                    pass: pass,
-                  );
-              if (!context.mounted) return;
-              JugendlicheRoute(jugendlicheId: id).go(context);
-            },
+            onSave:
+                (name, gender, birthDate, memberSince, pass, herkunft) async {
+                  final id = await ref
+                      .read(jugendlicherViewModelProvider.notifier)
+                      .addJugendlicher(
+                        name: name,
+                        gender: gender,
+                        birthDate: birthDate,
+                        memberSince: memberSince,
+                        pass: pass,
+                        herkunft: herkunft,
+                      );
+                  if (!context.mounted) return;
+                  JugendlicheRoute(jugendlicheId: id).go(context);
+                },
           ),
           actionsBuilder: (context, selectedIndex) {
             if (selectedIndex == null) return null;
@@ -155,23 +157,32 @@ class _JugendlicheScreenState extends ConsumerState<JugendlicheScreen> {
             if (_isEditing) {
               return JugendlicherForm(
                 initialJugendlicher: selectedJugendlicher,
-                onSave: (name, gender, birthDate, memberSince, pass) async {
-                  final newId = await ref
-                      .read(jugendlicherViewModelProvider.notifier)
-                      .editJugendlicher(
-                        id: selectedJugendlicher.id,
-                        name: name,
-                        gender: gender,
-                        birthDate: birthDate,
-                        memberSince: memberSince,
-                        pass: pass,
-                      );
-                  if (!context.mounted) return;
-                  setState(() => _isEditing = false);
-                  if (newId != selectedJugendlicher.id) {
-                    JugendlicheRoute(jugendlicheId: newId).go(context);
-                  }
-                },
+                onSave:
+                    (
+                      name,
+                      gender,
+                      birthDate,
+                      memberSince,
+                      pass,
+                      herkunft,
+                    ) async {
+                      final newId = await ref
+                          .read(jugendlicherViewModelProvider.notifier)
+                          .editJugendlicher(
+                            id: selectedJugendlicher.id,
+                            name: name,
+                            gender: gender,
+                            birthDate: birthDate,
+                            memberSince: memberSince,
+                            pass: pass,
+                            herkunft: herkunft,
+                          );
+                      if (!context.mounted) return;
+                      setState(() => _isEditing = false);
+                      if (newId != selectedJugendlicher.id) {
+                        JugendlicheRoute(jugendlicheId: newId).go(context);
+                      }
+                    },
               );
             }
 
@@ -199,6 +210,8 @@ class _JugendlicheScreenState extends ConsumerState<JugendlicheScreen> {
                         context,
                       )!.stateMemberSince(selectedJugendlicher.memberSince),
                     ),
+                    const SizedBox(height: 4),
+                    Text('Herkunft: ${selectedJugendlicher.herkunft.display}'),
                     if (selectedJugendlicher.exitDate != null) ...[
                       const SizedBox(height: 4),
                       Text(

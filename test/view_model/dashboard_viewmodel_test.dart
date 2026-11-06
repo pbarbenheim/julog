@@ -69,6 +69,7 @@ Jugendlicher _jugendlicher({
   gender: Gender.male,
   birthDate: birthDate ?? DateTime(2005, 6, 15),
   memberSince: DateTime(2020),
+  herkunft: Herkunft.neu,
   exitDate: exitDate,
   replacedBy: replacedBy,
   eintragIds: const {},

@@ -31,6 +31,7 @@ JugendlicherApiModel _makeJugendlicher({
   sex: Sex.male,
   birthDate: DateTime(2000),
   memberSince: DateTime(2020),
+  origin: Origin.neu,
   exitDate: exitDate,
   replacedById: replacedById,
   eintragIds: const {},

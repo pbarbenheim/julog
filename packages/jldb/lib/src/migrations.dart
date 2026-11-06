@@ -7,7 +7,7 @@ class DatabaseMigrations {
     return migrations.map((e) => e.value);
   }
 
-  static const Map<int, String> _migrations = {3: _v3};
+  static const Map<int, String> _migrations = {3: _v3, 4: _v4};
 
   static const String _v3 = '''
     create table config (
@@ -78,5 +78,11 @@ class DatabaseMigrations {
     );
 
     PRAGMA user_version = 3;
+  ''';
+
+  static const String _v4 = '''
+    alter table jugendlicher add column herkunft integer not null default 0;
+
+    PRAGMA user_version = 4;
   ''';
 }

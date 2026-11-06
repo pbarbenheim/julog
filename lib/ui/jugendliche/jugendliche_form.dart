@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import '../../repository/model/model.dart';
 import '../widgets/gender_select.dart';
+import '../widgets/herkunft_select.dart';
 
 class JugendlicherForm extends StatefulWidget {
   final FutureOr<void> Function(
@@ -13,6 +14,7 @@ class JugendlicherForm extends StatefulWidget {
     DateTime birthDate,
     DateTime memberSince,
     String? pass,
+    Herkunft herkunft,
   )?
   onSave;
   final Jugendlicher? initialJugendlicher;
@@ -29,6 +31,7 @@ class _JugendlicherFormState extends State<JugendlicherForm> {
   Gender? _selectedGender;
   DateTime? _birthDate;
   DateTime? _memberSince;
+  Herkunft _herkunft = Herkunft.neu;
   final TextEditingController _passController = TextEditingController();
 
   bool _loading = false;
@@ -42,6 +45,7 @@ class _JugendlicherFormState extends State<JugendlicherForm> {
       _selectedGender = initial.gender;
       _birthDate = initial.birthDate;
       _memberSince = initial.memberSince;
+      _herkunft = initial.herkunft;
       _passController.text = initial.pass ?? '';
     }
   }
@@ -119,6 +123,13 @@ class _JugendlicherFormState extends State<JugendlicherForm> {
               errorInvalidText: AppLocalizations.of(context)!.dateInvalidError,
             ),
             const SizedBox(height: 16),
+            HerkunftSelect(
+              initialValue: _herkunft,
+              onChanged: (value) {
+                if (value != null) _herkunft = value;
+              },
+            ),
+            const SizedBox(height: 16),
             TextFormField(
               decoration: InputDecoration(
                 labelText: AppLocalizations.of(context)!.optionalPass,
@@ -142,6 +153,7 @@ class _JugendlicherFormState extends State<JugendlicherForm> {
                           _passController.text.isEmpty
                               ? null
                               : _passController.text,
+                          _herkunft,
                         );
                         if (mounted) {
                           setState(() {

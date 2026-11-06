@@ -13,7 +13,7 @@ Option 1 needs no schema change, but the answer is detached from the person, mus
 
 ## Decision
 
-A Jugendlicher carries a **Herkunft** (`Neu`, `AndereOrganisation`, `Kinderfeuerwehr`), set at creation, defaulting to `Neu`. Existing records migrate to `Neu`. The Jahresbericht derives the Zugang breakdown from it.
+A Jugendlicher carries a **Herkunft** (`Neu`, `AndereOrganisation`, `Kinderfeuerwehr`), set at creation, defaulting to `Neu`, and editable afterwards so wrongly migrated records can be corrected. Existing records migrate to `Neu`. The Jahresbericht derives the Zugang breakdown from it.
 
 ## Consequences
 

@@ -144,6 +144,11 @@ class DashboardViewModel {
         sex: sex,
         birthDate: j.birthDate,
         memberSince: j.memberSince,
+        origin: switch (j.herkunft) {
+          Herkunft.neu => Origin.neu,
+          Herkunft.andereOrganisation => Origin.andereOrganisation,
+          Herkunft.kinderfeuerwehr => Origin.kinderfeuerwehr,
+        },
         exitDate: j.exitDate,
         replacedById: j.replacedBy != null
             ? UUID.fromString(j.replacedBy!.id)

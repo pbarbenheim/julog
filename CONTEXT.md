@@ -58,7 +58,7 @@ A Jugendlicher whose `memberSince` lies in the Berichtsjahr. Broken down by **He
 A Jugendlicher whose `exitDate` lies in the Berichtsjahr. `Uebernahme` is an Abgang into the Einsatzabteilung; every other **AustrittsGrund** is a sonstiger Abgang, broken down by reason.
 
 ## Herkunft
-Where a Jugendlicher came from when joining. Values: `Neu`, `AndereOrganisation`, `Kinderfeuerwehr`. Set when the Jugendlicher is created; defaults to `Neu`.
+Where a Jugendlicher came from when joining. Values: `Neu`, `AndereOrganisation`, `Kinderfeuerwehr`. Chosen when the Jugendlicher is created (defaults to `Neu`); can be corrected later on an existing Jugendlicher.
 
 ## Berichtsthema
 One of seven fixed topics the Jahresbericht groups Einträge into: feuerwehrtechnische Ausbildung, Wettbewerbstraining, Spiele und Kreatives, mit anderem Verein oder Gruppe, Sport, Erste Hilfe und Prävention, Sonstiges. Each **Kategorie** is assigned one. "Sonstiges" is an explicit choice, distinct from "not yet assigned".

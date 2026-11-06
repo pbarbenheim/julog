@@ -15,6 +15,7 @@ typedef JugendlicheCreateData = ({
   DateTime birthDate,
   DateTime memberSince,
   String? pass,
+  Herkunft herkunft,
 });
 
 typedef JugendlicheEditData = ({
@@ -24,6 +25,7 @@ typedef JugendlicheEditData = ({
   DateTime birthDate,
   DateTime memberSince,
   String? pass,
+  Herkunft herkunft,
 });
 
 class JugendlicheRepository
@@ -87,6 +89,7 @@ class JugendlicheRepository
         pass: data.pass,
         birthDate: data.birthDate,
         memberSince: data.memberSince,
+        origin: _toOrigin(data.herkunft),
       );
       if (result is Failure<Unit>) return Failure(result.error);
       invalidateCache();
@@ -99,6 +102,7 @@ class JugendlicheRepository
           pass: data.pass,
           birthDate: data.birthDate,
           memberSince: data.memberSince,
+          origin: _toOrigin(data.herkunft),
           replacesId: UUID.fromString(data.id),
         ),
       );
@@ -107,6 +111,12 @@ class JugendlicheRepository
       return Success(result.unwrap().toString());
     }
   }
+
+  static Origin _toOrigin(Herkunft herkunft) => switch (herkunft) {
+    Herkunft.neu => Origin.neu,
+    Herkunft.andereOrganisation => Origin.andereOrganisation,
+    Herkunft.kinderfeuerwehr => Origin.kinderfeuerwehr,
+  };
 
   AsyncVoidResult delete(String id) async {
     final result = await _jldb.deleteJugendlicher(UUID.fromString(id));
@@ -132,6 +142,7 @@ class JugendlicheRepository
             birthDate: data.birthDate,
             memberSince: data.memberSince,
             pass: data.pass,
+            origin: _toOrigin(data.herkunft),
           ),
         )
         .then((result) async {
