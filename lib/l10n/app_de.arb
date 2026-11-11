@@ -432,10 +432,143 @@
   "@jahresberichtSchritt4Titel": {
     "description": "Wizard step 4 title"
   },
+  "jahresberichtSchritt4Einleitung": "Beantworte die 16 Ja/Nein-Fragen des Jahresberichts. Die Antworten des Vorjahres sind, wenn es sie gibt, als Vorschlag eingetragen; ändere nur, was sich geändert hat. Eine Antwort nimmst du zurück, indem du sie erneut anklickst.",
+  "@jahresberichtSchritt4Einleitung": {
+    "description": "Wizard step 4: intro"
+  },
+  "jahresberichtSchritt4GruppeTeilnahme": "Teilnahme",
+  "@jahresberichtSchritt4GruppeTeilnahme": {
+    "description": "Wizard step 4: group 01-03"
+  },
+  "jahresberichtSchritt4GruppeAktivitaeten": "Aktivitäten",
+  "@jahresberichtSchritt4GruppeAktivitaeten": {
+    "description": "Wizard step 4: group 04-07"
+  },
+  "jahresberichtSchritt4GruppeWettbewerbe": "Wettbewerbe",
+  "@jahresberichtSchritt4GruppeWettbewerbe": {
+    "description": "Wizard step 4: group 08-12"
+  },
+  "jahresberichtSchritt4GruppeSonstiges": "Sonstiges",
+  "@jahresberichtSchritt4GruppeSonstiges": {
+    "description": "Wizard step 4: group 13-16"
+  },
+  "jahresberichtSchritt4Frage01": "Teilnahme am Gemeinschaftsleben",
+  "@jahresberichtSchritt4Frage01": {
+    "description": "Wizard step 4: question 01"
+  },
+  "jahresberichtSchritt4Frage02": "Teilnahme an externen Bildungsveranstaltungen",
+  "@jahresberichtSchritt4Frage02": {
+    "description": "Wizard step 4: question 02"
+  },
+  "jahresberichtSchritt4Frage03": "Teilnahme an internen Bildungsveranstaltungen der JF/KF",
+  "@jahresberichtSchritt4Frage03": {
+    "description": "Wizard step 4: question 03"
+  },
+  "jahresberichtSchritt4Frage04": "Internationale Jugendarbeit",
+  "@jahresberichtSchritt4Frage04": {
+    "description": "Wizard step 4: question 04"
+  },
+  "jahresberichtSchritt4Frage05": "Natur / Umweltschutz",
+  "@jahresberichtSchritt4Frage05": {
+    "description": "Wizard step 4: question 05"
+  },
+  "jahresberichtSchritt4Frage06": "Aktive Mitgliederwerbung",
+  "@jahresberichtSchritt4Frage06": {
+    "description": "Wizard step 4: question 06"
+  },
+  "jahresberichtSchritt4Frage07": "An der Schule / in Kindergärten",
+  "@jahresberichtSchritt4Frage07": {
+    "description": "Wizard step 4: question 07"
+  },
+  "jahresberichtSchritt4Frage08": "Jugendflamme",
+  "@jahresberichtSchritt4Frage08": {
+    "description": "Wizard step 4: question 08"
+  },
+  "jahresberichtSchritt4Frage09": "Bundeswettbewerb",
+  "@jahresberichtSchritt4Frage09": {
+    "description": "Wizard step 4: question 09"
+  },
+  "jahresberichtSchritt4Frage10": "Leistungsspange",
+  "@jahresberichtSchritt4Frage10": {
+    "description": "Wizard step 4: question 10"
+  },
+  "jahresberichtSchritt4Frage11": "CTIF",
+  "@jahresberichtSchritt4Frage11": {
+    "description": "Wizard step 4: question 11"
+  },
+  "jahresberichtSchritt4Frage12": "Landesspezifischer Wettbewerb",
+  "@jahresberichtSchritt4Frage12": {
+    "description": "Wizard step 4: question 12"
+  },
+  "jahresberichtSchritt4Frage13": "Die JF/KF hat mehr Interessierte, als sie aufnehmen kann",
+  "@jahresberichtSchritt4Frage13": {
+    "description": "Wizard step 4: question 13"
+  },
+  "jahresberichtSchritt4Frage14": "Die JF/KF hat Nachwuchssorgen",
+  "@jahresberichtSchritt4Frage14": {
+    "description": "Wizard step 4: question 14"
+  },
+  "jahresberichtSchritt4Frage15": "Die JF/KF hat zu wenig Betreuer",
+  "@jahresberichtSchritt4Frage15": {
+    "description": "Wizard step 4: question 15"
+  },
+  "jahresberichtSchritt4Frage16": "Die JF/KF hat einen eigenen Sprecher",
+  "@jahresberichtSchritt4Frage16": {
+    "description": "Wizard step 4: question 16"
+  },
+  "jahresberichtSchritt4Ja": "Ja",
+  "@jahresberichtSchritt4Ja": {
+    "description": "Wizard step 4: answer yes"
+  },
+  "jahresberichtSchritt4Nein": "Nein",
+  "@jahresberichtSchritt4Nein": {
+    "description": "Wizard step 4: answer no"
+  },
+  "jahresberichtSchritt4Offen": "Offen",
+  "@jahresberichtSchritt4Offen": {
+    "description": "Wizard step 4: mark of an unanswered question"
+  },
+  "jahresberichtSchritt4OffenAnzahl": "{anzahl, plural, =1{1 Frage noch offen} other{{anzahl} Fragen noch offen}}",
+  "@jahresberichtSchritt4OffenAnzahl": {
+    "description": "Wizard step 4: number of unanswered questions",
+    "placeholders": {
+      "anzahl": {
+        "type": "int"
+      }
+    }
+  },
+  "jahresberichtSchritt4AlleBeantwortet": "Alle Fragen beantwortet",
+  "@jahresberichtSchritt4AlleBeantwortet": {
+    "description": "Wizard step 4: all questions answered"
+  },
 
   "jahresberichtSchritt5Titel": "Einsatzabteilung",
   "@jahresberichtSchritt5Titel": {
     "description": "Wizard step 5 title"
+  },
+  "jahresberichtSchritt5Einleitung": "Gib an, wie viele unter 27-Jährige zur Einsatzabteilung gehören, getrennt nach männlich, weiblich und divers. Der Wert des Vorjahres ist, wenn es ihn gibt, als Vorschlag eingetragen; prüfe ihn und passe ihn an. Die Eingabe bleibt im Entwurf.",
+  "@jahresberichtSchritt5Einleitung": {
+    "description": "Wizard step 5: intro"
+  },
+  "jahresberichtSchritt5Maennlich": "Männlich",
+  "@jahresberichtSchritt5Maennlich": {
+    "description": "Wizard step 5: field M"
+  },
+  "jahresberichtSchritt5Weiblich": "Weiblich",
+  "@jahresberichtSchritt5Weiblich": {
+    "description": "Wizard step 5: field W"
+  },
+  "jahresberichtSchritt5Divers": "Divers",
+  "@jahresberichtSchritt5Divers": {
+    "description": "Wizard step 5: field D"
+  },
+  "jahresberichtSchritt5Offen": "Noch nicht angegeben",
+  "@jahresberichtSchritt5Offen": {
+    "description": "Wizard step 5: helper text of an empty field"
+  },
+  "jahresberichtSchritt5FehlerZahl": "Bitte eine ganze Zahl ab 0 eingeben.",
+  "@jahresberichtSchritt5FehlerZahl": {
+    "description": "Wizard step 5: invalid number input"
   },
 
   "jahresberichtSchritt6Titel": "Zusammenfassung und Export",

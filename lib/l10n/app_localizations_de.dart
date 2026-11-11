@@ -296,7 +296,118 @@ class AppLocalizationsDe extends AppLocalizations {
   String get jahresberichtSchritt4Titel => 'Fragen';
 
   @override
+  String get jahresberichtSchritt4Einleitung =>
+      'Beantworte die 16 Ja/Nein-Fragen des Jahresberichts. Die Antworten des Vorjahres sind, wenn es sie gibt, als Vorschlag eingetragen; ändere nur, was sich geändert hat. Eine Antwort nimmst du zurück, indem du sie erneut anklickst.';
+
+  @override
+  String get jahresberichtSchritt4GruppeTeilnahme => 'Teilnahme';
+
+  @override
+  String get jahresberichtSchritt4GruppeAktivitaeten => 'Aktivitäten';
+
+  @override
+  String get jahresberichtSchritt4GruppeWettbewerbe => 'Wettbewerbe';
+
+  @override
+  String get jahresberichtSchritt4GruppeSonstiges => 'Sonstiges';
+
+  @override
+  String get jahresberichtSchritt4Frage01 => 'Teilnahme am Gemeinschaftsleben';
+
+  @override
+  String get jahresberichtSchritt4Frage02 =>
+      'Teilnahme an externen Bildungsveranstaltungen';
+
+  @override
+  String get jahresberichtSchritt4Frage03 =>
+      'Teilnahme an internen Bildungsveranstaltungen der JF/KF';
+
+  @override
+  String get jahresberichtSchritt4Frage04 => 'Internationale Jugendarbeit';
+
+  @override
+  String get jahresberichtSchritt4Frage05 => 'Natur / Umweltschutz';
+
+  @override
+  String get jahresberichtSchritt4Frage06 => 'Aktive Mitgliederwerbung';
+
+  @override
+  String get jahresberichtSchritt4Frage07 => 'An der Schule / in Kindergärten';
+
+  @override
+  String get jahresberichtSchritt4Frage08 => 'Jugendflamme';
+
+  @override
+  String get jahresberichtSchritt4Frage09 => 'Bundeswettbewerb';
+
+  @override
+  String get jahresberichtSchritt4Frage10 => 'Leistungsspange';
+
+  @override
+  String get jahresberichtSchritt4Frage11 => 'CTIF';
+
+  @override
+  String get jahresberichtSchritt4Frage12 => 'Landesspezifischer Wettbewerb';
+
+  @override
+  String get jahresberichtSchritt4Frage13 =>
+      'Die JF/KF hat mehr Interessierte, als sie aufnehmen kann';
+
+  @override
+  String get jahresberichtSchritt4Frage14 => 'Die JF/KF hat Nachwuchssorgen';
+
+  @override
+  String get jahresberichtSchritt4Frage15 => 'Die JF/KF hat zu wenig Betreuer';
+
+  @override
+  String get jahresberichtSchritt4Frage16 =>
+      'Die JF/KF hat einen eigenen Sprecher';
+
+  @override
+  String get jahresberichtSchritt4Ja => 'Ja';
+
+  @override
+  String get jahresberichtSchritt4Nein => 'Nein';
+
+  @override
+  String get jahresberichtSchritt4Offen => 'Offen';
+
+  @override
+  String jahresberichtSchritt4OffenAnzahl(int anzahl) {
+    String _temp0 = intl.Intl.pluralLogic(
+      anzahl,
+      locale: localeName,
+      other: '$anzahl Fragen noch offen',
+      one: '1 Frage noch offen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get jahresberichtSchritt4AlleBeantwortet => 'Alle Fragen beantwortet';
+
+  @override
   String get jahresberichtSchritt5Titel => 'Einsatzabteilung';
+
+  @override
+  String get jahresberichtSchritt5Einleitung =>
+      'Gib an, wie viele unter 27-Jährige zur Einsatzabteilung gehören, getrennt nach männlich, weiblich und divers. Der Wert des Vorjahres ist, wenn es ihn gibt, als Vorschlag eingetragen; prüfe ihn und passe ihn an. Die Eingabe bleibt im Entwurf.';
+
+  @override
+  String get jahresberichtSchritt5Maennlich => 'Männlich';
+
+  @override
+  String get jahresberichtSchritt5Weiblich => 'Weiblich';
+
+  @override
+  String get jahresberichtSchritt5Divers => 'Divers';
+
+  @override
+  String get jahresberichtSchritt5Offen => 'Noch nicht angegeben';
+
+  @override
+  String get jahresberichtSchritt5FehlerZahl =>
+      'Bitte eine ganze Zahl ab 0 eingeben.';
 
   @override
   String get jahresberichtSchritt6Titel => 'Zusammenfassung und Export';
