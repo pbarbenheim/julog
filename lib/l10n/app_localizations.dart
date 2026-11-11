@@ -532,11 +532,203 @@ abstract class AppLocalizations {
   /// **'Fragen'**
   String get jahresberichtSchritt4Titel;
 
+  /// Wizard step 4: intro
+  ///
+  /// In de, this message translates to:
+  /// **'Beantworte die 16 Ja/Nein-Fragen des Jahresberichts. Die Antworten des Vorjahres sind, wenn es sie gibt, als Vorschlag eingetragen; ändere nur, was sich geändert hat. Eine Antwort nimmst du zurück, indem du sie erneut anklickst.'**
+  String get jahresberichtSchritt4Einleitung;
+
+  /// Wizard step 4: group 01-03
+  ///
+  /// In de, this message translates to:
+  /// **'Teilnahme'**
+  String get jahresberichtSchritt4GruppeTeilnahme;
+
+  /// Wizard step 4: group 04-07
+  ///
+  /// In de, this message translates to:
+  /// **'Aktivitäten'**
+  String get jahresberichtSchritt4GruppeAktivitaeten;
+
+  /// Wizard step 4: group 08-12
+  ///
+  /// In de, this message translates to:
+  /// **'Wettbewerbe'**
+  String get jahresberichtSchritt4GruppeWettbewerbe;
+
+  /// Wizard step 4: group 13-16
+  ///
+  /// In de, this message translates to:
+  /// **'Sonstiges'**
+  String get jahresberichtSchritt4GruppeSonstiges;
+
+  /// Wizard step 4: question 01
+  ///
+  /// In de, this message translates to:
+  /// **'Teilnahme am Gemeinschaftsleben'**
+  String get jahresberichtSchritt4Frage01;
+
+  /// Wizard step 4: question 02
+  ///
+  /// In de, this message translates to:
+  /// **'Teilnahme an externen Bildungsveranstaltungen'**
+  String get jahresberichtSchritt4Frage02;
+
+  /// Wizard step 4: question 03
+  ///
+  /// In de, this message translates to:
+  /// **'Teilnahme an internen Bildungsveranstaltungen der JF/KF'**
+  String get jahresberichtSchritt4Frage03;
+
+  /// Wizard step 4: question 04
+  ///
+  /// In de, this message translates to:
+  /// **'Internationale Jugendarbeit'**
+  String get jahresberichtSchritt4Frage04;
+
+  /// Wizard step 4: question 05
+  ///
+  /// In de, this message translates to:
+  /// **'Natur / Umweltschutz'**
+  String get jahresberichtSchritt4Frage05;
+
+  /// Wizard step 4: question 06
+  ///
+  /// In de, this message translates to:
+  /// **'Aktive Mitgliederwerbung'**
+  String get jahresberichtSchritt4Frage06;
+
+  /// Wizard step 4: question 07
+  ///
+  /// In de, this message translates to:
+  /// **'An der Schule / in Kindergärten'**
+  String get jahresberichtSchritt4Frage07;
+
+  /// Wizard step 4: question 08
+  ///
+  /// In de, this message translates to:
+  /// **'Jugendflamme'**
+  String get jahresberichtSchritt4Frage08;
+
+  /// Wizard step 4: question 09
+  ///
+  /// In de, this message translates to:
+  /// **'Bundeswettbewerb'**
+  String get jahresberichtSchritt4Frage09;
+
+  /// Wizard step 4: question 10
+  ///
+  /// In de, this message translates to:
+  /// **'Leistungsspange'**
+  String get jahresberichtSchritt4Frage10;
+
+  /// Wizard step 4: question 11
+  ///
+  /// In de, this message translates to:
+  /// **'CTIF'**
+  String get jahresberichtSchritt4Frage11;
+
+  /// Wizard step 4: question 12
+  ///
+  /// In de, this message translates to:
+  /// **'Landesspezifischer Wettbewerb'**
+  String get jahresberichtSchritt4Frage12;
+
+  /// Wizard step 4: question 13
+  ///
+  /// In de, this message translates to:
+  /// **'Die JF/KF hat mehr Interessierte, als sie aufnehmen kann'**
+  String get jahresberichtSchritt4Frage13;
+
+  /// Wizard step 4: question 14
+  ///
+  /// In de, this message translates to:
+  /// **'Die JF/KF hat Nachwuchssorgen'**
+  String get jahresberichtSchritt4Frage14;
+
+  /// Wizard step 4: question 15
+  ///
+  /// In de, this message translates to:
+  /// **'Die JF/KF hat zu wenig Betreuer'**
+  String get jahresberichtSchritt4Frage15;
+
+  /// Wizard step 4: question 16
+  ///
+  /// In de, this message translates to:
+  /// **'Die JF/KF hat einen eigenen Sprecher'**
+  String get jahresberichtSchritt4Frage16;
+
+  /// Wizard step 4: answer yes
+  ///
+  /// In de, this message translates to:
+  /// **'Ja'**
+  String get jahresberichtSchritt4Ja;
+
+  /// Wizard step 4: answer no
+  ///
+  /// In de, this message translates to:
+  /// **'Nein'**
+  String get jahresberichtSchritt4Nein;
+
+  /// Wizard step 4: mark of an unanswered question
+  ///
+  /// In de, this message translates to:
+  /// **'Offen'**
+  String get jahresberichtSchritt4Offen;
+
+  /// Wizard step 4: number of unanswered questions
+  ///
+  /// In de, this message translates to:
+  /// **'{anzahl, plural, =1{1 Frage noch offen} other{{anzahl} Fragen noch offen}}'**
+  String jahresberichtSchritt4OffenAnzahl(int anzahl);
+
+  /// Wizard step 4: all questions answered
+  ///
+  /// In de, this message translates to:
+  /// **'Alle Fragen beantwortet'**
+  String get jahresberichtSchritt4AlleBeantwortet;
+
   /// Wizard step 5 title
   ///
   /// In de, this message translates to:
   /// **'Einsatzabteilung'**
   String get jahresberichtSchritt5Titel;
+
+  /// Wizard step 5: intro
+  ///
+  /// In de, this message translates to:
+  /// **'Gib an, wie viele unter 27-Jährige zur Einsatzabteilung gehören, getrennt nach männlich, weiblich und divers. Der Wert des Vorjahres ist, wenn es ihn gibt, als Vorschlag eingetragen; prüfe ihn und passe ihn an. Die Eingabe bleibt im Entwurf.'**
+  String get jahresberichtSchritt5Einleitung;
+
+  /// Wizard step 5: field M
+  ///
+  /// In de, this message translates to:
+  /// **'Männlich'**
+  String get jahresberichtSchritt5Maennlich;
+
+  /// Wizard step 5: field W
+  ///
+  /// In de, this message translates to:
+  /// **'Weiblich'**
+  String get jahresberichtSchritt5Weiblich;
+
+  /// Wizard step 5: field D
+  ///
+  /// In de, this message translates to:
+  /// **'Divers'**
+  String get jahresberichtSchritt5Divers;
+
+  /// Wizard step 5: helper text of an empty field
+  ///
+  /// In de, this message translates to:
+  /// **'Noch nicht angegeben'**
+  String get jahresberichtSchritt5Offen;
+
+  /// Wizard step 5: invalid number input
+  ///
+  /// In de, this message translates to:
+  /// **'Bitte eine ganze Zahl ab 0 eingeben.'**
+  String get jahresberichtSchritt5FehlerZahl;
 
   /// Wizard step 6 title
   ///
