@@ -543,6 +543,138 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Zusammenfassung und Export'**
   String get jahresberichtSchritt6Titel;
+
+  /// Wizard step 6: introduction
+  ///
+  /// In de, this message translates to:
+  /// **'Prüfe hier alle Werte des Berichts. Werte, die du überschrieben hast, sind markiert. Sind alle Angaben vollständig, kannst du die XML-Datei exportieren und im Jahresberichtstool hochladen.'**
+  String get jahresberichtSchritt6Einleitung;
+
+  /// Wizard step 6: heading of the list of missing parts
+  ///
+  /// In de, this message translates to:
+  /// **'Der Bericht ist noch nicht vollständig, der Export ist gesperrt. Das fehlt:'**
+  String get jahresberichtSchritt6Unvollstaendig;
+
+  /// Wizard step 6: one missing part and the step where it is entered
+  ///
+  /// In de, this message translates to:
+  /// **'Schritt {nummer} ({titel}): {was}'**
+  String jahresberichtSchritt6Fehlt(int nummer, String titel, String was);
+
+  /// Wizard step 6: categories used in the year without Berichtsthema
+  ///
+  /// In de, this message translates to:
+  /// **'Kein Berichtsthema für: {kategorien}'**
+  String jahresberichtSchritt6FehltKategorien(String kategorien);
+
+  /// Wizard step 6: Arbeit_Wert_11 is missing
+  ///
+  /// In de, this message translates to:
+  /// **'Durchschnittliche Vor- und Nachbereitungszeit fehlt'**
+  String get jahresberichtSchritt6FehltVorbereitung;
+
+  /// Wizard step 6: Arbeit_Wert_20 is missing
+  ///
+  /// In de, this message translates to:
+  /// **'Stunden für sonstige Arbeit fehlen'**
+  String get jahresberichtSchritt6FehltSonstigeArbeit;
+
+  /// Wizard step 6: unanswered questions
+  ///
+  /// In de, this message translates to:
+  /// **'Fragen ohne Antwort: {nummern}'**
+  String jahresberichtSchritt6FehltFragen(String nummern);
+
+  /// Wizard step 6: missing Einsatzabteilung numbers
+  ///
+  /// In de, this message translates to:
+  /// **'Unter 27-Jährige in der Einsatzabteilung fehlen für: {geschlechter}'**
+  String jahresberichtSchritt6FehltEinsatzabteilung(String geschlechter);
+
+  /// Wizard step 6: nothing is missing
+  ///
+  /// In de, this message translates to:
+  /// **'Alle Angaben sind vollständig. Der Bericht kann exportiert werden.'**
+  String get jahresberichtSchritt6Vollstaendig;
+
+  /// Wizard step 6: section title of the computed counts
+  ///
+  /// In de, this message translates to:
+  /// **'Zählwerte'**
+  String get jahresberichtSchritt6ZaehlwerteTitel;
+
+  /// Wizard step 6: section title of the work values
+  ///
+  /// In de, this message translates to:
+  /// **'Arbeitswerte'**
+  String get jahresberichtSchritt6ArbeitswerteTitel;
+
+  /// Wizard step 6: section title of the manual answers
+  ///
+  /// In de, this message translates to:
+  /// **'Eigene Angaben'**
+  String get jahresberichtSchritt6AngabenTitel;
+
+  /// Wizard step 6: label of Alter_Anz_EA_bis_27
+  ///
+  /// In de, this message translates to:
+  /// **'Unter 27-Jährige in der Einsatzabteilung'**
+  String get jahresberichtSchritt6Einsatzabteilung;
+
+  /// Wizard step 6: label of a yes/no question
+  ///
+  /// In de, this message translates to:
+  /// **'Frage {nummer}'**
+  String jahresberichtSchritt6Frage(int nummer);
+
+  /// Wizard step 6: answer yes
+  ///
+  /// In de, this message translates to:
+  /// **'Ja'**
+  String get jahresberichtSchritt6Ja;
+
+  /// Wizard step 6: answer no
+  ///
+  /// In de, this message translates to:
+  /// **'Nein'**
+  String get jahresberichtSchritt6Nein;
+
+  /// Wizard step 6: question not answered yet
+  ///
+  /// In de, this message translates to:
+  /// **'Offen'**
+  String get jahresberichtSchritt6Offen;
+
+  /// Wizard step 6: export button
+  ///
+  /// In de, this message translates to:
+  /// **'Als XML exportieren'**
+  String get jahresberichtSchritt6Exportieren;
+
+  /// Wizard step 6: export button after an earlier export
+  ///
+  /// In de, this message translates to:
+  /// **'Erneut exportieren'**
+  String get jahresberichtSchritt6ErneutExportieren;
+
+  /// Wizard step 6: date of the last export
+  ///
+  /// In de, this message translates to:
+  /// **'Zuletzt exportiert am {datum}'**
+  String jahresberichtSchritt6ZuletztExportiert(DateTime datum);
+
+  /// Wizard step 6: export succeeded
+  ///
+  /// In de, this message translates to:
+  /// **'Exportiert nach {pfad}'**
+  String jahresberichtSchritt6ExportErfolg(String pfad);
+
+  /// Wizard step 6: export failed
+  ///
+  /// In de, this message translates to:
+  /// **'Der Bericht konnte nicht exportiert werden: {fehler}'**
+  String jahresberichtSchritt6ExportFehler(String fehler);
 }
 
 class _AppLocalizationsDelegate

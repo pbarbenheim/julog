@@ -441,5 +441,140 @@
   "jahresberichtSchritt6Titel": "Zusammenfassung und Export",
   "@jahresberichtSchritt6Titel": {
     "description": "Wizard step 6 title"
+  },
+  "jahresberichtSchritt6Einleitung": "Prüfe hier alle Werte des Berichts. Werte, die du überschrieben hast, sind markiert. Sind alle Angaben vollständig, kannst du die XML-Datei exportieren und im Jahresberichtstool hochladen.",
+  "@jahresberichtSchritt6Einleitung": {
+    "description": "Wizard step 6: introduction"
+  },
+  "jahresberichtSchritt6Unvollstaendig": "Der Bericht ist noch nicht vollständig, der Export ist gesperrt. Das fehlt:",
+  "@jahresberichtSchritt6Unvollstaendig": {
+    "description": "Wizard step 6: heading of the list of missing parts"
+  },
+  "jahresberichtSchritt6Fehlt": "Schritt {nummer} ({titel}): {was}",
+  "@jahresberichtSchritt6Fehlt": {
+    "description": "Wizard step 6: one missing part and the step where it is entered",
+    "placeholders": {
+      "nummer": {
+        "type": "int"
+      },
+      "titel": {
+        "type": "String"
+      },
+      "was": {
+        "type": "String"
+      }
+    }
+  },
+  "jahresberichtSchritt6FehltKategorien": "Kein Berichtsthema für: {kategorien}",
+  "@jahresberichtSchritt6FehltKategorien": {
+    "description": "Wizard step 6: categories used in the year without Berichtsthema",
+    "placeholders": {
+      "kategorien": {
+        "type": "String"
+      }
+    }
+  },
+  "jahresberichtSchritt6FehltVorbereitung": "Durchschnittliche Vor- und Nachbereitungszeit fehlt",
+  "@jahresberichtSchritt6FehltVorbereitung": {
+    "description": "Wizard step 6: Arbeit_Wert_11 is missing"
+  },
+  "jahresberichtSchritt6FehltSonstigeArbeit": "Stunden für sonstige Arbeit fehlen",
+  "@jahresberichtSchritt6FehltSonstigeArbeit": {
+    "description": "Wizard step 6: Arbeit_Wert_20 is missing"
+  },
+  "jahresberichtSchritt6FehltFragen": "Fragen ohne Antwort: {nummern}",
+  "@jahresberichtSchritt6FehltFragen": {
+    "description": "Wizard step 6: unanswered questions",
+    "placeholders": {
+      "nummern": {
+        "type": "String"
+      }
+    }
+  },
+  "jahresberichtSchritt6FehltEinsatzabteilung": "Unter 27-Jährige in der Einsatzabteilung fehlen für: {geschlechter}",
+  "@jahresberichtSchritt6FehltEinsatzabteilung": {
+    "description": "Wizard step 6: missing Einsatzabteilung numbers",
+    "placeholders": {
+      "geschlechter": {
+        "type": "String"
+      }
+    }
+  },
+  "jahresberichtSchritt6Vollstaendig": "Alle Angaben sind vollständig. Der Bericht kann exportiert werden.",
+  "@jahresberichtSchritt6Vollstaendig": {
+    "description": "Wizard step 6: nothing is missing"
+  },
+  "jahresberichtSchritt6ZaehlwerteTitel": "Zählwerte",
+  "@jahresberichtSchritt6ZaehlwerteTitel": {
+    "description": "Wizard step 6: section title of the computed counts"
+  },
+  "jahresberichtSchritt6ArbeitswerteTitel": "Arbeitswerte",
+  "@jahresberichtSchritt6ArbeitswerteTitel": {
+    "description": "Wizard step 6: section title of the work values"
+  },
+  "jahresberichtSchritt6AngabenTitel": "Eigene Angaben",
+  "@jahresberichtSchritt6AngabenTitel": {
+    "description": "Wizard step 6: section title of the manual answers"
+  },
+  "jahresberichtSchritt6Einsatzabteilung": "Unter 27-Jährige in der Einsatzabteilung",
+  "@jahresberichtSchritt6Einsatzabteilung": {
+    "description": "Wizard step 6: label of Alter_Anz_EA_bis_27"
+  },
+  "jahresberichtSchritt6Frage": "Frage {nummer}",
+  "@jahresberichtSchritt6Frage": {
+    "description": "Wizard step 6: label of a yes/no question",
+    "placeholders": {
+      "nummer": {
+        "type": "int"
+      }
+    }
+  },
+  "jahresberichtSchritt6Ja": "Ja",
+  "@jahresberichtSchritt6Ja": {
+    "description": "Wizard step 6: answer yes"
+  },
+  "jahresberichtSchritt6Nein": "Nein",
+  "@jahresberichtSchritt6Nein": {
+    "description": "Wizard step 6: answer no"
+  },
+  "jahresberichtSchritt6Offen": "Offen",
+  "@jahresberichtSchritt6Offen": {
+    "description": "Wizard step 6: question not answered yet"
+  },
+  "jahresberichtSchritt6Exportieren": "Als XML exportieren",
+  "@jahresberichtSchritt6Exportieren": {
+    "description": "Wizard step 6: export button"
+  },
+  "jahresberichtSchritt6ErneutExportieren": "Erneut exportieren",
+  "@jahresberichtSchritt6ErneutExportieren": {
+    "description": "Wizard step 6: export button after an earlier export"
+  },
+  "jahresberichtSchritt6ZuletztExportiert": "Zuletzt exportiert am {datum}",
+  "@jahresberichtSchritt6ZuletztExportiert": {
+    "description": "Wizard step 6: date of the last export",
+    "placeholders": {
+      "datum": {
+        "type": "DateTime",
+        "format": "yMd"
+      }
+    }
+  },
+  "jahresberichtSchritt6ExportErfolg": "Exportiert nach {pfad}",
+  "@jahresberichtSchritt6ExportErfolg": {
+    "description": "Wizard step 6: export succeeded",
+    "placeholders": {
+      "pfad": {
+        "type": "String"
+      }
+    }
+  },
+  "jahresberichtSchritt6ExportFehler": "Der Bericht konnte nicht exportiert werden: {fehler}",
+  "@jahresberichtSchritt6ExportFehler": {
+    "description": "Wizard step 6: export failed",
+    "placeholders": {
+      "fehler": {
+        "type": "String"
+      }
+    }
   }
 }
