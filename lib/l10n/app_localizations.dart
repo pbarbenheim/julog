@@ -166,6 +166,42 @@ abstract class AppLocalizations {
   /// **'Mitglied seit: {date}'**
   String stateMemberSince(DateTime date);
 
+  /// Add new kategorie
+  ///
+  /// In de, this message translates to:
+  /// **'Neue Kategorie hinzufügen'**
+  String get addNewKategorie;
+
+  /// Edit kategorie
+  ///
+  /// In de, this message translates to:
+  /// **'Kategorie bearbeiten'**
+  String get editKategorie;
+
+  /// Kategorie name required
+  ///
+  /// In de, this message translates to:
+  /// **'Bitte gib einen Namen ein'**
+  String get kategorieNameRequired;
+
+  /// Berichtsthema field label in the Kategorie form
+  ///
+  /// In de, this message translates to:
+  /// **'Berichtsthema (optional)'**
+  String get berichtsthema;
+
+  /// Kategorie has no Berichtsthema yet
+  ///
+  /// In de, this message translates to:
+  /// **'Nicht zugeordnet'**
+  String get berichtsthemaNotAssigned;
+
+  /// State Berichtsthema of a Kategorie
+  ///
+  /// In de, this message translates to:
+  /// **'Berichtsthema: {thema}'**
+  String stateBerichtsthema(String thema);
+
   /// State exit date
   ///
   /// In de, this message translates to:

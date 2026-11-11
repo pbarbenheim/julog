@@ -64,6 +64,26 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get addNewKategorie => 'Neue Kategorie hinzufügen';
+
+  @override
+  String get editKategorie => 'Kategorie bearbeiten';
+
+  @override
+  String get kategorieNameRequired => 'Bitte gib einen Namen ein';
+
+  @override
+  String get berichtsthema => 'Berichtsthema (optional)';
+
+  @override
+  String get berichtsthemaNotAssigned => 'Nicht zugeordnet';
+
+  @override
+  String stateBerichtsthema(String thema) {
+    return 'Berichtsthema: $thema';
+  }
+
+  @override
   String stateExitDate(DateTime date) {
     final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
     final String dateString = dateDateFormat.format(date);

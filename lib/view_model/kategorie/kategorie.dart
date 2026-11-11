@@ -21,9 +21,29 @@ class KategorieViewModel extends _$KategorieViewModel {
     }
   }
 
-  Future<String> addKategorie(String name) async {
+  Future<void> editKategorie({
+    required String id,
+    required String name,
+    Berichtsthema? berichtsthema,
+  }) async {
     final repo = ref.read(kategorieRepositoryProvider);
-    final result = await repo.save((name: name));
+    final result = await repo.edit((
+      id: id,
+      name: name,
+      berichtsthema: berichtsthema,
+    ));
+    if (result is Failure<Unit>) {
+      throw Exception('Failed to edit Kategorie: ${result.error}');
+    }
+    ref.invalidateSelf();
+  }
+
+  Future<String> addKategorie(
+    String name, {
+    Berichtsthema? berichtsthema,
+  }) async {
+    final repo = ref.read(kategorieRepositoryProvider);
+    final result = await repo.save((name: name, berichtsthema: berichtsthema));
     if (result is Failure<Kategorie>) {
       throw Exception('Failed to save Kategorie: ${result.error}');
     } else {

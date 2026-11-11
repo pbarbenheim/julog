@@ -8,3 +8,4 @@ export 'uuid.dart';
 export 'sex.dart';
 export 'exit_reason.dart';
 export 'origin.dart';
+export 'report_topic.dart';

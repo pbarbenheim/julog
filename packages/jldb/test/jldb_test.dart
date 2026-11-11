@@ -415,6 +415,122 @@ void main() {
           .unwrap();
       expect((await db.getAllKategorien().unwrap()).length, equals(2));
     });
+
+    test('createKategorie without reportTopic stores null', () async {
+      final kat = KategorieApiModel(id: UUID.generate(), name: 'Ohne');
+      final created = await db.createKategorie(kat).unwrap();
+      expect(created.reportTopic, isNull);
+      final loaded = (await db.getKategorie(kat.id).unwrap()).unwrap();
+      expect(loaded.reportTopic, isNull);
+    });
+
+    test('createKategorie persists every ReportTopic', () async {
+      for (final topic in ReportTopic.values) {
+        final kat = KategorieApiModel(
+          id: UUID.generate(),
+          name: 'K ${topic.name}',
+          reportTopic: topic,
+        );
+        expect((await db.createKategorie(kat).unwrap()).reportTopic, topic);
+        final loaded = (await db.getKategorie(kat.id).unwrap()).unwrap();
+        expect(loaded.reportTopic, equals(topic));
+      }
+      final all = await db.getAllKategorien().unwrap();
+      expect(
+        all.map((k) => k.reportTopic).toSet(),
+        equals(ReportTopic.values.toSet()),
+      );
+    });
+
+    test('sonstiges is distinguishable from no reportTopic', () async {
+      final unassigned = KategorieApiModel(id: UUID.generate(), name: 'A');
+      final sonstiges = KategorieApiModel(
+        id: UUID.generate(),
+        name: 'B',
+        reportTopic: ReportTopic.sonstiges,
+      );
+      await db.createKategorie(unassigned).unwrap();
+      await db.createKategorie(sonstiges).unwrap();
+
+      final all = await db.getAllKategorien().unwrap();
+      expect(all.firstWhere((k) => k.id == unassigned.id).reportTopic, isNull);
+      expect(
+        all.firstWhere((k) => k.id == sonstiges.id).reportTopic,
+        equals(ReportTopic.sonstiges),
+      );
+    });
+
+    test('updateKategorie changes name and reportTopic', () async {
+      final kat = KategorieApiModel(id: UUID.generate(), name: 'Alt');
+      await db.createKategorie(kat).unwrap();
+
+      await db
+          .updateKategorie(kat.id, name: 'Neu', reportTopic: ReportTopic.sport)
+          .unwrap();
+
+      final loaded = (await db.getKategorie(kat.id).unwrap()).unwrap();
+      expect(loaded.name, equals('Neu'));
+      expect(loaded.reportTopic, equals(ReportTopic.sport));
+    });
+
+    test('updateKategorie can clear the reportTopic', () async {
+      final kat = KategorieApiModel(
+        id: UUID.generate(),
+        name: 'K',
+        reportTopic: ReportTopic.sport,
+      );
+      await db.createKategorie(kat).unwrap();
+
+      await db.updateKategorie(kat.id, name: 'K', reportTopic: null).unwrap();
+
+      final loaded = (await db.getKategorie(kat.id).unwrap()).unwrap();
+      expect(loaded.reportTopic, isNull);
+    });
+
+    test('updateKategorie leaves other Kategorien untouched', () async {
+      final a = KategorieApiModel(id: UUID.generate(), name: 'A');
+      final b = KategorieApiModel(id: UUID.generate(), name: 'B');
+      await db.createKategorie(a).unwrap();
+      await db.createKategorie(b).unwrap();
+
+      await db
+          .updateKategorie(a.id, name: 'A2', reportTopic: ReportTopic.sport)
+          .unwrap();
+
+      expect((await db.getKategorie(b.id).unwrap()).unwrap(), equals(b));
+    });
+
+    test('updateKategorie keeps Eintraege pointing at the Kategorie', () async {
+      final kat = KategorieApiModel(id: UUID.generate(), name: 'K');
+      await db.createKategorie(kat).unwrap();
+      await db
+          .updateKategorie(kat.id, name: 'K2', reportTopic: ReportTopic.sport)
+          .unwrap();
+      expect((await db.getAllKategorien().unwrap()).single.id, equals(kat.id));
+    });
+
+    test('updateKategorie persists across close and reopen', () async {
+      final dir = await Directory.systemTemp.createTemp('jldb_test_');
+      addTearDown(() => dir.delete(recursive: true));
+      final path = '${dir.path}/kat.db';
+      final file = await Jldb.create(path, domain: 'test.org').unwrap();
+      final kat = KategorieApiModel(id: UUID.generate(), name: 'K');
+      await file.createKategorie(kat).unwrap();
+      await file
+          .updateKategorie(
+            kat.id,
+            name: 'Umbenannt',
+            reportTopic: ReportTopic.ersteHilfeUndPraevention,
+          )
+          .unwrap();
+      await file.close();
+
+      final reopened = await Jldb.open(path).unwrap();
+      addTearDown(reopened.close);
+      final loaded = (await reopened.getKategorie(kat.id).unwrap()).unwrap();
+      expect(loaded.name, equals('Umbenannt'));
+      expect(loaded.reportTopic, equals(ReportTopic.ersteHilfeUndPraevention));
+    });
   });
 
   // -------------------------------------------------------------------------
@@ -766,10 +882,10 @@ void main() {
   // Database version / open
   // -------------------------------------------------------------------------
   group('Database', () {
-    test('getVersion() returns 4 after create()', () async {
+    test('getVersion() returns 5 after create()', () async {
       final db = await Jldb.create(':memory:', domain: 'test.org').unwrap();
       addTearDown(db.close);
-      expect(await db.getVersion(), equals(4));
+      expect(await db.getVersion(), equals(5));
     });
 
     test(
@@ -790,38 +906,71 @@ void main() {
 
         final opened = await Jldb.open(path).unwrap();
         addTearDown(opened.close);
-        expect(await opened.getVersion(), equals(4));
+        expect(await opened.getVersion(), equals(5));
       },
     );
 
-    test('open() migrates a v3 file and sets Origin neu on all Jugendliche',
-        () async {
-      final dir = await Directory.systemTemp.createTemp('jldb_test_');
-      addTearDown(() => dir.delete(recursive: true));
-      final path = '${dir.path}/v3.db';
+    test(
+      'open() migrates a v3 file and sets Origin neu on all Jugendliche',
+      () async {
+        final dir = await Directory.systemTemp.createTemp('jldb_test_');
+        addTearDown(() => dir.delete(recursive: true));
+        final path = '${dir.path}/v3.db';
 
-      final worker = await SqliteWorker.spawn(path, createDatabase: true);
-      final v3 = DatabaseMigrations.getMigrations().first;
-      await worker.execute(v3);
-      for (final (id, name) in [
-        ('550e8400-e29b-41d4-a716-446655440001', 'Alt A'),
-        ('550e8400-e29b-41d4-a716-446655440002', 'Alt B'),
-      ]) {
-        await worker.execute(
-          'insert into jugendlicher (id, name, sex, birth_date, member_since) '
-          'values (?, ?, 0, 1, 2);',
-          [id, name],
-        );
-      }
-      await worker.close();
+        final worker = await SqliteWorker.spawn(path, createDatabase: true);
+        final v3 = DatabaseMigrations.getMigrations().first;
+        await worker.execute(v3);
+        for (final (id, name) in [
+          ('550e8400-e29b-41d4-a716-446655440001', 'Alt A'),
+          ('550e8400-e29b-41d4-a716-446655440002', 'Alt B'),
+        ]) {
+          await worker.execute(
+            'insert into jugendlicher (id, name, sex, birth_date, member_since) '
+            'values (?, ?, 0, 1, 2);',
+            [id, name],
+          );
+        }
+        await worker.close();
 
-      final opened = await Jldb.open(path).unwrap();
-      addTearDown(opened.close);
-      expect(await opened.getVersion(), equals(4));
-      final all = await opened.getAllJugendliche().unwrap();
-      expect(all, hasLength(2));
-      expect(all.every((j) => j.origin == Origin.neu), isTrue);
-    });
+        final opened = await Jldb.open(path).unwrap();
+        addTearDown(opened.close);
+        expect(await opened.getVersion(), equals(5));
+        final all = await opened.getAllJugendliche().unwrap();
+        expect(all, hasLength(2));
+        expect(all.every((j) => j.origin == Origin.neu), isTrue);
+      },
+    );
+
+    test(
+      'open() migrates a v4 file; existing Kategorien have no reportTopic',
+      () async {
+        final dir = await Directory.systemTemp.createTemp('jldb_test_');
+        addTearDown(() => dir.delete(recursive: true));
+        final path = '${dir.path}/v4.db';
+
+        final worker = await SqliteWorker.spawn(path, createDatabase: true);
+        for (final sql in DatabaseMigrations.getMigrations().take(2)) {
+          await worker.execute(sql);
+        }
+        for (final (id, name) in [
+          ('550e8400-e29b-41d4-a716-446655440001', 'Alt A'),
+          ('550e8400-e29b-41d4-a716-446655440002', 'Alt B'),
+        ]) {
+          await worker.execute(
+            'insert into kategorien (id, name) values (?, ?);',
+            [id, name],
+          );
+        }
+        await worker.close();
+
+        final opened = await Jldb.open(path).unwrap();
+        addTearDown(opened.close);
+        expect(await opened.getVersion(), equals(5));
+        final all = await opened.getAllKategorien().unwrap();
+        expect(all, hasLength(2));
+        expect(all.every((k) => k.reportTopic == null), isTrue);
+      },
+    );
 
     test(
       'open() fails for a database with user_version below minimum',
