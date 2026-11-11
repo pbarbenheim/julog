@@ -219,6 +219,22 @@ class AppLocalizationsDe extends AppLocalizations {
   String get jahresberichtSchritt2Titel => 'Berichtsthemen zuordnen';
 
   @override
+  String get jahresberichtSchritt2Einleitung =>
+      'Diese Kategorien wurden im Berichtsjahr benutzt und haben noch kein Berichtsthema. Ordne jeder eines der sieben Berichtsthemen zu, auch ausdrücklich \"Sonstiges\". Die Zuordnung wird an der Kategorie gespeichert und gilt auch in den nächsten Jahren.';
+
+  @override
+  String get jahresberichtSchritt2KeineOffen =>
+      'Alle im Berichtsjahr benutzten Kategorien haben schon ein Berichtsthema. Du kannst direkt weitergehen.';
+
+  @override
+  String get jahresberichtSchritt2Auswahl => 'Berichtsthema wählen';
+
+  @override
+  String jahresberichtSchritt2Fehler(String fehler) {
+    return 'Das Berichtsthema konnte nicht gespeichert werden: $fehler';
+  }
+
+  @override
   String get jahresberichtSchritt3Titel => 'Arbeitswerte';
 
   @override
