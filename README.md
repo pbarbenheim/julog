@@ -106,7 +106,7 @@ Architekturentscheidungen sind als ADRs unter `docs/adr/` dokumentiert:
 ### Voraussetzungen
 
 - Flutter SDK mit Dart SDK ≥ 3.10.4
-- Für Linux: `libsqlite3-dev` (SQLite) sowie die Bibliotheken für `flutter_secure_storage` (libsecret, `libsecret-1-dev`) (oder äquivalent)
+- Für Linux: die Bibliotheken für `flutter_secure_storage` (libsecret, `libsecret-1-dev`) (oder äquivalent)
 
 ### Starten
 
