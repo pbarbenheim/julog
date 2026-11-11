@@ -332,6 +332,31 @@
     "description": "Wizard step 2 title"
   },
 
+  "jahresberichtSchritt2Einleitung": "Diese Kategorien wurden im Berichtsjahr benutzt und haben noch kein Berichtsthema. Ordne jeder eines der sieben Berichtsthemen zu, auch ausdrücklich \"Sonstiges\". Die Zuordnung wird an der Kategorie gespeichert und gilt auch in den nächsten Jahren.",
+  "@jahresberichtSchritt2Einleitung": {
+    "description": "Wizard step 2 intro"
+  },
+
+  "jahresberichtSchritt2KeineOffen": "Alle im Berichtsjahr benutzten Kategorien haben schon ein Berichtsthema. Du kannst direkt weitergehen.",
+  "@jahresberichtSchritt2KeineOffen": {
+    "description": "Wizard step 2: nothing left to assign"
+  },
+
+  "jahresberichtSchritt2Auswahl": "Berichtsthema wählen",
+  "@jahresberichtSchritt2Auswahl": {
+    "description": "Wizard step 2: hint of the Berichtsthema dropdown"
+  },
+
+  "jahresberichtSchritt2Fehler": "Das Berichtsthema konnte nicht gespeichert werden: {fehler}",
+  "@jahresberichtSchritt2Fehler": {
+    "description": "Wizard step 2: saving the assignment failed",
+    "placeholders": {
+      "fehler": {
+        "type": "String"
+      }
+    }
+  },
+
   "jahresberichtSchritt3Titel": "Arbeitswerte",
   "@jahresberichtSchritt3Titel": {
     "description": "Wizard step 3 title"

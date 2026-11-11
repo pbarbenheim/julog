@@ -412,6 +412,30 @@ abstract class AppLocalizations {
   /// **'Berichtsthemen zuordnen'**
   String get jahresberichtSchritt2Titel;
 
+  /// Wizard step 2 intro
+  ///
+  /// In de, this message translates to:
+  /// **'Diese Kategorien wurden im Berichtsjahr benutzt und haben noch kein Berichtsthema. Ordne jeder eines der sieben Berichtsthemen zu, auch ausdrücklich \"Sonstiges\". Die Zuordnung wird an der Kategorie gespeichert und gilt auch in den nächsten Jahren.'**
+  String get jahresberichtSchritt2Einleitung;
+
+  /// Wizard step 2: nothing left to assign
+  ///
+  /// In de, this message translates to:
+  /// **'Alle im Berichtsjahr benutzten Kategorien haben schon ein Berichtsthema. Du kannst direkt weitergehen.'**
+  String get jahresberichtSchritt2KeineOffen;
+
+  /// Wizard step 2: hint of the Berichtsthema dropdown
+  ///
+  /// In de, this message translates to:
+  /// **'Berichtsthema wählen'**
+  String get jahresberichtSchritt2Auswahl;
+
+  /// Wizard step 2: saving the assignment failed
+  ///
+  /// In de, this message translates to:
+  /// **'Das Berichtsthema konnte nicht gespeichert werden: {fehler}'**
+  String jahresberichtSchritt2Fehler(String fehler);
+
   /// Wizard step 3 title
   ///
   /// In de, this message translates to:
