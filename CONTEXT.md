@@ -68,3 +68,6 @@ A Betreuer counts for a Berichtsjahr if they appear in at least one Eintrag of t
 
 ## Tagesveranstaltung
 An Eintrag lasting at least 5 hours. In the Jahresbericht it counts as a Gruppenabend under its Berichtsthema and additionally as a Tagesveranstaltung.
+
+## Berichtsentwurf
+The saved state of a **Jahresbericht** for one **Berichtsjahr**: the manual answers, the overrides of derived work values, a status (`Entwurf` or `exportiert`) and the export date. At most one per Berichtsjahr, stored in the `.jldb`. Creating one proposes the manual answers of the previous year (the draft of the year before, else the most recent earlier one); overrides and status are not taken over. Re-exporting keeps the status `exportiert` and updates the date.

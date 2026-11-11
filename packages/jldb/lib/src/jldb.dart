@@ -791,6 +791,129 @@ final class Jldb {
     });
   }
 
+  static const _berichtsentwurfSelect = '''
+    select year, angaben, ueberschreibungen, status, exported_at
+    from berichtsentwurf
+  ''';
+
+  /// Creates the Berichtsentwurf for [year], fails if one already exists.
+  ///
+  /// The manual answers (`angaben`) are taken over from the previous year as
+  /// a proposal: the draft with the largest year below [year], which is the
+  /// draft of `year - 1` when that exists. Overrides and status are not taken
+  /// over. Without an earlier draft the new one starts empty.
+  AsyncResult<BerichtsentwurfApiModel> createBerichtsentwurf(int year) {
+    const insertSql = '''
+      insert into berichtsentwurf (year, angaben)
+      select ?, coalesce(
+        (select angaben from berichtsentwurf
+          where year < ? order by year desc limit 1),
+        '{}'
+      );
+    ''';
+    return Result.safeAsync(() async {
+      return await _database.transaction((db) async {
+        final existing = await db.select(
+          'select 1 from berichtsentwurf where year = ?;',
+          [year],
+        );
+        if (existing.isNotEmpty) {
+          throw Exception('Berichtsentwurf für $year existiert bereits.');
+        }
+        await db.execute(insertSql, [year, year]);
+        final rows = await db.select(
+          '$_berichtsentwurfSelect where year = ?;',
+          [year],
+        );
+        return _berichtsentwurfFromRow(rows.first);
+      });
+    });
+  }
+
+  AsyncResultOptional<BerichtsentwurfApiModel> getBerichtsentwurf(int year) {
+    return Result.safeNullableAsync(() async {
+      final rows = await _database.select(
+        '$_berichtsentwurfSelect where year = ?;',
+        [year],
+      );
+      return rows.isEmpty ? null : _berichtsentwurfFromRow(rows.first);
+    });
+  }
+
+  /// All Berichtsentwuerfe, the most recent year first.
+  AsyncResult<List<BerichtsentwurfApiModel>> getAllBerichtsentwuerfe() {
+    return Result.safeAsync(() async {
+      final rows = await _database.select(
+        '$_berichtsentwurfSelect order by year desc;',
+      );
+      return rows.map(_berichtsentwurfFromRow).toList();
+    });
+  }
+
+  /// Replaces angaben and ueberschreibungen of the draft for [year]. Status
+  /// and export date are kept. Fails if there is no draft for [year].
+  AsyncVoidResult updateBerichtsentwurf(
+    int year, {
+    required Map<String, Object> angaben,
+    required Map<String, int> ueberschreibungen,
+  }) {
+    const sql = '''
+      update berichtsentwurf
+      set angaben = ?, ueberschreibungen = ?
+      where year = ?
+      returning year;
+    ''';
+    return Result.voidSafeAsync(() async {
+      final updated = await _database.select(sql, [
+        jsonEncode(angaben),
+        jsonEncode(ueberschreibungen),
+        year,
+      ]);
+      if (updated.isEmpty) {
+        throw Exception('Berichtsentwurf für $year nicht gefunden.');
+      }
+    });
+  }
+
+  /// Sets the status of the draft for [year] to exportiert and stores
+  /// [exportedAt]. Marking again only updates the date. Fails if there is no
+  /// draft for [year].
+  AsyncVoidResult markBerichtsentwurfExported(int year, DateTime exportedAt) {
+    const sql = '''
+      update berichtsentwurf
+      set status = ?, exported_at = ?
+      where year = ?
+      returning year;
+    ''';
+    return Result.voidSafeAsync(() async {
+      final updated = await _database.select(sql, [
+        BerichtsentwurfStatus.exportiert.toInt(),
+        exportedAt.millisecondsSinceEpoch,
+        year,
+      ]);
+      if (updated.isEmpty) {
+        throw Exception('Berichtsentwurf für $year nicht gefunden.');
+      }
+    });
+  }
+
+  static BerichtsentwurfApiModel _berichtsentwurfFromRow(List<Object?> row) {
+    final angaben = (jsonDecode(row[1] as String) as Map<String, dynamic>)
+        .cast<String, Object>();
+    final ueberschreibungen =
+        (jsonDecode(row[2] as String) as Map<String, dynamic>)
+            .cast<String, int>();
+    return BerichtsentwurfApiModel(
+      year: row[0] as int,
+      angaben: angaben,
+      ueberschreibungen: ueberschreibungen,
+      status: BerichtsentwurfStatus.fromInt(row[3] as int),
+      exportedAt: row[4] != null
+          ? DateTime.fromMillisecondsSinceEpoch(row[4] as int)
+          : null,
+    );
+  }
+
   Future<int> getVersion() async {
     _version ??= await _getVersion();
     return _version!;

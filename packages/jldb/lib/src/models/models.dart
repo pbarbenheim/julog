@@ -1,3 +1,4 @@
+export 'berichtsentwurf/berichtsentwurf_api_model.dart';
 export 'betreuer/betreuer_api_model.dart';
 export 'eintrag/eintrag_api_model.dart';
 export 'identity/identity_api_model.dart';

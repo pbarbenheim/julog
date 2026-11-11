@@ -7,7 +7,7 @@ class DatabaseMigrations {
     return migrations.map((e) => e.value);
   }
 
-  static const Map<int, String> _migrations = {3: _v3, 4: _v4, 5: _v5};
+  static const Map<int, String> _migrations = {3: _v3, 4: _v4, 5: _v5, 6: _v6};
 
   static const String _v3 = '''
     create table config (
@@ -90,5 +90,17 @@ class DatabaseMigrations {
     alter table kategorien add column berichtsthema integer;
 
     PRAGMA user_version = 5;
+  ''';
+
+  static const String _v6 = '''
+    create table berichtsentwurf (
+      year integer primary key,
+      angaben text not null default '{}',
+      ueberschreibungen text not null default '{}',
+      status integer not null default 0,
+      exported_at bigint
+    );
+
+    PRAGMA user_version = 6;
   ''';
 }

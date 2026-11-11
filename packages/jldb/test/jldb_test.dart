@@ -882,10 +882,10 @@ void main() {
   // Database version / open
   // -------------------------------------------------------------------------
   group('Database', () {
-    test('getVersion() returns 5 after create()', () async {
+    test('getVersion() returns 6 after create()', () async {
       final db = await Jldb.create(':memory:', domain: 'test.org').unwrap();
       addTearDown(db.close);
-      expect(await db.getVersion(), equals(5));
+      expect(await db.getVersion(), equals(6));
     });
 
     test(
@@ -906,7 +906,7 @@ void main() {
 
         final opened = await Jldb.open(path).unwrap();
         addTearDown(opened.close);
-        expect(await opened.getVersion(), equals(5));
+        expect(await opened.getVersion(), equals(6));
       },
     );
 
@@ -934,7 +934,7 @@ void main() {
 
         final opened = await Jldb.open(path).unwrap();
         addTearDown(opened.close);
-        expect(await opened.getVersion(), equals(5));
+        expect(await opened.getVersion(), equals(6));
         final all = await opened.getAllJugendliche().unwrap();
         expect(all, hasLength(2));
         expect(all.every((j) => j.origin == Origin.neu), isTrue);
@@ -965,10 +965,45 @@ void main() {
 
         final opened = await Jldb.open(path).unwrap();
         addTearDown(opened.close);
-        expect(await opened.getVersion(), equals(5));
+        expect(await opened.getVersion(), equals(6));
         final all = await opened.getAllKategorien().unwrap();
         expect(all, hasLength(2));
         expect(all.every((k) => k.reportTopic == null), isTrue);
+      },
+    );
+
+    test(
+      'open() migrates a v5 file without drafts and keeps existing data',
+      () async {
+        final dir = await Directory.systemTemp.createTemp('jldb_test_');
+        addTearDown(() => dir.delete(recursive: true));
+        final path = '${dir.path}/v5.db';
+
+        final worker = await SqliteWorker.spawn(path, createDatabase: true);
+        for (final sql in DatabaseMigrations.getMigrations().take(3)) {
+          await worker.execute(sql);
+        }
+        await worker.execute(
+          'insert into kategorien (id, name, berichtsthema) values (?, ?, 4);',
+          ['550e8400-e29b-41d4-a716-446655440001', 'Alt A'],
+        );
+        await worker.close();
+
+        final opened = await Jldb.open(path).unwrap();
+        addTearDown(opened.close);
+        expect(await opened.getVersion(), equals(6));
+        expect(await opened.getAllBerichtsentwuerfe().unwrap(), isEmpty);
+        expect(
+          (await opened.getAllKategorien().unwrap()).single.reportTopic,
+          equals(ReportTopic.sport),
+        );
+
+        final draft = await opened.createBerichtsentwurf(2024).unwrap();
+        expect(draft.angaben, isEmpty);
+        expect(
+          (await opened.getBerichtsentwurf(2024).unwrap()).unwrap(),
+          equals(draft),
+        );
       },
     );
 
