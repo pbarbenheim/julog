@@ -76,6 +76,7 @@ final class Jldb {
   WorkerStatement? _getIdentityStmnt;
   WorkerStatement? _getJugendlicherStmnt;
   WorkerStatement? _getKategorieStmnt;
+  WorkerStatement? _updateKategorieStmnt;
   WorkerStatement? _setConfigStmnt;
   WorkerStatement? _getAllBetreuerStmnt;
   WorkerStatement? _insertNewJugendlicherStmnt;
@@ -270,21 +271,19 @@ final class Jldb {
     KategorieApiModel kategorie,
   ) async {
     const sql = '''
-      insert into kategorien (id, name) 
-      values (?, ?)
-      returning id, name;
+      insert into kategorien (id, name, berichtsthema) 
+      values (?, ?, ?)
+      returning id, name, berichtsthema;
     ''';
     return Result.safeAsync(() async {
       _createKategorieStmnt ??= await _database.prepare(sql, peristent: true);
       final result = await _createKategorieStmnt!.select([
         kategorie.id.toString(),
         kategorie.name,
+        kategorie.reportTopic?.toInt(),
       ]);
       final row = result.first;
-      final kat = KategorieApiModel(
-        id: row[0].toString().toUUID(),
-        name: row[1].toString(),
-      );
+      final kat = _kategorieFromRow(row);
       return kat;
     });
   }
@@ -425,16 +424,11 @@ final class Jldb {
   }
 
   AsyncResult<List<KategorieApiModel>> getAllKategorien() async {
-    const sql = 'select id, name from kategorien;';
+    const sql = 'select id, name, berichtsthema from kategorien;';
     return Result.safeAsync(() async {
       _getAllKategorienStmnt ??= await _database.prepare(sql, peristent: true);
       final result = await _getAllKategorienStmnt!.select([]);
-      final kategorien = result.map((row) {
-        return KategorieApiModel(
-          id: row[0].toString().toUUID(),
-          name: row[1].toString(),
-        );
-      }).toList();
+      final kategorien = result.map(_kategorieFromRow).toList();
       return kategorien;
     });
   }
@@ -729,19 +723,38 @@ final class Jldb {
   }
 
   AsyncResultOptional<KategorieApiModel> getKategorie(UUID id) async {
-    const sql = 'select id, name from kategorien where id = ?;';
+    const sql = 'select id, name, berichtsthema from kategorien where id = ?;';
     return Result.safeNullableAsync(() async {
       _getKategorieStmnt ??= await _database.prepare(sql, peristent: true);
       final result = await _getKategorieStmnt!.select([id.toString()]);
       if (result.isEmpty) {
         return null;
       }
-      final row = result.first;
-      final kat = KategorieApiModel(
+      return _kategorieFromRow(result.first);
+    });
+  }
+
+  static KategorieApiModel _kategorieFromRow(List<Object?> row) =>
+      KategorieApiModel(
         id: row[0].toString().toUUID(),
         name: row[1].toString(),
+        reportTopic: row[2] != null ? ReportTopic.fromInt(row[2] as int) : null,
       );
-      return kat;
+
+  AsyncVoidResult updateKategorie(
+    UUID id, {
+    required String name,
+    ReportTopic? reportTopic,
+  }) {
+    const sql =
+        'update kategorien set name = ?, berichtsthema = ? where id = ?;';
+    return Result.voidSafeAsync(() async {
+      _updateKategorieStmnt ??= await _database.prepare(sql, peristent: true);
+      await _updateKategorieStmnt!.execute([
+        name,
+        reportTopic?.toInt(),
+        id.toString(),
+      ]);
     });
   }
 

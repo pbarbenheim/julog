@@ -1,4 +1,5 @@
 export 'austritts_grund.dart';
+export 'berichtsthema.dart';
 export 'betreuer/betreuer.dart';
 export 'gender.dart';
 export 'herkunft.dart';

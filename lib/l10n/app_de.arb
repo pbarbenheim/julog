@@ -76,6 +76,41 @@
     }
   },
 
+  "addNewKategorie": "Neue Kategorie hinzufügen",
+  "@addNewKategorie": {
+    "description": "Add new kategorie"
+  },
+
+  "editKategorie": "Kategorie bearbeiten",
+  "@editKategorie": {
+    "description": "Edit kategorie"
+  },
+
+  "kategorieNameRequired": "Bitte gib einen Namen ein",
+  "@kategorieNameRequired": {
+    "description": "Kategorie name required"
+  },
+
+  "berichtsthema": "Berichtsthema (optional)",
+  "@berichtsthema": {
+    "description": "Berichtsthema field label in the Kategorie form"
+  },
+
+  "berichtsthemaNotAssigned": "Nicht zugeordnet",
+  "@berichtsthemaNotAssigned": {
+    "description": "Kategorie has no Berichtsthema yet"
+  },
+
+  "stateBerichtsthema": "Berichtsthema: {thema}",
+  "@stateBerichtsthema": {
+    "description": "State Berichtsthema of a Kategorie",
+    "placeholders": {
+      "thema": {
+        "type": "String"
+      }
+    }
+  },
+
   "stateExitDate": "Austrittsdatum: {date}",
   "@stateExitDate": {
     "description": "State exit date",
