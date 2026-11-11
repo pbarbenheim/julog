@@ -47,7 +47,8 @@ class _JahresberichtScreenState extends ConsumerState<JahresberichtScreen> {
 
     return entwuerfe.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, _) => Center(child: Text('Fehler: $error')),
+      error: (error, _) =>
+          Center(child: Text(l10n.jahresberichtFehler('$error'))),
       data: (liste) {
         final aktuellesJahr = DateTime.now().year;
         final jahre = {

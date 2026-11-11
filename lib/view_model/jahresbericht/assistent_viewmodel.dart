@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:jldb/jldb.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart' hide AsyncResult;
 
 import '../../jahresbericht/jahresbericht.dart';
+import '../../jahresbericht/jahresbericht_xml.dart';
 import '../../jahresbericht/manuelle_angaben.dart';
 import '../../repository/berichtsentwurf/repository.dart';
 import '../../repository/betreuer/repository.dart';
@@ -12,6 +14,8 @@ import '../../repository/jugendliche/repository.dart';
 import '../../repository/kategorie/repository.dart';
 import '../../repository/model/berichtsentwurf/berichtsentwurf.dart';
 import '../../repository/model/model.dart';
+import '../kategorie/kategorie.dart';
+import 'export_ziel.dart';
 
 part 'assistent_viewmodel.g.dart';
 
@@ -43,17 +47,38 @@ class AssistentDaten {
 
   final bool hatUngespeicherteAenderungen;
 
+  /// Rechnet [berechnet] und [berichtswert] aus, außer ein schon bekanntes
+  /// Ergebnis wird übergeben (nur gültig, wenn sich die zugehörigen Eingaben
+  /// nicht geändert haben).
   AssistentDaten._({
-    required this.berichtsjahr,
     required this.entwurf,
     required this.jugendliche,
     required this.betreuer,
     required this.eintraege,
     required this.kategorien,
-    required this.berechnet,
-    required this.berichtswert,
     required this.hatUngespeicherteAenderungen,
-  });
+    Berichtswert? berechnet,
+    Berichtswert? berichtswert,
+  }) : berichtsjahr = entwurf.year,
+       berechnet =
+           berechnet ??
+           berechneBerichtswert(
+             berichtsjahr: entwurf.year,
+             jugendliche: jugendliche,
+             betreuer: betreuer,
+             eintraege: eintraege,
+             kategorien: kategorien,
+           ),
+       berichtswert =
+           berichtswert ??
+           berechneBerichtswert(
+             berichtsjahr: entwurf.year,
+             jugendliche: jugendliche,
+             betreuer: betreuer,
+             eintraege: eintraege,
+             kategorien: kategorien,
+             ueberschreibungen: entwurf.ueberschreibungen,
+           );
 
   /// Berechnet die Werte neu für [entwurf] und die übergebenen Stammdaten.
   factory AssistentDaten.berechne({
@@ -63,28 +88,14 @@ class AssistentDaten {
     required List<Eintrag> eintraege,
     required List<Kategorie> kategorien,
     bool hatUngespeicherteAenderungen = false,
-  }) {
-    Berichtswert rechne(Ueberschreibungen ueberschreibungen) =>
-        berechneBerichtswert(
-          berichtsjahr: entwurf.year,
-          jugendliche: jugendliche,
-          betreuer: betreuer,
-          eintraege: eintraege,
-          kategorien: kategorien,
-          ueberschreibungen: ueberschreibungen,
-        );
-    return AssistentDaten._(
-      berichtsjahr: entwurf.year,
-      entwurf: entwurf,
-      jugendliche: jugendliche,
-      betreuer: betreuer,
-      eintraege: eintraege,
-      kategorien: kategorien,
-      berechnet: rechne(const Ueberschreibungen.keine()),
-      berichtswert: rechne(entwurf.ueberschreibungen),
-      hatUngespeicherteAenderungen: hatUngespeicherteAenderungen,
-    );
-  }
+  }) => AssistentDaten._(
+    entwurf: entwurf,
+    jugendliche: jugendliche,
+    betreuer: betreuer,
+    eintraege: eintraege,
+    kategorien: kategorien,
+    hatUngespeicherteAenderungen: hatUngespeicherteAenderungen,
+  );
 
   /// Neuer Arbeitsstand mit geändertem Entwurf; die Stammdaten bleiben.
   AssistentDaten mitEntwurf(
@@ -94,24 +105,14 @@ class AssistentDaten {
     final ueberschreibungenGleich =
         neu.ueberschreibungen == entwurf.ueberschreibungen;
     return AssistentDaten._(
-      berichtsjahr: berichtsjahr,
       entwurf: neu,
       jugendliche: jugendliche,
       betreuer: betreuer,
       eintraege: eintraege,
       kategorien: kategorien,
-      berechnet: berechnet,
-      berichtswert: ueberschreibungenGleich
-          ? berichtswert
-          : berechneBerichtswert(
-              berichtsjahr: berichtsjahr,
-              jugendliche: jugendliche,
-              betreuer: betreuer,
-              eintraege: eintraege,
-              kategorien: kategorien,
-              ueberschreibungen: neu.ueberschreibungen,
-            ),
       hatUngespeicherteAenderungen: hatUngespeicherteAenderungen,
+      berechnet: berechnet,
+      berichtswert: ueberschreibungenGleich ? berichtswert : null,
     );
   }
 }
@@ -146,6 +147,36 @@ class BerichtsentwuerfeViewModel extends _$BerichtsentwuerfeViewModel {
   }
 }
 
+/// Ausgang von [JahresberichtAssistentViewModel.exportiere]. Fehler beim
+/// Vorbereiten oder Schreiben der Datei werden als Exception geworfen.
+sealed class ExportErgebnis {
+  const ExportErgebnis();
+}
+
+/// Der Anwender hat den Speichern-Dialog abgebrochen; nichts wurde
+/// geschrieben.
+final class ExportAbgebrochen extends ExportErgebnis {
+  const ExportAbgebrochen();
+}
+
+/// Die Datei wurde nach [pfad] geschrieben und der Bericht als exportiert
+/// gespeichert.
+final class ExportErfolgreich extends ExportErgebnis {
+  final String pfad;
+  final DateTime zeitpunkt;
+
+  const ExportErfolgreich(this.pfad, this.zeitpunkt);
+}
+
+/// Die Datei wurde nach [pfad] geschrieben, aber der Status "exportiert"
+/// konnte nicht gespeichert werden ([fehler]).
+final class ExportStatusNichtGespeichert extends ExportErgebnis {
+  final String pfad;
+  final Object fehler;
+
+  const ExportStatusNichtGespeichert(this.pfad, this.fehler);
+}
+
 /// Gemeinsamer Zustand aller Schritte des Assistenten für ein Berichtsjahr.
 ///
 /// ## So füllt ein Schritt seinen Teil
@@ -160,8 +191,9 @@ class BerichtsentwuerfeViewModel extends _$BerichtsentwuerfeViewModel {
 /// - Noch nicht übernommene Eingaben (z. B. ein Formular mit Validierung):
 ///   per [registriereVorVerlassen] einen Hook anmelden, der sie in den
 ///   Entwurf überträgt; [vorVerlassen] ruft ihn vor dem Speichern auf.
-/// - Haben sich Stammdaten geändert (z. B. Berichtsthemen der Kategorien in
-///   Schritt 2), liest [neuLaden] sie neu ein und behält den Arbeitsstand.
+/// - Haben sich Stammdaten geändert, liest [neuLaden] sie neu ein und behält
+///   den Arbeitsstand. Berichtsthemen ordnet [ordneBerichtsthemaZu] zu.
+/// - Export: [exportiere] (Schritt 6).
 @riverpod
 class JahresberichtAssistentViewModel
     extends _$JahresberichtAssistentViewModel {
@@ -299,5 +331,88 @@ class JahresberichtAssistentViewModel
     );
     if (!ref.mounted) return;
     state = AsyncData(neu);
+  }
+
+  /// Ordnet [kategorie] das [thema] zu und speichert es sofort an der
+  /// Kategorie (es gilt dauerhaft, nicht nur für diesen Entwurf). Liest dann
+  /// die Stammdaten neu ein, damit alle Schritte die geänderten Arbeitswerte
+  /// sehen. Wirft bei einem Fehler eine [Exception].
+  Future<void> ordneBerichtsthemaZu(
+    Kategorie kategorie,
+    Berichtsthema thema,
+  ) async {
+    final result = await ref.read(kategorieRepositoryProvider).edit((
+      id: kategorie.id,
+      name: kategorie.name,
+      berichtsthema: thema,
+    ));
+    if (result is Failure<Unit>) throw Exception('${result.error}');
+    // Die Kategorie-Liste (Kategorie-Seite) kennt die Änderung noch nicht.
+    ref.invalidate(kategorieViewModelProvider);
+    await neuLaden();
+  }
+
+  /// Exportiert den Jahresbericht als XML-Datei.
+  ///
+  /// Sichert zuerst ausstehende Änderungen, damit Datei und Entwurf
+  /// übereinstimmen, fragt über [jahresberichtExportZielProvider] nach dem
+  /// Ziel ([bestaetigenText] beschriftet den Bestätigen-Knopf des Dialogs),
+  /// schreibt die Datei und markiert den Entwurf als exportiert. Das lässt
+  /// sich beliebig oft wiederholen.
+  ///
+  /// Schlägt nur das Speichern des Status fehl, steht die Datei schon: das
+  /// Ergebnis ist dann [ExportStatusNichtGespeichert]. Alle anderen Fehler
+  /// (Sichern, Erzeugen, Schreiben) werden geworfen.
+  Future<ExportErgebnis> exportiere({required String bestaetigenText}) async {
+    // Der Anwender kann den Assistenten schließen, während der Dialog offen
+    // ist; die Liste der Berichtsjahre soll trotzdem aktualisiert werden.
+    final link = ref.keepAlive();
+    try {
+      await vorVerlassen();
+      final daten = state.requireValue;
+      final bytes = erzeugeJahresberichtXmlBytes(
+        berichtsjahr: berichtsjahr,
+        jugendliche: daten.jugendliche,
+        betreuer: daten.betreuer,
+        eintraege: daten.eintraege,
+        kategorien: daten.kategorien,
+        angaben: daten.entwurf.angaben,
+        ueberschreibungen: daten.entwurf.ueberschreibungen,
+      );
+      final waehleZiel = ref.read(jahresberichtExportZielProvider);
+      final pfad = await waehleZiel(
+        'jahresbericht_$berichtsjahr.xml',
+        bestaetigenText,
+      );
+      if (pfad == null) return const ExportAbgebrochen();
+      await File(pfad).writeAsBytes(bytes, flush: true);
+
+      final zeitpunkt = DateTime.now();
+      final markiert = await ref
+          .read(berichtsentwurfRepositoryProvider)
+          .markExported(berichtsjahr, zeitpunkt);
+      if (markiert is Failure<Unit>) {
+        return ExportStatusNichtGespeichert(pfad, markiert.error);
+      }
+      ref.invalidate(berichtsentwuerfeViewModelProvider);
+      _setzeExportiert(zeitpunkt);
+      return ExportErfolgreich(pfad, zeitpunkt);
+    } finally {
+      link.close();
+    }
+  }
+
+  void _setzeExportiert(DateTime zeitpunkt) {
+    final aktuell = state.value;
+    if (aktuell == null) return;
+    state = AsyncData(
+      aktuell.mitEntwurf(
+        aktuell.entwurf.copyWith(
+          status: EntwurfStatus.exportiert,
+          exportedAt: zeitpunkt,
+        ),
+        hatUngespeicherteAenderungen: aktuell.hatUngespeicherteAenderungen,
+      ),
+    );
   }
 }

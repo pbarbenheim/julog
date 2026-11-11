@@ -28,7 +28,7 @@ The attendance status of a Jugendlicher in an Eintrag. Values: `anwesend`, `ents
 A group leader/supervisor. Linked to Einträge as facilitators.
 
 ## Kategorie
-A classification tag for an Eintrag. Is assigned a **Berichtsthema** (optional until a Jahresbericht needs it).
+A classification tag for an Eintrag. Is assigned a **Berichtsthema** (optional until a Jahresbericht needs it). The name cannot be changed once a **Signierter Eintrag** uses the Kategorie, because it is part of the Signatur; the Berichtsthema stays editable (ADR-0012).
 
 ## Signatur
 A cryptographic signature (RSA with SHA-512) attached to an Eintrag by an Identity. An Eintrag carries at most one Signatur. Each Signatur records the signer's Identity, a timestamp, a version, and a validity flag.

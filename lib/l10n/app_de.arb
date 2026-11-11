@@ -91,6 +91,11 @@
     "description": "Kategorie name required"
   },
 
+  "kategorieNameGesperrt": "Der Name kann nicht geändert werden, weil die Kategorie in einem signierten Eintrag verwendet wird.",
+  "@kategorieNameGesperrt": {
+    "description": "Helper text in the Kategorie form when the name is locked (ADR-0012)"
+  },
+
   "berichtsthema": "Berichtsthema (optional)",
   "@berichtsthema": {
     "description": "Berichtsthema field label in the Kategorie form"
@@ -224,11 +229,6 @@
         "type": "String"
       }
     }
-  },
-
-  "jahresberichtAssistentPlatzhalter": "Dieser Schritt wird in einer späteren Version ausgefüllt.",
-  "@jahresberichtAssistentPlatzhalter": {
-    "description": "Wizard: hint shown by steps that are not implemented yet"
   },
 
   "jahresberichtSchritt1Titel": "Jahr und Übersicht der Zählwerte",
@@ -697,6 +697,31 @@
     "description": "Wizard step 6: export succeeded",
     "placeholders": {
       "pfad": {
+        "type": "String"
+      }
+    }
+  },
+  "jahresberichtSchritt6ExportStatusFehler": "Der Bericht wurde nach {pfad} exportiert, aber der Status \"exportiert\" konnte nicht gespeichert werden: {fehler}",
+  "@jahresberichtSchritt6ExportStatusFehler": {
+    "description": "Wizard step 6: the file was written, but saving the exported status failed",
+    "placeholders": {
+      "pfad": {
+        "type": "String"
+      },
+      "fehler": {
+        "type": "String"
+      }
+    }
+  },
+  "jahresberichtSchritt6ExportBestaetigen": "Exportieren",
+  "@jahresberichtSchritt6ExportBestaetigen": {
+    "description": "Wizard step 6: confirm button of the save dialog"
+  },
+  "jahresberichtFehler": "Fehler: {fehler}",
+  "@jahresberichtFehler": {
+    "description": "Jahresbericht screens: loading the data failed",
+    "placeholders": {
+      "fehler": {
         "type": "String"
       }
     }

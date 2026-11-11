@@ -1,13 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:jldb/jldb.dart' show Failure, Unit;
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../jahresbericht/jahresbericht.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../../../repository/kategorie/repository.dart';
 import '../../../../repository/model/model.dart';
 import '../../../../view_model/jahresbericht/assistent_viewmodel.dart';
-import '../../../../view_model/kategorie/kategorie.dart';
 
 /// Schritt 2: Berichtsthemen zuordnen.
 ///
@@ -55,15 +52,7 @@ class _Step2BerichtsthemenState extends ConsumerState<Step2Berichtsthemen> {
     );
     setState(() => _speichernd.add(kategorie.id));
     try {
-      final result = await ref.read(kategorieRepositoryProvider).edit((
-        id: kategorie.id,
-        name: kategorie.name,
-        berichtsthema: thema,
-      ));
-      if (result is Failure<Unit>) throw Exception('${result.error}');
-      // Die Kategorie-Liste (Kategorie-Seite) kennt die Änderung noch nicht.
-      ref.invalidate(kategorieViewModelProvider);
-      await viewModel.neuLaden();
+      await viewModel.ordneBerichtsthemaZu(kategorie, thema);
     } on Object catch (e) {
       messenger.showSnackBar(
         SnackBar(content: Text(l10n.jahresberichtSchritt2Fehler('$e'))),

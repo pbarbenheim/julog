@@ -21,9 +21,7 @@ class AssistentSchritt {
 }
 
 /// Die sechs Schritte in Reihenfolge. Jeder Schritt lebt in einer eigenen
-/// Datei unter `steps/`; dieses Verzeichnis muss ein Folgeticket nicht
-/// ändern, es füllt nur seine Schritt-Datei (und seine l10n-Schlüssel
-/// `jahresberichtSchrittN...`).
+/// Datei unter `steps/` (l10n-Schlüssel `jahresberichtSchrittN...`).
 final List<AssistentSchritt> assistentSchritte = [
   AssistentSchritt(
     titel: (l10n) => l10n.jahresberichtSchritt1Titel,

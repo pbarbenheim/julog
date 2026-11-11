@@ -3,10 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Fragt den Anwender, wohin der Jahresbericht geschrieben werden soll.
 ///
-/// Bekommt den vorgeschlagenen Dateinamen und liefert den gewählten Pfad,
-/// oder `null`, wenn der Anwender abbricht.
+/// Bekommt den vorgeschlagenen Dateinamen und die Beschriftung des
+/// Bestätigen-Knopfs (lokalisiert, weil hier kein `BuildContext` bekannt ist)
+/// und liefert den gewählten Pfad, oder `null`, wenn der Anwender abbricht.
 typedef ExportZielWaehler =
-    Future<String?> Function(String vorgeschlagenerName);
+    Future<String?> Function(
+      String vorgeschlagenerName,
+      String bestaetigenText,
+    );
 
 /// Die Auswahl des Exportziels. Standard ist der Speichern-Dialog des
 /// Betriebssystems mit dem vom System vorgeschlagenen Ordner. Tests und
@@ -22,11 +26,14 @@ const _xmlDateien = XTypeGroup(
   mimeTypes: ['application/xml', 'text/xml'],
 );
 
-Future<String?> _waehleMitSpeichernDialog(String vorgeschlagenerName) async {
+Future<String?> _waehleMitSpeichernDialog(
+  String vorgeschlagenerName,
+  String bestaetigenText,
+) async {
   final ziel = await getSaveLocation(
     acceptedTypeGroups: [_xmlDateien],
     suggestedName: vorgeschlagenerName,
-    confirmButtonText: 'Exportieren',
+    confirmButtonText: bestaetigenText,
     canCreateDirectories: true,
   );
   return ziel?.path;

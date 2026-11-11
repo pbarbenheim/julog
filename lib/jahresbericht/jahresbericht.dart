@@ -37,8 +37,9 @@ class Berichtswert {
   String toString() => 'Berichtswert($_felder)';
 }
 
-/// Die Berichtsthemen in der Reihenfolge von `Arbeit_Wert_01` bis `_07`.
-const _themaFeld = {
+/// Das Arbeitswert-Feld je Berichtsthema, in der Reihenfolge von
+/// `Arbeit_Wert_01` bis `_07`. Die einzige Quelle dieser Zuordnung.
+const berichtsthemaFeld = {
   Berichtsthema.feuerwehrtechnik: 'Arbeit_Wert_01',
   Berichtsthema.wettbewerbstraining: 'Arbeit_Wert_02',
   Berichtsthema.spieleUndKreatives: 'Arbeit_Wert_03',
@@ -52,6 +53,16 @@ const _dauerFeld = 'Arbeit_Wert_10';
 const _betreuerProEintragFeld = 'Arbeit_Wert_12';
 const _tagesveranstaltungenFeld = 'Arbeit_Wert_13';
 
+/// Die berechneten Arbeitswerte in Ausgabereihenfolge: `Arbeit_Wert_01` bis
+/// `_07` (je Berichtsthema), `_10`, `_12`, `_13`. Nur diese lassen sich
+/// überschreiben (siehe [Ueberschreibungen]); `_11` und `_20` sind manuell.
+final List<String> berechneteArbeitswertFelder = List.unmodifiable([
+  ...berichtsthemaFeld.values,
+  _dauerFeld,
+  _betreuerProEintragFeld,
+  _tagesveranstaltungenFeld,
+]);
+
 /// Ab dieser Dauer ist ein Eintrag eine Tagesveranstaltung.
 const tagesveranstaltungAbDauer = Duration(hours: 5);
 
@@ -63,12 +74,9 @@ const tagesveranstaltungAbDauer = Duration(hours: 5);
 /// ([toMap]) serialisierbar. Unveränderlich.
 class Ueberschreibungen {
   /// Die Felder, die überschrieben werden dürfen.
-  static final Set<String> ueberschreibbareFelder = Set.unmodifiable({
-    ..._themaFeld.values,
-    _dauerFeld,
-    _betreuerProEintragFeld,
-    _tagesveranstaltungenFeld,
-  });
+  static final Set<String> ueberschreibbareFelder = Set.unmodifiable(
+    berechneteArbeitswertFelder,
+  );
 
   final Map<String, int> _werte;
 
@@ -195,12 +203,9 @@ Berichtswert berechneBerichtswert({
   }
   anlegeNachGeschlecht('Alter_Anz_über_18');
 
-  for (final feld in _themaFeld.values) {
+  for (final feld in berechneteArbeitswertFelder) {
     felder[feld] = 0;
   }
-  felder[_dauerFeld] = 0;
-  felder[_betreuerProEintragFeld] = 0;
-  felder[_tagesveranstaltungenFeld] = 0;
 
   final stichtag = DateTime(berichtsjahr, 12, 31);
 
@@ -250,7 +255,7 @@ Berichtswert berechneBerichtswert({
     for (final e in eintraegeDesJahres) {
       final thema = themaDerKategorie[e.kategorieId];
       if (thema != null) {
-        final feld = _themaFeld[thema]!;
+        final feld = berichtsthemaFeld[thema]!;
         felder[feld] = felder[feld]! + 1;
       }
       final dauer = e.end.difference(e.start);

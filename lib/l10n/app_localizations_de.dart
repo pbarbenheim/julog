@@ -73,6 +73,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get kategorieNameRequired => 'Bitte gib einen Namen ein';
 
   @override
+  String get kategorieNameGesperrt =>
+      'Der Name kann nicht geändert werden, weil die Kategorie in einem signierten Eintrag verwendet wird.';
+
+  @override
   String get berichtsthema => 'Berichtsthema (optional)';
 
   @override
@@ -148,10 +152,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String jahresberichtAssistentSpeichernFehler(String fehler) {
     return 'Der Entwurf konnte nicht gespeichert werden: $fehler';
   }
-
-  @override
-  String get jahresberichtAssistentPlatzhalter =>
-      'Dieser Schritt wird in einer späteren Version ausgefüllt.';
 
   @override
   String get jahresberichtSchritt1Titel => 'Jahr und Übersicht der Zählwerte';
@@ -496,6 +496,19 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String jahresberichtSchritt6ExportErfolg(String pfad) {
     return 'Exportiert nach $pfad';
+  }
+
+  @override
+  String jahresberichtSchritt6ExportStatusFehler(String pfad, String fehler) {
+    return 'Der Bericht wurde nach $pfad exportiert, aber der Status \"exportiert\" konnte nicht gespeichert werden: $fehler';
+  }
+
+  @override
+  String get jahresberichtSchritt6ExportBestaetigen => 'Exportieren';
+
+  @override
+  String jahresberichtFehler(String fehler) {
+    return 'Fehler: $fehler';
   }
 
   @override

@@ -8,6 +8,19 @@ import 'package:jlcore/jlcore.dart';
 
 const jldbCompatibleSinceVersion = 3;
 
+/// Thrown (as [Failure]) when renaming a Kategorie that is used by a signed
+/// Eintrag. See ADR-0012.
+final class KategorieNameGesperrtException implements Exception {
+  final UUID kategorieId;
+
+  KategorieNameGesperrtException(this.kategorieId);
+
+  @override
+  String toString() =>
+      'Kategorie $kategorieId wird von einem signierten Eintrag verwendet '
+      'und kann nicht umbenannt werden.';
+}
+
 final class Jldb {
   static const _getAllEintraegeSql = '''
     select
@@ -77,6 +90,7 @@ final class Jldb {
   WorkerStatement? _getJugendlicherStmnt;
   WorkerStatement? _getKategorieStmnt;
   WorkerStatement? _updateKategorieStmnt;
+  WorkerStatement? _isKategorieNameGesperrtStmnt;
   WorkerStatement? _setConfigStmnt;
   WorkerStatement? _getAllBetreuerStmnt;
   WorkerStatement? _insertNewJugendlicherStmnt;
@@ -741,20 +755,69 @@ final class Jldb {
         reportTopic: row[2] != null ? ReportTopic.fromInt(row[2] as int) : null,
       );
 
+  /// Changes name and [reportTopic] of an existing Kategorie.
+  ///
+  /// The name is part of the signing payload (see [signV4Query]), so it cannot
+  /// be changed once a signed Eintrag uses the Kategorie (ADR-0012). In that
+  /// case the result is a [Failure] holding a
+  /// [KategorieNameGesperrtException] and nothing is changed. The
+  /// [reportTopic] is not part of any signing payload and stays editable.
   AsyncVoidResult updateKategorie(
     UUID id, {
     required String name,
     ReportTopic? reportTopic,
   }) {
-    const sql =
-        'update kategorien set name = ?, berichtsthema = ? where id = ?;';
+    // The guard and the update are one statement: the update does not touch
+    // a Kategorie whose name would change while a signed Eintrag uses it.
+    const sql = '''
+      update kategorien
+      set name = ?, berichtsthema = ?
+      where id = ?
+        and (
+          name = ?
+          or not exists(
+            select 1
+            from eintrag as e
+            join signature as s on s.eintrag_id = e.id
+            where e.kategorie_id = kategorien.id
+          )
+        )
+      returning id;
+    ''';
     return Result.voidSafeAsync(() async {
       _updateKategorieStmnt ??= await _database.prepare(sql, peristent: true);
-      await _updateKategorieStmnt!.execute([
+      final updated = await _updateKategorieStmnt!.select([
         name,
         reportTopic?.toInt(),
         id.toString(),
+        name,
       ]);
+      if (updated.isEmpty && await getKategorie(id).unwrap() is Some) {
+        throw KategorieNameGesperrtException(id);
+      }
+    });
+  }
+
+  /// Whether the name of the Kategorie [id] is locked, i.e. at least one
+  /// signed Eintrag (any Signatur, see ADR-0008) uses it.
+  AsyncResult<bool> isKategorieNameGesperrt(UUID id) {
+    const sql = '''
+      select exists(
+        select 1
+        from eintrag as e
+        join signature as s on s.eintrag_id = e.id
+        where e.kategorie_id = ?
+      );
+    ''';
+    return Result.safeAsync(() async {
+      _isKategorieNameGesperrtStmnt ??= await _database.prepare(
+        sql,
+        peristent: true,
+      );
+      final result = await _isKategorieNameGesperrtStmnt!.select([
+        id.toString(),
+      ]);
+      return result.first.first == 1;
     });
   }
 
