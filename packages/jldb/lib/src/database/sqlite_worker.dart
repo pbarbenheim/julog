@@ -101,7 +101,7 @@ class SqliteWorker {
     int statementCounter = 0;
     rp.listen((message) {
       if (message == 'shutdown') {
-        db.dispose();
+        db.close();
         rp.close();
         return;
       }
@@ -143,7 +143,7 @@ class SqliteWorker {
         if (command == 'close_statement') {
           final int stmtId = args as int;
           final stmt = preparedStatements.remove(stmtId);
-          stmt?.dispose();
+          stmt?.close();
           sp.send((id, null));
           return;
         }
