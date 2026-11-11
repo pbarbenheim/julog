@@ -90,4 +90,143 @@ class AppLocalizationsDe extends AppLocalizations {
 
     return 'Austrittsdatum: $dateString';
   }
+
+  @override
+  String get jahresberichtListeTitel => 'Jahresbericht';
+
+  @override
+  String get jahresberichtListeBerichtsjahr => 'Berichtsjahr';
+
+  @override
+  String get jahresberichtListeStarten => 'Bericht starten';
+
+  @override
+  String get jahresberichtListeFortsetzen => 'Entwurf fortsetzen';
+
+  @override
+  String get jahresberichtListeBestehende => 'Bisherige Berichte';
+
+  @override
+  String get jahresberichtListeLeer => 'Noch kein Jahresbericht angelegt.';
+
+  @override
+  String jahresberichtListeBerichtsjahrEintrag(int jahr) {
+    return 'Berichtsjahr $jahr';
+  }
+
+  @override
+  String get jahresberichtStatusEntwurf => 'Entwurf';
+
+  @override
+  String jahresberichtStatusExportiert(DateTime datum) {
+    final intl.DateFormat datumDateFormat = intl.DateFormat.yMd(localeName);
+    final String datumString = datumDateFormat.format(datum);
+
+    return 'Exportiert am $datumString';
+  }
+
+  @override
+  String jahresberichtAssistentTitel(int jahr) {
+    return 'Jahresbericht $jahr';
+  }
+
+  @override
+  String jahresberichtAssistentSchrittVon(int nummer, int anzahl) {
+    return 'Schritt $nummer von $anzahl';
+  }
+
+  @override
+  String get jahresberichtAssistentZurueck => 'Zurück';
+
+  @override
+  String get jahresberichtAssistentWeiter => 'Weiter';
+
+  @override
+  String get jahresberichtAssistentSchliessen => 'Schließen';
+
+  @override
+  String jahresberichtAssistentSpeichernFehler(String fehler) {
+    return 'Der Entwurf konnte nicht gespeichert werden: $fehler';
+  }
+
+  @override
+  String get jahresberichtAssistentPlatzhalter =>
+      'Dieser Schritt wird in einer späteren Version ausgefüllt.';
+
+  @override
+  String get jahresberichtSchritt1Titel => 'Jahr und Übersicht der Zählwerte';
+
+  @override
+  String jahresberichtSchritt1Einleitung(DateTime stichtag) {
+    final intl.DateFormat stichtagDateFormat = intl.DateFormat.yMd(localeName);
+    final String stichtagString = stichtagDateFormat.format(stichtag);
+
+    return 'Julog berechnet diese Zählwerte aus deinen Stammdaten. Stichtag ist der $stichtagString. Hier kannst du sie nur prüfen.';
+  }
+
+  @override
+  String get jahresberichtSchritt1Hinweis =>
+      'Stimmt etwas nicht? Korrigiere die Stammdaten unter \"Jugendliche\" (Eintritt, Austritt, Geburtsdatum, Herkunft), \"Betreuer\" und \"Dienstbuch\". Der Entwurf bleibt dabei gespeichert.';
+
+  @override
+  String get jahresberichtSchritt1Neuladen => 'Zählwerte neu berechnen';
+
+  @override
+  String get jahresberichtSchritt1Mitglieder => 'Mitglieder am Stichtag';
+
+  @override
+  String get jahresberichtSchritt1Alter => 'Alter der Mitglieder am Stichtag';
+
+  @override
+  String get jahresberichtSchritt1AlterUnter5 => 'Unter 5 Jahre';
+
+  @override
+  String jahresberichtSchritt1AlterJahre(int alter) {
+    return '$alter Jahre';
+  }
+
+  @override
+  String get jahresberichtSchritt1AlterUeber18 => 'Über 18 Jahre';
+
+  @override
+  String get jahresberichtSchritt1Betreuer => 'Betreuer';
+
+  @override
+  String get jahresberichtSchritt1BetreuerHinweis =>
+      'Gezählt werden Betreuer, die in mindestens einem Eintrag des Berichtsjahres stehen.';
+
+  @override
+  String get jahresberichtSchritt1Zugang => 'Zugang im Berichtsjahr';
+
+  @override
+  String get jahresberichtSchritt1Abgang => 'Abgang im Berichtsjahr';
+
+  @override
+  String get jahresberichtSchritt1AbgangEinsatzabteilung =>
+      'In die Einsatzabteilung';
+
+  @override
+  String get jahresberichtSchritt1AbgangSonstige => 'Sonstige';
+
+  @override
+  String get jahresberichtSchritt1AbgangGruende =>
+      'Gründe der sonstigen Abgänge';
+
+  @override
+  String get jahresberichtSchritt1Gesamt => 'Gesamt';
+
+  @override
+  String get jahresberichtSchritt2Titel => 'Berichtsthemen zuordnen';
+
+  @override
+  String get jahresberichtSchritt3Titel => 'Arbeitswerte';
+
+  @override
+  String get jahresberichtSchritt4Titel => 'Fragen';
+
+  @override
+  String get jahresberichtSchritt5Titel => 'Einsatzabteilung';
+
+  @override
+  String get jahresberichtSchritt6Titel => 'Zusammenfassung und Export';
 }
