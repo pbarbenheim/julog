@@ -1,11 +1,11 @@
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../../../../view_model/jahresbericht/assistent_viewmodel.dart';
+import '../widgets/zahl_textfeld.dart';
 
-/// Schritt 5: Einsatzabteilung (#223).
+/// Schritt 5: Einsatzabteilung.
 ///
 /// Drei Zahlenfelder (männlich, weiblich, divers) für die unter
 /// 27-Jährigen in der Einsatzabteilung. Gültige Eingaben (ganze Zahl
@@ -62,7 +62,7 @@ class Step5Einsatzabteilung extends ConsumerWidget {
 }
 
 /// Ein Zahlenfeld (ganze Zahl `>= 0`, leer = nicht angegeben).
-class _ZahlFeld extends StatefulWidget {
+class _ZahlFeld extends StatelessWidget {
   final String schluessel;
   final String bezeichnung;
 
@@ -80,85 +80,22 @@ class _ZahlFeld extends StatefulWidget {
   });
 
   @override
-  State<_ZahlFeld> createState() => _ZahlFeldState();
-}
-
-class _ZahlFeldState extends State<_ZahlFeld> {
-  late final TextEditingController _controller;
-  bool _ungueltig = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(text: widget.wert?.toString() ?? '');
-  }
-
-  @override
-  void didUpdateWidget(_ZahlFeld oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Der Wert hat sich von außen geändert: Feld nachziehen. Eigene gültige
-    // Eingaben stimmen schon überein.
-    if (oldWidget.wert != widget.wert) {
-      final eingabe = _lies(_controller.text);
-      if (eingabe == null || eingabe.wert != widget.wert) {
-        _controller.text = widget.wert?.toString() ?? '';
-        _ungueltig = false;
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  /// Gültige Eingabe als Zahl (`null` für leer); `null` als Ergebnis bei
-  /// ungültiger Eingabe.
-  ({int? wert})? _lies(String text) {
-    final t = text.trim();
-    if (t.isEmpty) return (wert: null);
-    if (!RegExp(r'^\d+$').hasMatch(t)) return null;
-    final zahl = int.tryParse(t);
-    return zahl == null ? null : (wert: zahl);
-  }
-
-  void _geaendert(String text) {
-    final eingabe = _lies(text);
-    setState(() => _ungueltig = eingabe == null);
-    if (eingabe != null) widget.onWert(eingabe.wert);
-  }
-
-  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final leer = _controller.text.trim().isEmpty;
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Align(
         alignment: Alignment.centerLeft,
         child: SizedBox(
           width: 280,
-          child: TextField(
-            key: Key('schritt5_feld_${widget.schluessel}'),
-            controller: _controller,
-            keyboardType: TextInputType.number,
-            // Kein Ziffernfilter: ungültige Eingabe soll gemeldet statt still
-            // verworfen werden.
-            inputFormatters: [LengthLimitingTextInputFormatter(9)],
-            decoration: InputDecoration(
-              labelText: widget.bezeichnung,
-              border: const OutlineInputBorder(),
-              helperText: leer && !_ungueltig
-                  ? l10n.jahresberichtSchritt5Offen
-                  : null,
-              errorText: _ungueltig
-                  ? l10n.jahresberichtSchritt5FehlerZahl
-                  : null,
-              errorMaxLines: 3,
-            ),
-            onChanged: _geaendert,
+          child: ZahlTextFeld(
+            feldKey: Key('schritt5_feld_$schluessel'),
+            labelText: bezeichnung,
+            wert: wert,
+            erlaubtLeer: true,
+            leerHinweis: l10n.jahresberichtSchritt5Offen,
+            fehlerText: l10n.jahresberichtSchritt5FehlerZahl,
+            onWert: onWert,
           ),
         ),
       ),

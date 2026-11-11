@@ -78,8 +78,7 @@ String erzeugeJahresberichtXml({
     'Arbeit_Wert_11': angaben.arbeitWert11!,
     'Arbeit_Wert_20': angaben.arbeitWert20!,
   };
-  for (final nr in _arbeitWertNummern) {
-    final key = 'Arbeit_Wert_$nr';
+  for (final key in _arbeitswertFelder) {
     felder[key] = arbeit[key]!;
   }
 
@@ -115,11 +114,14 @@ Uint8List erzeugeJahresberichtXmlBytes({
   ),
 );
 
-/// Die ausgegebenen Arbeitswerte in Ausgabereihenfolge. 08, 09 und 14 bis 19
-/// kommen im Format nicht vor.
-const _arbeitWertNummern = [
-  '01', '02', '03', '04', '05', '06', '07', '10', '11', '12', '13', '20', //
-];
+/// Die ausgegebenen Arbeitswerte in Ausgabereihenfolge (aufsteigend nach
+/// Nummer): die berechneten plus die manuellen 11 und 20. 08, 09 und 14 bis
+/// 19 kommen im Format nicht vor.
+final _arbeitswertFelder = [
+  ...berechneteArbeitswertFelder,
+  'Arbeit_Wert_11',
+  'Arbeit_Wert_20',
+]..sort();
 
 String _escape(String s) => s
     .replaceAll('&', '&amp;')

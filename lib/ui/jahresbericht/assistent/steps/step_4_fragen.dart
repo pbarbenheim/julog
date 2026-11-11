@@ -34,7 +34,7 @@ List<(String, List<int>)> _gruppen(AppLocalizations l10n) => [
   (l10n.jahresberichtSchritt4GruppeSonstiges, [13, 14, 15, 16]),
 ];
 
-/// Schritt 4: Fragen (#223).
+/// Schritt 4: Fragen.
 ///
 /// Die 16 Ja/Nein-Fragen in vier Gruppen. Unbeantwortete Fragen sind mit
 /// "Offen" markiert; eine Antwort lässt sich durch erneutes Anklicken
