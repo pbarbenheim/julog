@@ -37,6 +37,87 @@ class Berichtswert {
   String toString() => 'Berichtswert($_felder)';
 }
 
+/// Die Berichtsthemen in der Reihenfolge von `Arbeit_Wert_01` bis `_07`.
+const _themaFeld = {
+  Berichtsthema.feuerwehrtechnik: 'Arbeit_Wert_01',
+  Berichtsthema.wettbewerbstraining: 'Arbeit_Wert_02',
+  Berichtsthema.spieleUndKreatives: 'Arbeit_Wert_03',
+  Berichtsthema.mitAnderemVereinOderGruppe: 'Arbeit_Wert_04',
+  Berichtsthema.sport: 'Arbeit_Wert_05',
+  Berichtsthema.ersteHilfeUndPraevention: 'Arbeit_Wert_06',
+  Berichtsthema.sonstiges: 'Arbeit_Wert_07',
+};
+
+const _dauerFeld = 'Arbeit_Wert_10';
+const _betreuerProEintragFeld = 'Arbeit_Wert_12';
+const _tagesveranstaltungenFeld = 'Arbeit_Wert_13';
+
+/// Ab dieser Dauer ist ein Eintrag eine Tagesveranstaltung.
+const tagesveranstaltungAbDauer = Duration(hours: 5);
+
+/// Vom Anwender überschriebene Arbeitswerte (Feldname -> ganze Zahl).
+///
+/// Überschreibbar sind nur die berechneten Arbeitswerte (`Arbeit_Wert_01`
+/// bis `_07`, `_10`, `_12`, `_13`). Zählwerte und manuelle Angaben nicht;
+/// der Konstruktor wirft dafür einen [ArgumentError]. Als einfache Map
+/// ([toMap]) serialisierbar. Unveränderlich.
+class Ueberschreibungen {
+  /// Die Felder, die überschrieben werden dürfen.
+  static final Set<String> ueberschreibbareFelder = Set.unmodifiable({
+    ..._themaFeld.values,
+    _dauerFeld,
+    _betreuerProEintragFeld,
+    _tagesveranstaltungenFeld,
+  });
+
+  final Map<String, int> _werte;
+
+  /// Prüft [werte] und nimmt eine Kopie. Werte müssen `>= 0` sein.
+  Ueberschreibungen(Map<String, int> werte)
+    : _werte = Map.unmodifiable(_pruefe(werte));
+
+  const Ueberschreibungen.keine() : _werte = const {};
+
+  static Map<String, int> _pruefe(Map<String, int> werte) {
+    for (final e in werte.entries) {
+      if (!ueberschreibbareFelder.contains(e.key)) {
+        throw ArgumentError.value(
+          e.key,
+          'werte',
+          'Feld ist nicht überschreibbar',
+        );
+      }
+      if (e.value < 0) {
+        throw ArgumentError.value(
+          e.value,
+          'werte',
+          'Wert für ${e.key} darf nicht negativ sein',
+        );
+      }
+    }
+    return Map.of(werte);
+  }
+
+  /// Unveränderliche Map (Feldname -> Wert), z. B. zum Speichern.
+  Map<String, int> toMap() => _werte;
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! Ueberschreibungen || other._werte.length != _werte.length) {
+      return false;
+    }
+    return _werte.entries.every((e) => other._werte[e.key] == e.value);
+  }
+
+  @override
+  int get hashCode => Object.hashAllUnordered(
+    _werte.entries.map((e) => Object.hash(e.key, e.value)),
+  );
+
+  @override
+  String toString() => 'Ueberschreibungen($_werte)';
+}
+
 const _geschlechter = {
   Gender.male: 'M',
   Gender.female: 'W',
@@ -71,11 +152,19 @@ String _altersPraefix(int alter) {
 /// Stichtag ist der 31.12. des Berichtsjahres. Reine Funktion ohne
 /// Abhängigkeit von Datenbank oder UI. Ersetzte Jugendliche (Namensänderung)
 /// werden ausgelassen, die Kette zählt mit dem aktuellen Datensatz.
+///
+/// Arbeitswerte berücksichtigen alle [eintraege] mit Beginn im Berichtsjahr,
+/// signiert oder nicht. Ein Eintrag zählt in dem Berichtsthema seiner
+/// Kategorie aus [kategorien]; ohne Kategorie oder Thema zählt er in keinem
+/// Thema (siehe [kategorienOhneBerichtsthema]). Ein Wert aus
+/// [ueberschreibungen] ersetzt den berechneten.
 Berichtswert berechneBerichtswert({
   required int berichtsjahr,
   required List<Jugendlicher> jugendliche,
   required List<Betreuer> betreuer,
   required List<Eintrag> eintraege,
+  List<Kategorie> kategorien = const [],
+  Ueberschreibungen ueberschreibungen = const Ueberschreibungen.keine(),
 }) {
   final felder = <String, int>{};
 
@@ -105,6 +194,13 @@ Berichtswert berechneBerichtswert({
     anlegeNachGeschlecht(_altersPraefix(alter));
   }
   anlegeNachGeschlecht('Alter_Anz_über_18');
+
+  for (final feld in _themaFeld.values) {
+    felder[feld] = 0;
+  }
+  felder[_dauerFeld] = 0;
+  felder[_betreuerProEintragFeld] = 0;
+  felder[_tagesveranstaltungenFeld] = 0;
 
   final stichtag = DateTime(berichtsjahr, 12, 31);
 
@@ -136,16 +232,67 @@ Berichtswert berechneBerichtswert({
     }
   }
 
+  final eintraegeDesJahres = _eintraegeDesJahres(berichtsjahr, eintraege);
+
   final betreuerIdsDesJahres = {
-    for (final e in eintraege.where((e) => e.start.year == berichtsjahr))
-      ...e.betreuerIds,
+    for (final e in eintraegeDesJahres) ...e.betreuerIds,
   };
   for (final b in betreuer.where((b) => betreuerIdsDesJahres.contains(b.id))) {
     zaehle('Betreuer_Anz', b.gender);
   }
 
+  if (eintraegeDesJahres.isNotEmpty) {
+    final themaDerKategorie = {
+      for (final k in kategorien) k.id: k.berichtsthema,
+    };
+    var dauerSekunden = 0;
+    var betreuerSumme = 0;
+    for (final e in eintraegeDesJahres) {
+      final thema = themaDerKategorie[e.kategorieId];
+      if (thema != null) {
+        final feld = _themaFeld[thema]!;
+        felder[feld] = felder[feld]! + 1;
+      }
+      final dauer = e.end.difference(e.start);
+      if (dauer >= tagesveranstaltungAbDauer) {
+        felder[_tagesveranstaltungenFeld] =
+            felder[_tagesveranstaltungenFeld]! + 1;
+      }
+      dauerSekunden += dauer.inSeconds;
+      betreuerSumme += e.betreuerIds.length;
+    }
+    final n = eintraegeDesJahres.length;
+    felder[_dauerFeld] = (dauerSekunden / 60 / n).round();
+    felder[_betreuerProEintragFeld] = (betreuerSumme / n).round();
+  }
+
+  felder.addAll(ueberschreibungen.toMap());
+
   return Berichtswert(felder);
 }
+
+/// Die im Berichtsjahr benutzten Kategorien, denen noch kein Berichtsthema
+/// zugeordnet ist.
+///
+/// Benutzt heißt: mindestens ein Eintrag mit Beginn im [berichtsjahr]. Jede
+/// Kategorie erscheint einmal, in der Reihenfolge von [kategorien]. Einträge
+/// mit unbekannter Kategorie-ID werden ignoriert.
+List<Kategorie> kategorienOhneBerichtsthema({
+  required int berichtsjahr,
+  required List<Kategorie> kategorien,
+  required List<Eintrag> eintraege,
+}) {
+  final benutzt = {
+    for (final e in _eintraegeDesJahres(berichtsjahr, eintraege)) e.kategorieId,
+  };
+  return [
+    for (final k in kategorien)
+      if (k.berichtsthema == null && benutzt.contains(k.id)) k,
+  ];
+}
+
+List<Eintrag> _eintraegeDesJahres(int berichtsjahr, List<Eintrag> eintraege) =>
+    eintraege.where((e) => e.start.year == berichtsjahr).toList();
 
 DateTime _tag(DateTime d) => DateTime(d.year, d.month, d.day);
 

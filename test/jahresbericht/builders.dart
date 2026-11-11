@@ -34,7 +34,13 @@ Betreuer betreuer(Gender gender) {
   return Betreuer(id: id, name: 'Betreuer $id', gender: gender);
 }
 
+Kategorie kategorie({String? id, Berichtsthema? thema}) {
+  final kid = id ?? 'kat-${_counter++}';
+  return Kategorie(id: kid, name: 'Kategorie $kid', berichtsthema: thema);
+}
+
 Eintrag eintrag({
+  Kategorie? kategorie,
   DateTime? start,
   DateTime? end,
   Set<String> betreuerIds = const {},
@@ -45,7 +51,7 @@ Eintrag eintrag({
     id: 'ein-${_counter++}',
     start: s,
     end: end ?? s.add(const Duration(hours: 2)),
-    kategorieId: 'kat-1',
+    kategorieId: kategorie?.id ?? 'kat-1',
     thema: 'Thema',
     betreuerIds: betreuerIds,
     anwesendeJugendlicherIds: const {},
@@ -60,9 +66,13 @@ Berichtswert bericht(
   List<Jugendlicher> jugendliche = const [],
   List<Betreuer> betreuer = const [],
   List<Eintrag> eintraege = const [],
+  List<Kategorie> kategorien = const [],
+  Map<String, int> ueberschreibungen = const {},
 }) => berechneBerichtswert(
   berichtsjahr: jahr,
   jugendliche: jugendliche,
   betreuer: betreuer,
   eintraege: eintraege,
+  kategorien: kategorien,
+  ueberschreibungen: Ueberschreibungen(ueberschreibungen),
 );
