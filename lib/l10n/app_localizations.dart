@@ -418,6 +418,90 @@ abstract class AppLocalizations {
   /// **'Arbeitswerte'**
   String get jahresberichtSchritt3Titel;
 
+  /// Wizard step 3: introduction
+  ///
+  /// In de, this message translates to:
+  /// **'Julog hat diese Werte aus den Einträgen des Berichtsjahres berechnet. Du kannst jeden Wert überschreiben, um Sonderfälle zu korrigieren, und die Überschreibung wieder zurücknehmen. Darunter gibst du die Werte ein, die Julog nicht kennt.'**
+  String get jahresberichtSchritt3Einleitung;
+
+  /// Wizard step 3: section title of the computed values
+  ///
+  /// In de, this message translates to:
+  /// **'Berechnete Werte'**
+  String get jahresberichtSchritt3BerechnetTitel;
+
+  /// Wizard step 3: section title of the manual values
+  ///
+  /// In de, this message translates to:
+  /// **'Eigene Angaben'**
+  String get jahresberichtSchritt3ManuellTitel;
+
+  /// Wizard step 3: label of Arbeit_Wert_01 to 07
+  ///
+  /// In de, this message translates to:
+  /// **'Gruppenabende: {thema}'**
+  String jahresberichtSchritt3Gruppenabende(String thema);
+
+  /// Wizard step 3: label of Arbeit_Wert_10
+  ///
+  /// In de, this message translates to:
+  /// **'Durchschnittliche Dauer je Gruppenabend (Minuten)'**
+  String get jahresberichtSchritt3Dauer;
+
+  /// Wizard step 3: label of Arbeit_Wert_12
+  ///
+  /// In de, this message translates to:
+  /// **'Durchschnittliche Betreuerzahl je Gruppenabend'**
+  String get jahresberichtSchritt3Betreuerzahl;
+
+  /// Wizard step 3: label of Arbeit_Wert_13
+  ///
+  /// In de, this message translates to:
+  /// **'Tagesveranstaltungen'**
+  String get jahresberichtSchritt3Tagesveranstaltungen;
+
+  /// Wizard step 3: helper text of Arbeit_Wert_13
+  ///
+  /// In de, this message translates to:
+  /// **'Einträge ab 5 Stunden Dauer; sie zählen auch als Gruppenabende.'**
+  String get jahresberichtSchritt3TagesveranstaltungenHinweis;
+
+  /// Wizard step 3: label of Arbeit_Wert_11
+  ///
+  /// In de, this message translates to:
+  /// **'Durchschnittliche Vor- und Nachbereitungszeit je Gruppenabend (Minuten)'**
+  String get jahresberichtSchritt3Vorbereitung;
+
+  /// Wizard step 3: label of Arbeit_Wert_20
+  ///
+  /// In de, this message translates to:
+  /// **'Stunden für sonstige Arbeit'**
+  String get jahresberichtSchritt3SonstigeArbeit;
+
+  /// Wizard step 3: the computed value shown next to an overridden one
+  ///
+  /// In de, this message translates to:
+  /// **'Berechnet: {wert}'**
+  String jahresberichtSchritt3Berechnet(int wert);
+
+  /// Wizard step 3: mark of an overridden value
+  ///
+  /// In de, this message translates to:
+  /// **'Überschrieben'**
+  String get jahresberichtSchritt3Ueberschrieben;
+
+  /// Wizard step 3: tooltip of the revert button
+  ///
+  /// In de, this message translates to:
+  /// **'Überschreibung zurücknehmen'**
+  String get jahresberichtSchritt3Zuruecknehmen;
+
+  /// Wizard step 3: invalid number input
+  ///
+  /// In de, this message translates to:
+  /// **'Bitte eine ganze Zahl ab 0 eingeben.'**
+  String get jahresberichtSchritt3FehlerZahl;
+
   /// Wizard step 4 title
   ///
   /// In de, this message translates to:
