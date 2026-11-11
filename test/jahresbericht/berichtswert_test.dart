@@ -40,7 +40,23 @@ void main() {
             k.startsWith('Grund_SO_') ||
             (k.startsWith('Alter_Anz_') && !k.startsWith('Alter_Anz_EA_')),
       );
-      expect(bericht(2025).felder.keys.toSet(), zaehlKeys.toSet());
+      expect(
+        bericht(2025).felder.keys.where((k) => !k.startsWith('Arbeit_Wert_')),
+        unorderedEquals(zaehlKeys),
+      );
+    });
+
+    test('enthält genau die berechneten Arbeitswert-Felder', () {
+      final arbeitKeys = _fixtureKeys().where(
+        (k) =>
+            k.startsWith('Arbeit_Wert_') &&
+            k != 'Arbeit_Wert_11' &&
+            k != 'Arbeit_Wert_20',
+      );
+      expect(
+        bericht(2025).felder.keys.where((k) => k.startsWith('Arbeit_Wert_')),
+        unorderedEquals(arbeitKeys),
+      );
     });
 
     test('ist unveränderlich', () {
