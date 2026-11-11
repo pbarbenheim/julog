@@ -38,7 +38,7 @@ class Step1Zaehlwerte extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         children: [
           Text(
-            l10n.jahresberichtAssistentTitel(berichtsjahr),
+            l10n.jahresberichtSchritt1Titel,
             style: theme.textTheme.headlineSmall,
           ),
           const SizedBox(height: 8),
