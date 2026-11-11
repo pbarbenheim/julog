@@ -143,7 +143,8 @@ class _AssistentScreenState extends ConsumerState<AssistentScreen> {
         Expanded(
           child: daten.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, _) => Center(child: Text('Fehler: $error')),
+            error: (error, _) =>
+                Center(child: Text(l10n.jahresberichtFehler('$error'))),
             data: (_) => KeyedSubtree(
               key: ValueKey(_schritt),
               child: assistentSchritte[_schritt].inhalt(widget.berichtsjahr),

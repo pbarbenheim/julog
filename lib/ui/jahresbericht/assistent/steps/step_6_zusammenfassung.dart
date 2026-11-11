@@ -1,27 +1,24 @@
-import 'dart:io';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:jldb/jldb.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../jahresbericht/jahresbericht.dart';
-import '../../../../jahresbericht/jahresbericht_xml.dart';
 import '../../../../jahresbericht/manuelle_angaben.dart';
 import '../../../../jahresbericht/vollstaendigkeit.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../../../repository/berichtsentwurf/repository.dart';
 import '../../../../repository/model/berichtsentwurf/berichtsentwurf.dart';
 import '../../../../repository/model/model.dart';
 import '../../../../view_model/jahresbericht/assistent_viewmodel.dart';
-import 'step_6_export_ziel.dart';
+import '../widgets/abschnitt.dart';
+import '../widgets/arbeitswert_bezeichnung.dart';
+import '../widgets/ueberschrieben_hinweis.dart';
 
-/// Schritt 6: Zusammenfassung und Export (#224).
+/// Schritt 6: Zusammenfassung und Export.
 ///
 /// Zeigt alle Zählwerte, Arbeitswerte (überschriebene markiert) und
 /// manuellen Angaben zur Kontrolle. Fehlt etwas, nennt die Seite, was und in
 /// welchem Schritt, und der Export ist gesperrt. Sonst schreibt der Export
 /// die XML an das Ziel, das der Anwender im Speichern-Dialog wählt (siehe
-/// [jahresberichtExportZielProvider]), und markiert den Bericht als
+/// [JahresberichtAssistentViewModel.exportiere]), und markiert den Bericht als
 /// exportiert. Das lässt sich beliebig oft wiederholen.
 class Step6Zusammenfassung extends ConsumerStatefulWidget {
   final int berichtsjahr;
@@ -34,8 +31,6 @@ class Step6Zusammenfassung extends ConsumerStatefulWidget {
 }
 
 class _Step6ZusammenfassungState extends ConsumerState<Step6Zusammenfassung> {
-  bool _exportiert = false;
-  DateTime? _exportiertAm;
   bool _beschaeftigt = false;
 
   int get _jahr => widget.berichtsjahr;
@@ -44,40 +39,24 @@ class _Step6ZusammenfassungState extends ConsumerState<Step6Zusammenfassung> {
     if (_beschaeftigt) return;
     final l10n = AppLocalizations.of(context)!;
     final messenger = ScaffoldMessenger.of(context);
-    final provider = jahresberichtAssistentViewModelProvider(_jahr);
-    final viewModel = ref.read(provider.notifier);
-    final repo = ref.read(berichtsentwurfRepositoryProvider);
-    final waehleZiel = ref.read(jahresberichtExportZielProvider);
-    final container = ProviderScope.containerOf(context);
+    final viewModel = ref.read(
+      jahresberichtAssistentViewModelProvider(_jahr).notifier,
+    );
     setState(() => _beschaeftigt = true);
     try {
-      // Ausstehende Änderungen zuerst sichern, damit Datei und Entwurf
-      // übereinstimmen.
-      await viewModel.vorVerlassen();
-      final daten = container.read(provider).requireValue;
-      final bytes = erzeugeJahresberichtXmlBytes(
-        berichtsjahr: _jahr,
-        jugendliche: daten.jugendliche,
-        betreuer: daten.betreuer,
-        eintraege: daten.eintraege,
-        kategorien: daten.kategorien,
-        angaben: daten.entwurf.angaben,
-        ueberschreibungen: daten.entwurf.ueberschreibungen,
+      final ergebnis = await viewModel.exportiere(
+        bestaetigenText: l10n.jahresberichtSchritt6ExportBestaetigen,
       );
-      final pfad = await waehleZiel('jahresbericht_$_jahr.xml');
-      if (pfad == null) return;
-      await File(pfad).writeAsBytes(bytes, flush: true);
-      final zeitpunkt = DateTime.now();
-      await repo.markExported(_jahr, zeitpunkt).unwrap();
-      container.invalidate(berichtsentwuerfeViewModelProvider);
-      if (!mounted) return;
-      setState(() {
-        _exportiert = true;
-        _exportiertAm = zeitpunkt;
-      });
-      messenger.showSnackBar(
-        SnackBar(content: Text(l10n.jahresberichtSchritt6ExportErfolg(pfad))),
-      );
+      final meldung = switch (ergebnis) {
+        ExportAbgebrochen() => null,
+        ExportErfolgreich(:final pfad) =>
+          l10n.jahresberichtSchritt6ExportErfolg(pfad),
+        ExportStatusNichtGespeichert(:final pfad, :final fehler) =>
+          l10n.jahresberichtSchritt6ExportStatusFehler(pfad, '$fehler'),
+      };
+      if (meldung != null) {
+        messenger.showSnackBar(SnackBar(content: Text(meldung)));
+      }
     } on Object catch (e) {
       messenger.showSnackBar(
         SnackBar(
@@ -103,24 +82,10 @@ class _Step6ZusammenfassungState extends ConsumerState<Step6Zusammenfassung> {
       kategorien: daten.kategorien,
       eintraege: daten.eintraege,
     );
-    final exportiertAm =
-        _exportiertAm ??
-        (entwurf.status == EntwurfStatus.exportiert
-            ? entwurf.exportedAt
-            : null);
-    final wurdeExportiert = _exportiert || exportiertAm != null;
-
-    Widget abschnitt(String titel, Widget inhalt) => Padding(
-      padding: const EdgeInsets.only(top: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(titel, style: theme.textTheme.titleMedium),
-          const SizedBox(height: 8),
-          inhalt,
-        ],
-      ),
-    );
+    final exportiertAm = entwurf.status == EntwurfStatus.exportiert
+        ? entwurf.exportedAt
+        : null;
+    final wurdeExportiert = exportiertAm != null;
 
     final wert = daten.berichtswert;
     int w(String feld) => wert[feld];
@@ -164,18 +129,18 @@ class _Step6ZusammenfassungState extends ConsumerState<Step6Zusammenfassung> {
                 ),
             ],
           ),
-          abschnitt(
-            l10n.jahresberichtSchritt6ZaehlwerteTitel,
-            _Zaehlwerte(l10n: l10n, wert: wert),
+          Abschnitt(
+            titel: l10n.jahresberichtSchritt6ZaehlwerteTitel,
+            inhalt: _Zaehlwerte(l10n: l10n, wert: wert),
           ),
-          abschnitt(
-            l10n.jahresberichtSchritt6ArbeitswerteTitel,
-            Column(
+          Abschnitt(
+            titel: l10n.jahresberichtSchritt6ArbeitswerteTitel,
+            inhalt: Column(
               children: [
-                for (final (feld, bezeichnung) in _arbeitswerte(l10n))
+                for (final feld in berechneteArbeitswertFelder)
                   _WertZeile(
                     feld: feld,
-                    bezeichnung: bezeichnung,
+                    bezeichnung: arbeitswertBezeichnung(l10n, feld),
                     wert: w(feld),
                     berechnet: ueberschrieben.contains(feld)
                         ? daten.berechnet[feld]
@@ -185,28 +150,15 @@ class _Step6ZusammenfassungState extends ConsumerState<Step6Zusammenfassung> {
               ],
             ),
           ),
-          abschnitt(
-            l10n.jahresberichtSchritt6AngabenTitel,
-            _Angaben(l10n: l10n, angaben: entwurf.angaben),
+          Abschnitt(
+            titel: l10n.jahresberichtSchritt6AngabenTitel,
+            inhalt: _Angaben(l10n: l10n, angaben: entwurf.angaben),
           ),
         ],
       ),
     );
   }
 }
-
-/// Die Arbeitswerte in Ausgabereihenfolge mit Bezeichnung. 11 und 20 sind
-/// manuell, alle anderen berechnet.
-List<(String, String)> _arbeitswerte(AppLocalizations l10n) => [
-  for (final (i, thema) in Berichtsthema.values.indexed)
-    (
-      'Arbeit_Wert_${(i + 1).toString().padLeft(2, '0')}',
-      l10n.jahresberichtSchritt3Gruppenabende(thema.display),
-    ),
-  ('Arbeit_Wert_10', l10n.jahresberichtSchritt3Dauer),
-  ('Arbeit_Wert_12', l10n.jahresberichtSchritt3Betreuerzahl),
-  ('Arbeit_Wert_13', l10n.jahresberichtSchritt3Tagesveranstaltungen),
-];
 
 class _Vollstaendigkeitshinweis extends StatelessWidget {
   final AppLocalizations l10n;
@@ -320,22 +272,13 @@ class _WertZeile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
           Expanded(child: Text(bezeichnung)),
           if (berechnet != null) ...[
-            Text(
-              l10n.jahresberichtSchritt3Berechnet(berechnet!),
-              style: theme.textTheme.bodySmall,
-            ),
-            const SizedBox(width: 12),
-            Chip(
-              label: Text(l10n.jahresberichtSchritt3Ueberschrieben),
-              visualDensity: VisualDensity.compact,
-            ),
+            UeberschriebenHinweis(berechnet: berechnet!),
             const SizedBox(width: 12),
           ],
           SizedBox(

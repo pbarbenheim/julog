@@ -18,7 +18,7 @@ import 'package:julog/repository/kategorie/repository.dart';
 import 'package:julog/repository/model/berichtsentwurf/berichtsentwurf.dart';
 import 'package:julog/repository/model/model.dart';
 import 'package:julog/ui/jahresbericht/assistent/assistent_screen.dart';
-import 'package:julog/ui/jahresbericht/assistent/steps/step_6_export_ziel.dart';
+import 'package:julog/view_model/jahresbericht/export_ziel.dart';
 import 'package:julog/view_model/jahresbericht/assistent_viewmodel.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -58,6 +58,14 @@ Future<void> _exportiere(WidgetTester tester) async {
 final _exportKnopf = find.byKey(const Key('schritt6_export'));
 final _fehltKarte = find.byKey(const Key('schritt6_fehlt'));
 
+class _MarkExportedFehlschlag extends BerichtsentwurfRepository {
+  _MarkExportedFehlschlag({required super.jldb});
+
+  @override
+  AsyncVoidResult markExported(int year, [DateTime? exportedAt]) async =>
+      Failure(Exception('Platte voll'));
+}
+
 void main() {
   late Jldb db;
   late ProviderContainer container;
@@ -67,20 +75,30 @@ void main() {
   late String? Function(String vorgeschlagenerName) zielAntwort;
   late List<String> vorgeschlageneNamen;
 
+  /// Replaces the Berichtsentwurf repository (e.g. to make markExported fail).
+  BerichtsentwurfRepository Function(Jldb db)? entwurfRepository;
+
+  ProviderContainer baueContainer() => ProviderContainer(
+    overrides: [
+      julogServiceProvider.overrideWith(() => _FakeJulogService(db)),
+      jahresberichtExportZielProvider.overrideWithValue((name, _) async {
+        vorgeschlageneNamen.add(name);
+        return zielAntwort(name);
+      }),
+      if (entwurfRepository != null)
+        berichtsentwurfRepositoryProvider.overrideWithValue(
+          entwurfRepository!(db),
+        ),
+    ],
+  );
+
   setUp(() async {
+    entwurfRepository = null;
     db = (await Jldb.create(':memory:', domain: 'test.org').unwrap());
     zielOrdner = Directory.systemTemp.createTempSync('julog_export_test');
     vorgeschlageneNamen = [];
     zielAntwort = (name) => '${zielOrdner.path}/$name';
-    container = ProviderContainer(
-      overrides: [
-        julogServiceProvider.overrideWith(() => _FakeJulogService(db)),
-        jahresberichtExportZielProvider.overrideWithValue((name) async {
-          vorgeschlageneNamen.add(name);
-          return zielAntwort(name);
-        }),
-      ],
-    );
+    container = baueContainer();
   });
   tearDown(() async {
     container.dispose();
@@ -133,6 +151,10 @@ void main() {
   });
 
   Future<void> oeffneSchritt6(WidgetTester tester) async {
+    if (entwurfRepository != null) {
+      container.dispose();
+      container = baueContainer();
+    }
     tester.view.physicalSize = const Size(1600, 6000);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -465,5 +487,35 @@ void main() {
       final gespeichert = await gespeicherterEntwurf(tester);
       expect(gespeichert.status, EntwurfStatus.entwurf);
     });
+
+    testWidgets(
+      'a failure to save the status is reported separately from the file',
+      (tester) async {
+        entwurfRepository = (db) => _MarkExportedFehlschlag(jldb: db);
+        await legeDatenAn(tester);
+        await oeffneSchritt6(tester);
+        setzeVollstaendigeAngaben();
+        await tester.pump();
+
+        await _exportiere(tester);
+
+        expect(tester.takeException(), isNull);
+        expect(
+          File('${zielOrdner.path}/jahresbericht_2025.xml').existsSync(),
+          isTrue,
+        );
+        expect(
+          find.textContaining('konnte nicht gespeichert werden'),
+          findsOne,
+        );
+        expect(
+          find.textContaining('konnte nicht exportiert werden'),
+          findsNothing,
+        );
+        final gespeichert = await gespeicherterEntwurf(tester);
+        expect(gespeichert.status, EntwurfStatus.entwurf);
+        expect(tester.widget<FilledButton>(_exportKnopf).onPressed, isNotNull);
+      },
+    );
   });
 }

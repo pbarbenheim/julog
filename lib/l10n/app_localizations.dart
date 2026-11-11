@@ -304,12 +304,6 @@ abstract class AppLocalizations {
   /// **'Der Entwurf konnte nicht gespeichert werden: {fehler}'**
   String jahresberichtAssistentSpeichernFehler(String fehler);
 
-  /// Wizard: hint shown by steps that are not implemented yet
-  ///
-  /// In de, this message translates to:
-  /// **'Dieser Schritt wird in einer späteren Version ausgefüllt.'**
-  String get jahresberichtAssistentPlatzhalter;
-
   /// Wizard step 1 title
   ///
   /// In de, this message translates to:
@@ -867,6 +861,24 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Exportiert nach {pfad}'**
   String jahresberichtSchritt6ExportErfolg(String pfad);
+
+  /// Wizard step 6: the file was written, but saving the exported status failed
+  ///
+  /// In de, this message translates to:
+  /// **'Der Bericht wurde nach {pfad} exportiert, aber der Status \"exportiert\" konnte nicht gespeichert werden: {fehler}'**
+  String jahresberichtSchritt6ExportStatusFehler(String pfad, String fehler);
+
+  /// Wizard step 6: confirm button of the save dialog
+  ///
+  /// In de, this message translates to:
+  /// **'Exportieren'**
+  String get jahresberichtSchritt6ExportBestaetigen;
+
+  /// Jahresbericht screens: loading the data failed
+  ///
+  /// In de, this message translates to:
+  /// **'Fehler: {fehler}'**
+  String jahresberichtFehler(String fehler);
 
   /// Wizard step 6: export failed
   ///
