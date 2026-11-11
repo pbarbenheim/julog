@@ -81,9 +81,16 @@ class _KategorieScreenState extends ConsumerState<KategorieScreen> {
             final l10n = AppLocalizations.of(context)!;
 
             if (_isEditing) {
+              final gesperrt = ref.watch(
+                kategorieNameGesperrtProvider(selectedKategorie.id),
+              );
+              if (gesperrt.isLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
               return KategorieForm(
                 key: ValueKey(selectedKategorie.id),
                 initialKategorie: selectedKategorie,
+                nameGesperrt: gesperrt.value ?? false,
                 onSave: (name, berichtsthema) async {
                   await ref
                       .read(kategorieViewModelProvider.notifier)

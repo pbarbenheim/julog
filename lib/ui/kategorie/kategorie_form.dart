@@ -10,7 +10,16 @@ class KategorieForm extends StatefulWidget {
   onSave;
   final Kategorie? initialKategorie;
 
-  const KategorieForm({super.key, this.onSave, this.initialKategorie});
+  /// The name is part of the signature of Einträge, so it cannot change once
+  /// a signed Eintrag uses the Kategorie (ADR-0012).
+  final bool nameGesperrt;
+
+  const KategorieForm({
+    super.key,
+    this.onSave,
+    this.initialKategorie,
+    this.nameGesperrt = false,
+  });
 
   @override
   State<KategorieForm> createState() => _KategorieFormState();
@@ -56,7 +65,14 @@ class _KategorieFormState extends State<KategorieForm> {
             ),
             const SizedBox(height: 16),
             TextFormField(
-              decoration: InputDecoration(labelText: l10n.name(1)),
+              enabled: !widget.nameGesperrt,
+              decoration: InputDecoration(
+                labelText: l10n.name(1),
+                helperText: widget.nameGesperrt
+                    ? l10n.kategorieNameGesperrt
+                    : null,
+                helperMaxLines: 3,
+              ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return l10n.kategorieNameRequired;

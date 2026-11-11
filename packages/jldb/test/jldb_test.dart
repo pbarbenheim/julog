@@ -31,6 +31,11 @@ Future<EintragApiModel> _createSignableEintrag(Jldb db) async {
   await db
       .createKategorie(KategorieApiModel(id: katId, name: 'Sport'))
       .unwrap();
+  return _createSignableEintragIn(db, katId);
+}
+
+/// Like [_createSignableEintrag], but in an already existing Kategorie.
+Future<EintragApiModel> _createSignableEintragIn(Jldb db, UUID katId) async {
   final betreuer = await db
       .createBetreuer(
         BetreuerApiModel(id: UUID.generate(), name: 'Bob', sex: Sex.male),
@@ -507,6 +512,111 @@ void main() {
           .updateKategorie(kat.id, name: 'K2', reportTopic: ReportTopic.sport)
           .unwrap();
       expect((await db.getAllKategorien().unwrap()).single.id, equals(kat.id));
+    });
+
+    group('rename of a Kategorie used by a signed Eintrag', () {
+      late KategorieApiModel kat;
+
+      Future<void> signEintragOf(Jldb db, UUID katId, {int version = 5}) async {
+        final identity = await db
+            .createIdentity(
+              IdentityApiModel(id: UUID.generate(), publicKey: 'pk'),
+            )
+            .unwrap();
+        final eintrag = await _createSignableEintragIn(db, katId);
+        await db
+            .createSignature(
+              SignatureApiModel(
+                eintragId: eintrag.id,
+                identityId: identity.id,
+                signature: 'sig',
+                timestamp: DateTime.fromMillisecondsSinceEpoch(
+                  1_700_000_000_000,
+                ),
+                version: version,
+              ),
+            )
+            .unwrap();
+      }
+
+      setUp(() async {
+        kat = KategorieApiModel(id: UUID.generate(), name: 'Alt');
+        await db.createKategorie(kat).unwrap();
+      });
+
+      test('is rejected with KategorieNameGesperrtException', () async {
+        await signEintragOf(db, kat.id);
+
+        final result = await db.updateKategorie(
+          kat.id,
+          name: 'Neu',
+          reportTopic: ReportTopic.sport,
+        );
+
+        expect(result, isA<Failure>());
+        expect(
+          (result as Failure).error,
+          isA<KategorieNameGesperrtException>(),
+        );
+        final loaded = (await db.getKategorie(kat.id).unwrap()).unwrap();
+        expect(loaded.name, equals('Alt'));
+        expect(loaded.reportTopic, isNull);
+      });
+
+      test(
+        'still allows changing the reportTopic with the same name',
+        () async {
+          await signEintragOf(db, kat.id);
+
+          await db
+              .updateKategorie(
+                kat.id,
+                name: 'Alt',
+                reportTopic: ReportTopic.sport,
+              )
+              .unwrap();
+
+          final loaded = (await db.getKategorie(kat.id).unwrap()).unwrap();
+          expect(loaded.name, equals('Alt'));
+          expect(loaded.reportTopic, equals(ReportTopic.sport));
+        },
+      );
+
+      test('is rejected for an invalid Signatur too (ADR-0008)', () async {
+        await signEintragOf(db, kat.id, version: 99);
+
+        final result = await db.updateKategorie(kat.id, name: 'Neu');
+
+        expect(result, isA<Failure>());
+      });
+
+      test('is allowed when the only Eintrag is unsigned', () async {
+        await _createSignableEintragIn(db, kat.id);
+
+        await db.updateKategorie(kat.id, name: 'Neu').unwrap();
+
+        final loaded = (await db.getKategorie(kat.id).unwrap()).unwrap();
+        expect(loaded.name, equals('Neu'));
+      });
+
+      test('is allowed when a signed Eintrag uses another Kategorie', () async {
+        final other = KategorieApiModel(id: UUID.generate(), name: 'Andere');
+        await db.createKategorie(other).unwrap();
+        await signEintragOf(db, other.id);
+
+        await db.updateKategorie(kat.id, name: 'Neu').unwrap();
+
+        final loaded = (await db.getKategorie(kat.id).unwrap()).unwrap();
+        expect(loaded.name, equals('Neu'));
+      });
+
+      test('isKategorieNameGesperrt reflects signed usage', () async {
+        expect(await db.isKategorieNameGesperrt(kat.id).unwrap(), isFalse);
+        await _createSignableEintragIn(db, kat.id);
+        expect(await db.isKategorieNameGesperrt(kat.id).unwrap(), isFalse);
+        await signEintragOf(db, kat.id);
+        expect(await db.isKategorieNameGesperrt(kat.id).unwrap(), isTrue);
+      });
     });
 
     test('updateKategorie persists across close and reopen', () async {

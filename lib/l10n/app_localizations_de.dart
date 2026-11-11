@@ -73,6 +73,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get kategorieNameRequired => 'Bitte gib einen Namen ein';
 
   @override
+  String get kategorieNameGesperrt =>
+      'Der Name kann nicht geändert werden, weil die Kategorie in einem signierten Eintrag verwendet wird.';
+
+  @override
   String get berichtsthema => 'Berichtsthema (optional)';
 
   @override

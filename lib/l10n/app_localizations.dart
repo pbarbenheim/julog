@@ -184,6 +184,12 @@ abstract class AppLocalizations {
   /// **'Bitte gib einen Namen ein'**
   String get kategorieNameRequired;
 
+  /// Helper text in the Kategorie form when the name is locked (ADR-0012)
+  ///
+  /// In de, this message translates to:
+  /// **'Der Name kann nicht geändert werden, weil die Kategorie in einem signierten Eintrag verwendet wird.'**
+  String get kategorieNameGesperrt;
+
   /// Berichtsthema field label in the Kategorie form
   ///
   /// In de, this message translates to:

@@ -172,5 +172,57 @@ void main() {
       expect(called, isTrue);
       expect(savedThema, isNull);
     });
+
+    testWidgets(
+      'locks the name when nameGesperrt, Berichtsthema stays editable',
+      (tester) async {
+        String? savedName;
+        Berichtsthema? savedThema;
+        await tester.pumpWidget(
+          _wrap(
+            KategorieForm(
+              initialKategorie: const Kategorie(id: 'k1', name: 'Alt'),
+              nameGesperrt: true,
+              onSave: (name, thema) {
+                savedName = name;
+                savedThema = thema;
+              },
+            ),
+          ),
+        );
+
+        final field = tester.widget<TextField>(find.byType(TextField).first);
+        expect(field.enabled, isFalse);
+        expect(
+          find.text(
+            'Der Name kann nicht geändert werden, weil die Kategorie in einem '
+            'signierten Eintrag verwendet wird.',
+          ),
+          findsOneWidget,
+        );
+
+        await _pickThema(tester, 'Sport');
+        await tester.tap(find.text('Speichern'));
+        await tester.pumpAndSettle();
+
+        expect(savedName, 'Alt');
+        expect(savedThema, Berichtsthema.sport);
+      },
+    );
+
+    testWidgets('name is editable by default', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          KategorieForm(
+            initialKategorie: const Kategorie(id: 'k1', name: 'Alt'),
+            onSave: (name, thema) {},
+          ),
+        ),
+      );
+
+      final field = tester.widget<TextField>(find.byType(TextField).first);
+      expect(field.enabled, isTrue);
+      expect(find.textContaining('signierten Eintrag'), findsNothing);
+    });
   });
 }

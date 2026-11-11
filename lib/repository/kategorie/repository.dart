@@ -38,6 +38,10 @@ class KategorieRepository
   }
 
   /// Changes name and Berichtsthema of an existing Kategorie.
+  ///
+  /// Fails with a [KategorieNameGesperrtException] if the name changes while
+  /// a signed Eintrag uses the Kategorie (ADR-0012); the Berichtsthema stays
+  /// editable.
   AsyncVoidResult edit(KategorieEditData data) async {
     final result = await _jldb.updateKategorie(
       UUID.fromString(data.id),
@@ -50,6 +54,11 @@ class KategorieRepository
     invalidateCache();
     return Result.voidSuccess();
   }
+
+  /// Whether the name of the Kategorie [id] cannot be changed because a signed
+  /// Eintrag uses it (ADR-0012).
+  AsyncResult<bool> isNameGesperrt(String id) =>
+      _jldb.isKategorieNameGesperrt(UUID.fromString(id));
 
   @override
   Kategorie fromJldbRecord(KategorieApiModel record) =>
