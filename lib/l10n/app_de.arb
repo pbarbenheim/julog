@@ -361,6 +361,72 @@
   "@jahresberichtSchritt3Titel": {
     "description": "Wizard step 3 title"
   },
+  "jahresberichtSchritt3Einleitung": "Julog hat diese Werte aus den Einträgen des Berichtsjahres berechnet. Du kannst jeden Wert überschreiben, um Sonderfälle zu korrigieren, und die Überschreibung wieder zurücknehmen. Darunter gibst du die Werte ein, die Julog nicht kennt.",
+  "@jahresberichtSchritt3Einleitung": {
+    "description": "Wizard step 3: introduction"
+  },
+  "jahresberichtSchritt3BerechnetTitel": "Berechnete Werte",
+  "@jahresberichtSchritt3BerechnetTitel": {
+    "description": "Wizard step 3: section title of the computed values"
+  },
+  "jahresberichtSchritt3ManuellTitel": "Eigene Angaben",
+  "@jahresberichtSchritt3ManuellTitel": {
+    "description": "Wizard step 3: section title of the manual values"
+  },
+  "jahresberichtSchritt3Gruppenabende": "Gruppenabende: {thema}",
+  "@jahresberichtSchritt3Gruppenabende": {
+    "description": "Wizard step 3: label of Arbeit_Wert_01 to 07",
+    "placeholders": {
+      "thema": {
+        "type": "String"
+      }
+    }
+  },
+  "jahresberichtSchritt3Dauer": "Durchschnittliche Dauer je Gruppenabend (Minuten)",
+  "@jahresberichtSchritt3Dauer": {
+    "description": "Wizard step 3: label of Arbeit_Wert_10"
+  },
+  "jahresberichtSchritt3Betreuerzahl": "Durchschnittliche Betreuerzahl je Gruppenabend",
+  "@jahresberichtSchritt3Betreuerzahl": {
+    "description": "Wizard step 3: label of Arbeit_Wert_12"
+  },
+  "jahresberichtSchritt3Tagesveranstaltungen": "Tagesveranstaltungen",
+  "@jahresberichtSchritt3Tagesveranstaltungen": {
+    "description": "Wizard step 3: label of Arbeit_Wert_13"
+  },
+  "jahresberichtSchritt3TagesveranstaltungenHinweis": "Einträge ab 5 Stunden Dauer; sie zählen auch als Gruppenabende.",
+  "@jahresberichtSchritt3TagesveranstaltungenHinweis": {
+    "description": "Wizard step 3: helper text of Arbeit_Wert_13"
+  },
+  "jahresberichtSchritt3Vorbereitung": "Durchschnittliche Vor- und Nachbereitungszeit je Gruppenabend (Minuten)",
+  "@jahresberichtSchritt3Vorbereitung": {
+    "description": "Wizard step 3: label of Arbeit_Wert_11"
+  },
+  "jahresberichtSchritt3SonstigeArbeit": "Stunden für sonstige Arbeit",
+  "@jahresberichtSchritt3SonstigeArbeit": {
+    "description": "Wizard step 3: label of Arbeit_Wert_20"
+  },
+  "jahresberichtSchritt3Berechnet": "Berechnet: {wert}",
+  "@jahresberichtSchritt3Berechnet": {
+    "description": "Wizard step 3: the computed value shown next to an overridden one",
+    "placeholders": {
+      "wert": {
+        "type": "int"
+      }
+    }
+  },
+  "jahresberichtSchritt3Ueberschrieben": "Überschrieben",
+  "@jahresberichtSchritt3Ueberschrieben": {
+    "description": "Wizard step 3: mark of an overridden value"
+  },
+  "jahresberichtSchritt3Zuruecknehmen": "Überschreibung zurücknehmen",
+  "@jahresberichtSchritt3Zuruecknehmen": {
+    "description": "Wizard step 3: tooltip of the revert button"
+  },
+  "jahresberichtSchritt3FehlerZahl": "Bitte eine ganze Zahl ab 0 eingeben.",
+  "@jahresberichtSchritt3FehlerZahl": {
+    "description": "Wizard step 3: invalid number input"
+  },
 
   "jahresberichtSchritt4Titel": "Fragen",
   "@jahresberichtSchritt4Titel": {

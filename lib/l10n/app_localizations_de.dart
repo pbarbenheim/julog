@@ -238,6 +238,61 @@ class AppLocalizationsDe extends AppLocalizations {
   String get jahresberichtSchritt3Titel => 'Arbeitswerte';
 
   @override
+  String get jahresberichtSchritt3Einleitung =>
+      'Julog hat diese Werte aus den Einträgen des Berichtsjahres berechnet. Du kannst jeden Wert überschreiben, um Sonderfälle zu korrigieren, und die Überschreibung wieder zurücknehmen. Darunter gibst du die Werte ein, die Julog nicht kennt.';
+
+  @override
+  String get jahresberichtSchritt3BerechnetTitel => 'Berechnete Werte';
+
+  @override
+  String get jahresberichtSchritt3ManuellTitel => 'Eigene Angaben';
+
+  @override
+  String jahresberichtSchritt3Gruppenabende(String thema) {
+    return 'Gruppenabende: $thema';
+  }
+
+  @override
+  String get jahresberichtSchritt3Dauer =>
+      'Durchschnittliche Dauer je Gruppenabend (Minuten)';
+
+  @override
+  String get jahresberichtSchritt3Betreuerzahl =>
+      'Durchschnittliche Betreuerzahl je Gruppenabend';
+
+  @override
+  String get jahresberichtSchritt3Tagesveranstaltungen =>
+      'Tagesveranstaltungen';
+
+  @override
+  String get jahresberichtSchritt3TagesveranstaltungenHinweis =>
+      'Einträge ab 5 Stunden Dauer; sie zählen auch als Gruppenabende.';
+
+  @override
+  String get jahresberichtSchritt3Vorbereitung =>
+      'Durchschnittliche Vor- und Nachbereitungszeit je Gruppenabend (Minuten)';
+
+  @override
+  String get jahresberichtSchritt3SonstigeArbeit =>
+      'Stunden für sonstige Arbeit';
+
+  @override
+  String jahresberichtSchritt3Berechnet(int wert) {
+    return 'Berechnet: $wert';
+  }
+
+  @override
+  String get jahresberichtSchritt3Ueberschrieben => 'Überschrieben';
+
+  @override
+  String get jahresberichtSchritt3Zuruecknehmen =>
+      'Überschreibung zurücknehmen';
+
+  @override
+  String get jahresberichtSchritt3FehlerZahl =>
+      'Bitte eine ganze Zahl ab 0 eingeben.';
+
+  @override
   String get jahresberichtSchritt4Titel => 'Fragen';
 
   @override
