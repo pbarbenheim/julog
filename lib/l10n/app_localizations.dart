@@ -207,6 +207,234 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Austrittsdatum: {date}'**
   String stateExitDate(DateTime date);
+
+  /// Title of the Jahresbericht overview page
+  ///
+  /// In de, this message translates to:
+  /// **'Jahresbericht'**
+  String get jahresberichtListeTitel;
+
+  /// Label of the Berichtsjahr selection on the overview page
+  ///
+  /// In de, this message translates to:
+  /// **'Berichtsjahr'**
+  String get jahresberichtListeBerichtsjahr;
+
+  /// Starts a Jahresbericht for the selected Berichtsjahr (no draft yet)
+  ///
+  /// In de, this message translates to:
+  /// **'Bericht starten'**
+  String get jahresberichtListeStarten;
+
+  /// Continues the existing draft of the selected Berichtsjahr
+  ///
+  /// In de, this message translates to:
+  /// **'Entwurf fortsetzen'**
+  String get jahresberichtListeFortsetzen;
+
+  /// Heading of the list of existing Berichtsentwuerfe
+  ///
+  /// In de, this message translates to:
+  /// **'Bisherige Berichte'**
+  String get jahresberichtListeBestehende;
+
+  /// Hint when there is no Berichtsentwurf yet
+  ///
+  /// In de, this message translates to:
+  /// **'Noch kein Jahresbericht angelegt.'**
+  String get jahresberichtListeLeer;
+
+  /// List entry of a Berichtsentwurf
+  ///
+  /// In de, this message translates to:
+  /// **'Berichtsjahr {jahr}'**
+  String jahresberichtListeBerichtsjahrEintrag(int jahr);
+
+  /// Status of a Berichtsentwurf that was not exported yet
+  ///
+  /// In de, this message translates to:
+  /// **'Entwurf'**
+  String get jahresberichtStatusEntwurf;
+
+  /// Status of an exported Berichtsentwurf
+  ///
+  /// In de, this message translates to:
+  /// **'Exportiert am {datum}'**
+  String jahresberichtStatusExportiert(DateTime datum);
+
+  /// Title of the Jahresbericht wizard
+  ///
+  /// In de, this message translates to:
+  /// **'Jahresbericht {jahr}'**
+  String jahresberichtAssistentTitel(int jahr);
+
+  /// Position in the Jahresbericht wizard
+  ///
+  /// In de, this message translates to:
+  /// **'Schritt {nummer} von {anzahl}'**
+  String jahresberichtAssistentSchrittVon(int nummer, int anzahl);
+
+  /// Wizard: previous step
+  ///
+  /// In de, this message translates to:
+  /// **'Zurück'**
+  String get jahresberichtAssistentZurueck;
+
+  /// Wizard: next step
+  ///
+  /// In de, this message translates to:
+  /// **'Weiter'**
+  String get jahresberichtAssistentWeiter;
+
+  /// Wizard: close and return to the list
+  ///
+  /// In de, this message translates to:
+  /// **'Schließen'**
+  String get jahresberichtAssistentSchliessen;
+
+  /// Wizard: saving the draft failed
+  ///
+  /// In de, this message translates to:
+  /// **'Der Entwurf konnte nicht gespeichert werden: {fehler}'**
+  String jahresberichtAssistentSpeichernFehler(String fehler);
+
+  /// Wizard: hint shown by steps that are not implemented yet
+  ///
+  /// In de, this message translates to:
+  /// **'Dieser Schritt wird in einer späteren Version ausgefüllt.'**
+  String get jahresberichtAssistentPlatzhalter;
+
+  /// Wizard step 1 title
+  ///
+  /// In de, this message translates to:
+  /// **'Jahr und Übersicht der Zählwerte'**
+  String get jahresberichtSchritt1Titel;
+
+  /// Wizard step 1 intro
+  ///
+  /// In de, this message translates to:
+  /// **'Julog berechnet diese Zählwerte aus deinen Stammdaten. Stichtag ist der {stichtag}. Hier kannst du sie nur prüfen.'**
+  String jahresberichtSchritt1Einleitung(DateTime stichtag);
+
+  /// Wizard step 1: where to correct the Stammdaten
+  ///
+  /// In de, this message translates to:
+  /// **'Stimmt etwas nicht? Korrigiere die Stammdaten unter \"Jugendliche\" (Eintritt, Austritt, Geburtsdatum, Herkunft), \"Betreuer\" und \"Dienstbuch\". Der Entwurf bleibt dabei gespeichert.'**
+  String get jahresberichtSchritt1Hinweis;
+
+  /// Wizard step 1: reload the Stammdaten
+  ///
+  /// In de, this message translates to:
+  /// **'Zählwerte neu berechnen'**
+  String get jahresberichtSchritt1Neuladen;
+
+  /// Wizard step 1 section
+  ///
+  /// In de, this message translates to:
+  /// **'Mitglieder am Stichtag'**
+  String get jahresberichtSchritt1Mitglieder;
+
+  /// Wizard step 1 section
+  ///
+  /// In de, this message translates to:
+  /// **'Alter der Mitglieder am Stichtag'**
+  String get jahresberichtSchritt1Alter;
+
+  /// Wizard step 1: age row
+  ///
+  /// In de, this message translates to:
+  /// **'Unter 5 Jahre'**
+  String get jahresberichtSchritt1AlterUnter5;
+
+  /// Wizard step 1: age row
+  ///
+  /// In de, this message translates to:
+  /// **'{alter} Jahre'**
+  String jahresberichtSchritt1AlterJahre(int alter);
+
+  /// Wizard step 1: age row
+  ///
+  /// In de, this message translates to:
+  /// **'Über 18 Jahre'**
+  String get jahresberichtSchritt1AlterUeber18;
+
+  /// Wizard step 1 section
+  ///
+  /// In de, this message translates to:
+  /// **'Betreuer'**
+  String get jahresberichtSchritt1Betreuer;
+
+  /// Wizard step 1: how Betreuer are counted
+  ///
+  /// In de, this message translates to:
+  /// **'Gezählt werden Betreuer, die in mindestens einem Eintrag des Berichtsjahres stehen.'**
+  String get jahresberichtSchritt1BetreuerHinweis;
+
+  /// Wizard step 1 section
+  ///
+  /// In de, this message translates to:
+  /// **'Zugang im Berichtsjahr'**
+  String get jahresberichtSchritt1Zugang;
+
+  /// Wizard step 1 section
+  ///
+  /// In de, this message translates to:
+  /// **'Abgang im Berichtsjahr'**
+  String get jahresberichtSchritt1Abgang;
+
+  /// Wizard step 1: Abgang row
+  ///
+  /// In de, this message translates to:
+  /// **'In die Einsatzabteilung'**
+  String get jahresberichtSchritt1AbgangEinsatzabteilung;
+
+  /// Wizard step 1: Abgang row
+  ///
+  /// In de, this message translates to:
+  /// **'Sonstige'**
+  String get jahresberichtSchritt1AbgangSonstige;
+
+  /// Wizard step 1: heading for the reasons of the sonstige Abgaenge
+  ///
+  /// In de, this message translates to:
+  /// **'Gründe der sonstigen Abgänge'**
+  String get jahresberichtSchritt1AbgangGruende;
+
+  /// Wizard step 1: total column
+  ///
+  /// In de, this message translates to:
+  /// **'Gesamt'**
+  String get jahresberichtSchritt1Gesamt;
+
+  /// Wizard step 2 title
+  ///
+  /// In de, this message translates to:
+  /// **'Berichtsthemen zuordnen'**
+  String get jahresberichtSchritt2Titel;
+
+  /// Wizard step 3 title
+  ///
+  /// In de, this message translates to:
+  /// **'Arbeitswerte'**
+  String get jahresberichtSchritt3Titel;
+
+  /// Wizard step 4 title
+  ///
+  /// In de, this message translates to:
+  /// **'Fragen'**
+  String get jahresberichtSchritt4Titel;
+
+  /// Wizard step 5 title
+  ///
+  /// In de, this message translates to:
+  /// **'Einsatzabteilung'**
+  String get jahresberichtSchritt5Titel;
+
+  /// Wizard step 6 title
+  ///
+  /// In de, this message translates to:
+  /// **'Zusammenfassung und Export'**
+  String get jahresberichtSchritt6Titel;
 }
 
 class _AppLocalizationsDelegate

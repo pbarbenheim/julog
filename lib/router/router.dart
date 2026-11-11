@@ -8,6 +8,8 @@ import '../ui/betreuer/screen.dart';
 import '../ui/dashboard/dashboard_screen.dart';
 import '../ui/eintrag/eintrag_screen.dart';
 import '../ui/identity/identity_screen.dart';
+import '../ui/jahresbericht/assistent/assistent_screen.dart';
+import '../ui/jahresbericht/jahresbericht_screen.dart';
 import '../ui/jugendliche/jugendliche_screen.dart';
 import '../ui/kategorie/kategorie_screen.dart';
 import '../ui/mainnav/destination.dart';
@@ -44,6 +46,14 @@ abstract class JulogRouteData extends GoRouteData {
     TypedGoRoute<IdentityRoute>(path: '/identity', name: 'identity'),
     TypedGoRoute<BetreuerRoute>(path: '/betreuer', name: 'betreuer'),
     TypedGoRoute<KategorieRoute>(path: '/kategorie', name: 'kategorie'),
+    TypedGoRoute<JahresberichtRoute>(
+      path: '/jahresbericht',
+      name: 'jahresbericht',
+    ),
+    TypedGoRoute<JahresberichtAssistentRoute>(
+      path: '/jahresbericht/:berichtsjahr',
+      name: 'jahresberichtAssistent',
+    ),
   ],
 )
 class MainShellRoute extends ShellRouteData {
@@ -61,6 +71,7 @@ class MainShellRoute extends ShellRouteData {
       'identity' => Destination.identities,
       'betreuer' => Destination.betreuer,
       'kategorie' => Destination.kategorien,
+      'jahresbericht' || 'jahresberichtAssistent' => Destination.jahresbericht,
       _ => throw StateError('Unknown route name: ${state.name}'),
     };
     return Shell(destination: destination, child: navigator);
@@ -134,6 +145,29 @@ class KategorieRoute extends JulogRouteData with $KategorieRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return KategorieScreen(kategorieId: kategorieId);
+  }
+}
+
+@immutable
+class JahresberichtRoute extends JulogRouteData with $JahresberichtRoute {
+  const JahresberichtRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const JahresberichtScreen();
+  }
+}
+
+@immutable
+class JahresberichtAssistentRoute extends JulogRouteData
+    with $JahresberichtAssistentRoute {
+  final int berichtsjahr;
+
+  const JahresberichtAssistentRoute({required this.berichtsjahr});
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return AssistentScreen(berichtsjahr: berichtsjahr);
   }
 }
 

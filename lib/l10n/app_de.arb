@@ -120,5 +120,235 @@
         "format": "yMd"
       }
     }
+  },
+
+  "jahresberichtListeTitel": "Jahresbericht",
+  "@jahresberichtListeTitel": {
+    "description": "Title of the Jahresbericht overview page"
+  },
+
+  "jahresberichtListeBerichtsjahr": "Berichtsjahr",
+  "@jahresberichtListeBerichtsjahr": {
+    "description": "Label of the Berichtsjahr selection on the overview page"
+  },
+
+  "jahresberichtListeStarten": "Bericht starten",
+  "@jahresberichtListeStarten": {
+    "description": "Starts a Jahresbericht for the selected Berichtsjahr (no draft yet)"
+  },
+
+  "jahresberichtListeFortsetzen": "Entwurf fortsetzen",
+  "@jahresberichtListeFortsetzen": {
+    "description": "Continues the existing draft of the selected Berichtsjahr"
+  },
+
+  "jahresberichtListeBestehende": "Bisherige Berichte",
+  "@jahresberichtListeBestehende": {
+    "description": "Heading of the list of existing Berichtsentwuerfe"
+  },
+
+  "jahresberichtListeLeer": "Noch kein Jahresbericht angelegt.",
+  "@jahresberichtListeLeer": {
+    "description": "Hint when there is no Berichtsentwurf yet"
+  },
+
+  "jahresberichtListeBerichtsjahrEintrag": "Berichtsjahr {jahr}",
+  "@jahresberichtListeBerichtsjahrEintrag": {
+    "description": "List entry of a Berichtsentwurf",
+    "placeholders": {
+      "jahr": {
+        "type": "int"
+      }
+    }
+  },
+
+  "jahresberichtStatusEntwurf": "Entwurf",
+  "@jahresberichtStatusEntwurf": {
+    "description": "Status of a Berichtsentwurf that was not exported yet"
+  },
+
+  "jahresberichtStatusExportiert": "Exportiert am {datum}",
+  "@jahresberichtStatusExportiert": {
+    "description": "Status of an exported Berichtsentwurf",
+    "placeholders": {
+      "datum": {
+        "type": "DateTime",
+        "format": "yMd"
+      }
+    }
+  },
+
+  "jahresberichtAssistentTitel": "Jahresbericht {jahr}",
+  "@jahresberichtAssistentTitel": {
+    "description": "Title of the Jahresbericht wizard",
+    "placeholders": {
+      "jahr": {
+        "type": "int"
+      }
+    }
+  },
+
+  "jahresberichtAssistentSchrittVon": "Schritt {nummer} von {anzahl}",
+  "@jahresberichtAssistentSchrittVon": {
+    "description": "Position in the Jahresbericht wizard",
+    "placeholders": {
+      "nummer": {
+        "type": "int"
+      },
+      "anzahl": {
+        "type": "int"
+      }
+    }
+  },
+
+  "jahresberichtAssistentZurueck": "Zurück",
+  "@jahresberichtAssistentZurueck": {
+    "description": "Wizard: previous step"
+  },
+
+  "jahresberichtAssistentWeiter": "Weiter",
+  "@jahresberichtAssistentWeiter": {
+    "description": "Wizard: next step"
+  },
+
+  "jahresberichtAssistentSchliessen": "Schließen",
+  "@jahresberichtAssistentSchliessen": {
+    "description": "Wizard: close and return to the list"
+  },
+
+  "jahresberichtAssistentSpeichernFehler": "Der Entwurf konnte nicht gespeichert werden: {fehler}",
+  "@jahresberichtAssistentSpeichernFehler": {
+    "description": "Wizard: saving the draft failed",
+    "placeholders": {
+      "fehler": {
+        "type": "String"
+      }
+    }
+  },
+
+  "jahresberichtAssistentPlatzhalter": "Dieser Schritt wird in einer späteren Version ausgefüllt.",
+  "@jahresberichtAssistentPlatzhalter": {
+    "description": "Wizard: hint shown by steps that are not implemented yet"
+  },
+
+  "jahresberichtSchritt1Titel": "Jahr und Übersicht der Zählwerte",
+  "@jahresberichtSchritt1Titel": {
+    "description": "Wizard step 1 title"
+  },
+
+  "jahresberichtSchritt1Einleitung": "Julog berechnet diese Zählwerte aus deinen Stammdaten. Stichtag ist der {stichtag}. Hier kannst du sie nur prüfen.",
+  "@jahresberichtSchritt1Einleitung": {
+    "description": "Wizard step 1 intro",
+    "placeholders": {
+      "stichtag": {
+        "type": "DateTime",
+        "format": "yMd"
+      }
+    }
+  },
+
+  "jahresberichtSchritt1Hinweis": "Stimmt etwas nicht? Korrigiere die Stammdaten unter \"Jugendliche\" (Eintritt, Austritt, Geburtsdatum, Herkunft), \"Betreuer\" und \"Dienstbuch\". Der Entwurf bleibt dabei gespeichert.",
+  "@jahresberichtSchritt1Hinweis": {
+    "description": "Wizard step 1: where to correct the Stammdaten"
+  },
+
+  "jahresberichtSchritt1Neuladen": "Zählwerte neu berechnen",
+  "@jahresberichtSchritt1Neuladen": {
+    "description": "Wizard step 1: reload the Stammdaten"
+  },
+
+  "jahresberichtSchritt1Mitglieder": "Mitglieder am Stichtag",
+  "@jahresberichtSchritt1Mitglieder": {
+    "description": "Wizard step 1 section"
+  },
+
+  "jahresberichtSchritt1Alter": "Alter der Mitglieder am Stichtag",
+  "@jahresberichtSchritt1Alter": {
+    "description": "Wizard step 1 section"
+  },
+
+  "jahresberichtSchritt1AlterUnter5": "Unter 5 Jahre",
+  "@jahresberichtSchritt1AlterUnter5": {
+    "description": "Wizard step 1: age row"
+  },
+
+  "jahresberichtSchritt1AlterJahre": "{alter} Jahre",
+  "@jahresberichtSchritt1AlterJahre": {
+    "description": "Wizard step 1: age row",
+    "placeholders": {
+      "alter": {
+        "type": "int"
+      }
+    }
+  },
+
+  "jahresberichtSchritt1AlterUeber18": "Über 18 Jahre",
+  "@jahresberichtSchritt1AlterUeber18": {
+    "description": "Wizard step 1: age row"
+  },
+
+  "jahresberichtSchritt1Betreuer": "Betreuer",
+  "@jahresberichtSchritt1Betreuer": {
+    "description": "Wizard step 1 section"
+  },
+
+  "jahresberichtSchritt1BetreuerHinweis": "Gezählt werden Betreuer, die in mindestens einem Eintrag des Berichtsjahres stehen.",
+  "@jahresberichtSchritt1BetreuerHinweis": {
+    "description": "Wizard step 1: how Betreuer are counted"
+  },
+
+  "jahresberichtSchritt1Zugang": "Zugang im Berichtsjahr",
+  "@jahresberichtSchritt1Zugang": {
+    "description": "Wizard step 1 section"
+  },
+
+  "jahresberichtSchritt1Abgang": "Abgang im Berichtsjahr",
+  "@jahresberichtSchritt1Abgang": {
+    "description": "Wizard step 1 section"
+  },
+
+  "jahresberichtSchritt1AbgangEinsatzabteilung": "In die Einsatzabteilung",
+  "@jahresberichtSchritt1AbgangEinsatzabteilung": {
+    "description": "Wizard step 1: Abgang row"
+  },
+
+  "jahresberichtSchritt1AbgangSonstige": "Sonstige",
+  "@jahresberichtSchritt1AbgangSonstige": {
+    "description": "Wizard step 1: Abgang row"
+  },
+
+  "jahresberichtSchritt1AbgangGruende": "Gründe der sonstigen Abgänge",
+  "@jahresberichtSchritt1AbgangGruende": {
+    "description": "Wizard step 1: heading for the reasons of the sonstige Abgaenge"
+  },
+
+  "jahresberichtSchritt1Gesamt": "Gesamt",
+  "@jahresberichtSchritt1Gesamt": {
+    "description": "Wizard step 1: total column"
+  },
+
+  "jahresberichtSchritt2Titel": "Berichtsthemen zuordnen",
+  "@jahresberichtSchritt2Titel": {
+    "description": "Wizard step 2 title"
+  },
+
+  "jahresberichtSchritt3Titel": "Arbeitswerte",
+  "@jahresberichtSchritt3Titel": {
+    "description": "Wizard step 3 title"
+  },
+
+  "jahresberichtSchritt4Titel": "Fragen",
+  "@jahresberichtSchritt4Titel": {
+    "description": "Wizard step 4 title"
+  },
+
+  "jahresberichtSchritt5Titel": "Einsatzabteilung",
+  "@jahresberichtSchritt5Titel": {
+    "description": "Wizard step 5 title"
+  },
+
+  "jahresberichtSchritt6Titel": "Zusammenfassung und Export",
+  "@jahresberichtSchritt6Titel": {
+    "description": "Wizard step 6 title"
   }
 }
