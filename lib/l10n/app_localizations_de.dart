@@ -411,4 +411,95 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get jahresberichtSchritt6Titel => 'Zusammenfassung und Export';
+
+  @override
+  String get jahresberichtSchritt6Einleitung =>
+      'Prüfe hier alle Werte des Berichts. Werte, die du überschrieben hast, sind markiert. Sind alle Angaben vollständig, kannst du die XML-Datei exportieren und im Jahresberichtstool hochladen.';
+
+  @override
+  String get jahresberichtSchritt6Unvollstaendig =>
+      'Der Bericht ist noch nicht vollständig, der Export ist gesperrt. Das fehlt:';
+
+  @override
+  String jahresberichtSchritt6Fehlt(int nummer, String titel, String was) {
+    return 'Schritt $nummer ($titel): $was';
+  }
+
+  @override
+  String jahresberichtSchritt6FehltKategorien(String kategorien) {
+    return 'Kein Berichtsthema für: $kategorien';
+  }
+
+  @override
+  String get jahresberichtSchritt6FehltVorbereitung =>
+      'Durchschnittliche Vor- und Nachbereitungszeit fehlt';
+
+  @override
+  String get jahresberichtSchritt6FehltSonstigeArbeit =>
+      'Stunden für sonstige Arbeit fehlen';
+
+  @override
+  String jahresberichtSchritt6FehltFragen(String nummern) {
+    return 'Fragen ohne Antwort: $nummern';
+  }
+
+  @override
+  String jahresberichtSchritt6FehltEinsatzabteilung(String geschlechter) {
+    return 'Unter 27-Jährige in der Einsatzabteilung fehlen für: $geschlechter';
+  }
+
+  @override
+  String get jahresberichtSchritt6Vollstaendig =>
+      'Alle Angaben sind vollständig. Der Bericht kann exportiert werden.';
+
+  @override
+  String get jahresberichtSchritt6ZaehlwerteTitel => 'Zählwerte';
+
+  @override
+  String get jahresberichtSchritt6ArbeitswerteTitel => 'Arbeitswerte';
+
+  @override
+  String get jahresberichtSchritt6AngabenTitel => 'Eigene Angaben';
+
+  @override
+  String get jahresberichtSchritt6Einsatzabteilung =>
+      'Unter 27-Jährige in der Einsatzabteilung';
+
+  @override
+  String jahresberichtSchritt6Frage(int nummer) {
+    return 'Frage $nummer';
+  }
+
+  @override
+  String get jahresberichtSchritt6Ja => 'Ja';
+
+  @override
+  String get jahresberichtSchritt6Nein => 'Nein';
+
+  @override
+  String get jahresberichtSchritt6Offen => 'Offen';
+
+  @override
+  String get jahresberichtSchritt6Exportieren => 'Als XML exportieren';
+
+  @override
+  String get jahresberichtSchritt6ErneutExportieren => 'Erneut exportieren';
+
+  @override
+  String jahresberichtSchritt6ZuletztExportiert(DateTime datum) {
+    final intl.DateFormat datumDateFormat = intl.DateFormat.yMd(localeName);
+    final String datumString = datumDateFormat.format(datum);
+
+    return 'Zuletzt exportiert am $datumString';
+  }
+
+  @override
+  String jahresberichtSchritt6ExportErfolg(String pfad) {
+    return 'Exportiert nach $pfad';
+  }
+
+  @override
+  String jahresberichtSchritt6ExportFehler(String fehler) {
+    return 'Der Bericht konnte nicht exportiert werden: $fehler';
+  }
 }
