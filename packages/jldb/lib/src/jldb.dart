@@ -767,21 +767,34 @@ final class Jldb {
     required String name,
     ReportTopic? reportTopic,
   }) {
-    const sql =
-        'update kategorien set name = ?, berichtsthema = ? where id = ?;';
+    // The guard and the update are one statement: the update does not touch
+    // a Kategorie whose name would change while a signed Eintrag uses it.
+    const sql = '''
+      update kategorien
+      set name = ?, berichtsthema = ?
+      where id = ?
+        and (
+          name = ?
+          or not exists(
+            select 1
+            from eintrag as e
+            join signature as s on s.eintrag_id = e.id
+            where e.kategorie_id = kategorien.id
+          )
+        )
+      returning id;
+    ''';
     return Result.voidSafeAsync(() async {
-      final current = await getKategorie(id).unwrap();
-      if (current is Some<KategorieApiModel> &&
-          current.unwrap().name != name &&
-          await isKategorieNameGesperrt(id).unwrap()) {
-        throw KategorieNameGesperrtException(id);
-      }
       _updateKategorieStmnt ??= await _database.prepare(sql, peristent: true);
-      await _updateKategorieStmnt!.execute([
+      final updated = await _updateKategorieStmnt!.select([
         name,
         reportTopic?.toInt(),
         id.toString(),
+        name,
       ]);
+      if (updated.isEmpty && await getKategorie(id).unwrap() is Some) {
+        throw KategorieNameGesperrtException(id);
+      }
     });
   }
 

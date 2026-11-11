@@ -59,7 +59,7 @@ class KategorieViewModel extends _$KategorieViewModel {
 /// Whether the name of the Kategorie [id] is locked because a signed Eintrag
 /// uses it (ADR-0012).
 @riverpod
-Future<bool> kategorieNameGesperrt(Ref ref, String id) async {
+Future<bool> kategorieNameGesperrt(Ref ref, String id) {
   final repo = ref.watch(kategorieRepositoryProvider);
   return repo.isNameGesperrt(id).unwrap();
 }
