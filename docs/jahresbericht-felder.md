@@ -10,7 +10,7 @@ Referenz für den XML-Export an das Jahresberichtstool der Deutschen Jugendfeuer
 ```
 
 - Flach: ein `<field key="…">Wert</field>` je Feld unter dem Wurzelelement `<xml>`.
-- Alle Werte sind ganze Zahlen. Ausnahme: `Organisationen`, im Beispiel leer.
+- Alle Werte sind ganze Zahlen. Ausnahme: `Organisationen`, im Beispiel leer; Julog schreibt dort immer 1.
 - Schlüssel enthalten Umlaute (`Grund_SO_Übernahme`, `Alter_Anz_über_18_*`).
 - Suffixe `_M`, `_W`, `_D` stehen für männlich, weiblich, divers (entspricht `Gender`).
 - Die Beispiel-XML enthält in `Frage_08_MML_JA` den Wert 14. Das ist ein Fehler in der Beispiel-XML; die XLSX-Vorlage kennt das nicht. Alle Fragen sind reine Ja/Nein-Angaben.

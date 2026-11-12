@@ -28,7 +28,7 @@ The attendance status of a Jugendlicher in an Eintrag. Values: `anwesend`, `ents
 A group leader/supervisor. Linked to Einträge as facilitators.
 
 ## Kategorie
-A classification tag for an Eintrag. Is assigned a **Berichtsthema** (optional until a Jahresbericht needs it).
+A classification tag for an Eintrag. Is assigned a **Berichtsthema** (optional until a Jahresbericht needs it). The name cannot be changed once a **Signierter Eintrag** uses the Kategorie, because it is part of the Signatur; the Berichtsthema stays editable (ADR-0012).
 
 ## Signatur
 A cryptographic signature (RSA with SHA-512) attached to an Eintrag by an Identity. An Eintrag carries at most one Signatur. Each Signatur records the signer's Identity, a timestamp, a version, and a validity flag.
@@ -68,3 +68,6 @@ A Betreuer counts for a Berichtsjahr if they appear in at least one Eintrag of t
 
 ## Tagesveranstaltung
 An Eintrag lasting at least 5 hours. In the Jahresbericht it counts as a Gruppenabend under its Berichtsthema and additionally as a Tagesveranstaltung.
+
+## Berichtsentwurf
+The saved state of a **Jahresbericht** for one **Berichtsjahr**: the manual answers, the overrides of derived work values, a status (`Entwurf` or `exportiert`) and the export date. At most one per Berichtsjahr, stored in the `.jldb`. Creating one proposes the manual answers of the previous year (the draft of the year before, else the most recent earlier one); overrides and status are not taken over. Re-exporting keeps the status `exportiert` and updates the date.

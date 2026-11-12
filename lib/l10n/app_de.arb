@@ -76,6 +76,46 @@
     }
   },
 
+  "addNewKategorie": "Neue Kategorie hinzufügen",
+  "@addNewKategorie": {
+    "description": "Add new kategorie"
+  },
+
+  "editKategorie": "Kategorie bearbeiten",
+  "@editKategorie": {
+    "description": "Edit kategorie"
+  },
+
+  "kategorieNameRequired": "Bitte gib einen Namen ein",
+  "@kategorieNameRequired": {
+    "description": "Kategorie name required"
+  },
+
+  "kategorieNameGesperrt": "Der Name kann nicht geändert werden, weil die Kategorie in einem signierten Eintrag verwendet wird.",
+  "@kategorieNameGesperrt": {
+    "description": "Helper text in the Kategorie form when the name is locked (ADR-0012)"
+  },
+
+  "berichtsthema": "Berichtsthema (optional)",
+  "@berichtsthema": {
+    "description": "Berichtsthema field label in the Kategorie form"
+  },
+
+  "berichtsthemaNotAssigned": "Nicht zugeordnet",
+  "@berichtsthemaNotAssigned": {
+    "description": "Kategorie has no Berichtsthema yet"
+  },
+
+  "stateBerichtsthema": "Berichtsthema: {thema}",
+  "@stateBerichtsthema": {
+    "description": "State Berichtsthema of a Kategorie",
+    "placeholders": {
+      "thema": {
+        "type": "String"
+      }
+    }
+  },
+
   "stateExitDate": "Austrittsdatum: {date}",
   "@stateExitDate": {
     "description": "State exit date",
@@ -83,6 +123,615 @@
       "date": {
         "type": "DateTime",
         "format": "yMd"
+      }
+    }
+  },
+
+  "jahresberichtListeTitel": "Jahresbericht",
+  "@jahresberichtListeTitel": {
+    "description": "Title of the Jahresbericht overview page"
+  },
+
+  "jahresberichtListeBerichtsjahr": "Berichtsjahr",
+  "@jahresberichtListeBerichtsjahr": {
+    "description": "Label of the Berichtsjahr selection on the overview page"
+  },
+
+  "jahresberichtListeStarten": "Bericht starten",
+  "@jahresberichtListeStarten": {
+    "description": "Starts a Jahresbericht for the selected Berichtsjahr (no draft yet)"
+  },
+
+  "jahresberichtListeFortsetzen": "Entwurf fortsetzen",
+  "@jahresberichtListeFortsetzen": {
+    "description": "Continues the existing draft of the selected Berichtsjahr"
+  },
+
+  "jahresberichtListeBestehende": "Bisherige Berichte",
+  "@jahresberichtListeBestehende": {
+    "description": "Heading of the list of existing Berichtsentwuerfe"
+  },
+
+  "jahresberichtListeLeer": "Noch kein Jahresbericht angelegt.",
+  "@jahresberichtListeLeer": {
+    "description": "Hint when there is no Berichtsentwurf yet"
+  },
+
+  "jahresberichtListeBerichtsjahrEintrag": "Berichtsjahr {jahr}",
+  "@jahresberichtListeBerichtsjahrEintrag": {
+    "description": "List entry of a Berichtsentwurf",
+    "placeholders": {
+      "jahr": {
+        "type": "int"
+      }
+    }
+  },
+
+  "jahresberichtStatusEntwurf": "Entwurf",
+  "@jahresberichtStatusEntwurf": {
+    "description": "Status of a Berichtsentwurf that was not exported yet"
+  },
+
+  "jahresberichtStatusExportiert": "Exportiert am {datum}",
+  "@jahresberichtStatusExportiert": {
+    "description": "Status of an exported Berichtsentwurf",
+    "placeholders": {
+      "datum": {
+        "type": "DateTime",
+        "format": "yMd"
+      }
+    }
+  },
+
+  "jahresberichtAssistentTitel": "Jahresbericht {jahr}",
+  "@jahresberichtAssistentTitel": {
+    "description": "Title of the Jahresbericht wizard",
+    "placeholders": {
+      "jahr": {
+        "type": "int"
+      }
+    }
+  },
+
+  "jahresberichtAssistentSchrittVon": "Schritt {nummer} von {anzahl}",
+  "@jahresberichtAssistentSchrittVon": {
+    "description": "Position in the Jahresbericht wizard",
+    "placeholders": {
+      "nummer": {
+        "type": "int"
+      },
+      "anzahl": {
+        "type": "int"
+      }
+    }
+  },
+
+  "jahresberichtAssistentZurueck": "Zurück",
+  "@jahresberichtAssistentZurueck": {
+    "description": "Wizard: previous step"
+  },
+
+  "jahresberichtAssistentWeiter": "Weiter",
+  "@jahresberichtAssistentWeiter": {
+    "description": "Wizard: next step"
+  },
+
+  "jahresberichtAssistentSchliessen": "Schließen",
+  "@jahresberichtAssistentSchliessen": {
+    "description": "Wizard: close and return to the list"
+  },
+
+  "jahresberichtAssistentSpeichernFehler": "Der Entwurf konnte nicht gespeichert werden: {fehler}",
+  "@jahresberichtAssistentSpeichernFehler": {
+    "description": "Wizard: saving the draft failed",
+    "placeholders": {
+      "fehler": {
+        "type": "String"
+      }
+    }
+  },
+
+  "jahresberichtSchritt1Titel": "Jahr und Übersicht der Zählwerte",
+  "@jahresberichtSchritt1Titel": {
+    "description": "Wizard step 1 title"
+  },
+
+  "jahresberichtSchritt1Einleitung": "Julog berechnet diese Zählwerte aus deinen Stammdaten. Stichtag ist der {stichtag}. Hier kannst du sie nur prüfen.",
+  "@jahresberichtSchritt1Einleitung": {
+    "description": "Wizard step 1 intro",
+    "placeholders": {
+      "stichtag": {
+        "type": "DateTime",
+        "format": "yMd"
+      }
+    }
+  },
+
+  "jahresberichtSchritt1Hinweis": "Stimmt etwas nicht? Korrigiere die Stammdaten unter \"Jugendliche\" (Eintritt, Austritt, Geburtsdatum, Herkunft), \"Betreuer\" und \"Dienstbuch\". Der Entwurf bleibt dabei gespeichert.",
+  "@jahresberichtSchritt1Hinweis": {
+    "description": "Wizard step 1: where to correct the Stammdaten"
+  },
+
+  "jahresberichtSchritt1Neuladen": "Zählwerte neu berechnen",
+  "@jahresberichtSchritt1Neuladen": {
+    "description": "Wizard step 1: reload the Stammdaten"
+  },
+
+  "jahresberichtSchritt1Mitglieder": "Mitglieder am Stichtag",
+  "@jahresberichtSchritt1Mitglieder": {
+    "description": "Wizard step 1 section"
+  },
+
+  "jahresberichtSchritt1Alter": "Alter der Mitglieder am Stichtag",
+  "@jahresberichtSchritt1Alter": {
+    "description": "Wizard step 1 section"
+  },
+
+  "jahresberichtSchritt1AlterUnter5": "Unter 5 Jahre",
+  "@jahresberichtSchritt1AlterUnter5": {
+    "description": "Wizard step 1: age row"
+  },
+
+  "jahresberichtSchritt1AlterJahre": "{alter} Jahre",
+  "@jahresberichtSchritt1AlterJahre": {
+    "description": "Wizard step 1: age row",
+    "placeholders": {
+      "alter": {
+        "type": "int"
+      }
+    }
+  },
+
+  "jahresberichtSchritt1AlterUeber18": "Über 18 Jahre",
+  "@jahresberichtSchritt1AlterUeber18": {
+    "description": "Wizard step 1: age row"
+  },
+
+  "jahresberichtSchritt1Betreuer": "Betreuer",
+  "@jahresberichtSchritt1Betreuer": {
+    "description": "Wizard step 1 section"
+  },
+
+  "jahresberichtSchritt1BetreuerHinweis": "Gezählt werden Betreuer, die in mindestens einem Eintrag des Berichtsjahres stehen.",
+  "@jahresberichtSchritt1BetreuerHinweis": {
+    "description": "Wizard step 1: how Betreuer are counted"
+  },
+
+  "jahresberichtSchritt1Zugang": "Zugang im Berichtsjahr",
+  "@jahresberichtSchritt1Zugang": {
+    "description": "Wizard step 1 section"
+  },
+
+  "jahresberichtSchritt1Abgang": "Abgang im Berichtsjahr",
+  "@jahresberichtSchritt1Abgang": {
+    "description": "Wizard step 1 section"
+  },
+
+  "jahresberichtSchritt1AbgangEinsatzabteilung": "In die Einsatzabteilung",
+  "@jahresberichtSchritt1AbgangEinsatzabteilung": {
+    "description": "Wizard step 1: Abgang row"
+  },
+
+  "jahresberichtSchritt1AbgangSonstige": "Sonstige",
+  "@jahresberichtSchritt1AbgangSonstige": {
+    "description": "Wizard step 1: Abgang row"
+  },
+
+  "jahresberichtSchritt1AbgangGruende": "Gründe der sonstigen Abgänge",
+  "@jahresberichtSchritt1AbgangGruende": {
+    "description": "Wizard step 1: heading for the reasons of the sonstige Abgaenge"
+  },
+
+  "jahresberichtSchritt1Gesamt": "Gesamt",
+  "@jahresberichtSchritt1Gesamt": {
+    "description": "Wizard step 1: total column"
+  },
+
+  "jahresberichtSchritt2Titel": "Berichtsthemen zuordnen",
+  "@jahresberichtSchritt2Titel": {
+    "description": "Wizard step 2 title"
+  },
+
+  "jahresberichtSchritt2Einleitung": "Diese Kategorien wurden im Berichtsjahr benutzt und haben noch kein Berichtsthema. Ordne jeder eines der sieben Berichtsthemen zu, auch ausdrücklich \"Sonstiges\". Die Zuordnung wird an der Kategorie gespeichert und gilt auch in den nächsten Jahren.",
+  "@jahresberichtSchritt2Einleitung": {
+    "description": "Wizard step 2 intro"
+  },
+
+  "jahresberichtSchritt2KeineOffen": "Alle im Berichtsjahr benutzten Kategorien haben schon ein Berichtsthema. Du kannst direkt weitergehen.",
+  "@jahresberichtSchritt2KeineOffen": {
+    "description": "Wizard step 2: nothing left to assign"
+  },
+
+  "jahresberichtSchritt2Auswahl": "Berichtsthema wählen",
+  "@jahresberichtSchritt2Auswahl": {
+    "description": "Wizard step 2: hint of the Berichtsthema dropdown"
+  },
+
+  "jahresberichtSchritt2Fehler": "Das Berichtsthema konnte nicht gespeichert werden: {fehler}",
+  "@jahresberichtSchritt2Fehler": {
+    "description": "Wizard step 2: saving the assignment failed",
+    "placeholders": {
+      "fehler": {
+        "type": "String"
+      }
+    }
+  },
+
+  "jahresberichtSchritt3Titel": "Arbeitswerte",
+  "@jahresberichtSchritt3Titel": {
+    "description": "Wizard step 3 title"
+  },
+  "jahresberichtSchritt3Einleitung": "Julog hat diese Werte aus den Einträgen des Berichtsjahres berechnet. Du kannst jeden Wert überschreiben, um Sonderfälle zu korrigieren, und die Überschreibung wieder zurücknehmen. Darunter gibst du die Werte ein, die Julog nicht kennt.",
+  "@jahresberichtSchritt3Einleitung": {
+    "description": "Wizard step 3: introduction"
+  },
+  "jahresberichtSchritt3BerechnetTitel": "Berechnete Werte",
+  "@jahresberichtSchritt3BerechnetTitel": {
+    "description": "Wizard step 3: section title of the computed values"
+  },
+  "jahresberichtSchritt3ManuellTitel": "Eigene Angaben",
+  "@jahresberichtSchritt3ManuellTitel": {
+    "description": "Wizard step 3: section title of the manual values"
+  },
+  "jahresberichtSchritt3Gruppenabende": "Gruppenabende: {thema}",
+  "@jahresberichtSchritt3Gruppenabende": {
+    "description": "Wizard step 3: label of Arbeit_Wert_01 to 07",
+    "placeholders": {
+      "thema": {
+        "type": "String"
+      }
+    }
+  },
+  "jahresberichtSchritt3Dauer": "Durchschnittliche Dauer je Gruppenabend (Minuten)",
+  "@jahresberichtSchritt3Dauer": {
+    "description": "Wizard step 3: label of Arbeit_Wert_10"
+  },
+  "jahresberichtSchritt3Betreuerzahl": "Durchschnittliche Betreuerzahl je Gruppenabend",
+  "@jahresberichtSchritt3Betreuerzahl": {
+    "description": "Wizard step 3: label of Arbeit_Wert_12"
+  },
+  "jahresberichtSchritt3Tagesveranstaltungen": "Tagesveranstaltungen",
+  "@jahresberichtSchritt3Tagesveranstaltungen": {
+    "description": "Wizard step 3: label of Arbeit_Wert_13"
+  },
+  "jahresberichtSchritt3TagesveranstaltungenHinweis": "Einträge ab 5 Stunden Dauer; sie zählen auch als Gruppenabende.",
+  "@jahresberichtSchritt3TagesveranstaltungenHinweis": {
+    "description": "Wizard step 3: helper text of Arbeit_Wert_13"
+  },
+  "jahresberichtSchritt3Vorbereitung": "Durchschnittliche Vor- und Nachbereitungszeit je Gruppenabend (Minuten)",
+  "@jahresberichtSchritt3Vorbereitung": {
+    "description": "Wizard step 3: label of Arbeit_Wert_11"
+  },
+  "jahresberichtSchritt3SonstigeArbeit": "Stunden für sonstige Arbeit",
+  "@jahresberichtSchritt3SonstigeArbeit": {
+    "description": "Wizard step 3: label of Arbeit_Wert_20"
+  },
+  "jahresberichtSchritt3Berechnet": "Berechnet: {wert}",
+  "@jahresberichtSchritt3Berechnet": {
+    "description": "Wizard step 3: the computed value shown next to an overridden one",
+    "placeholders": {
+      "wert": {
+        "type": "int"
+      }
+    }
+  },
+  "jahresberichtSchritt3Ueberschrieben": "Überschrieben",
+  "@jahresberichtSchritt3Ueberschrieben": {
+    "description": "Wizard step 3: mark of an overridden value"
+  },
+  "jahresberichtSchritt3Zuruecknehmen": "Überschreibung zurücknehmen",
+  "@jahresberichtSchritt3Zuruecknehmen": {
+    "description": "Wizard step 3: tooltip of the revert button"
+  },
+  "jahresberichtSchritt3FehlerZahl": "Bitte eine ganze Zahl ab 0 eingeben.",
+  "@jahresberichtSchritt3FehlerZahl": {
+    "description": "Wizard step 3: invalid number input"
+  },
+
+  "jahresberichtSchritt4Titel": "Fragen",
+  "@jahresberichtSchritt4Titel": {
+    "description": "Wizard step 4 title"
+  },
+  "jahresberichtSchritt4Einleitung": "Beantworte die 16 Ja/Nein-Fragen des Jahresberichts. Die Antworten des Vorjahres sind, wenn es sie gibt, als Vorschlag eingetragen; ändere nur, was sich geändert hat. Eine Antwort nimmst du zurück, indem du sie erneut anklickst.",
+  "@jahresberichtSchritt4Einleitung": {
+    "description": "Wizard step 4: intro"
+  },
+  "jahresberichtSchritt4GruppeTeilnahme": "Teilnahme",
+  "@jahresberichtSchritt4GruppeTeilnahme": {
+    "description": "Wizard step 4: group 01-03"
+  },
+  "jahresberichtSchritt4GruppeAktivitaeten": "Aktivitäten",
+  "@jahresberichtSchritt4GruppeAktivitaeten": {
+    "description": "Wizard step 4: group 04-07"
+  },
+  "jahresberichtSchritt4GruppeWettbewerbe": "Wettbewerbe",
+  "@jahresberichtSchritt4GruppeWettbewerbe": {
+    "description": "Wizard step 4: group 08-12"
+  },
+  "jahresberichtSchritt4GruppeSonstiges": "Sonstiges",
+  "@jahresberichtSchritt4GruppeSonstiges": {
+    "description": "Wizard step 4: group 13-16"
+  },
+  "jahresberichtSchritt4Frage01": "Teilnahme am Gemeinschaftsleben",
+  "@jahresberichtSchritt4Frage01": {
+    "description": "Wizard step 4: question 01"
+  },
+  "jahresberichtSchritt4Frage02": "Teilnahme an externen Bildungsveranstaltungen",
+  "@jahresberichtSchritt4Frage02": {
+    "description": "Wizard step 4: question 02"
+  },
+  "jahresberichtSchritt4Frage03": "Teilnahme an internen Bildungsveranstaltungen der JF/KF",
+  "@jahresberichtSchritt4Frage03": {
+    "description": "Wizard step 4: question 03"
+  },
+  "jahresberichtSchritt4Frage04": "Internationale Jugendarbeit",
+  "@jahresberichtSchritt4Frage04": {
+    "description": "Wizard step 4: question 04"
+  },
+  "jahresberichtSchritt4Frage05": "Natur / Umweltschutz",
+  "@jahresberichtSchritt4Frage05": {
+    "description": "Wizard step 4: question 05"
+  },
+  "jahresberichtSchritt4Frage06": "Aktive Mitgliederwerbung",
+  "@jahresberichtSchritt4Frage06": {
+    "description": "Wizard step 4: question 06"
+  },
+  "jahresberichtSchritt4Frage07": "An der Schule / in Kindergärten",
+  "@jahresberichtSchritt4Frage07": {
+    "description": "Wizard step 4: question 07"
+  },
+  "jahresberichtSchritt4Frage08": "Jugendflamme",
+  "@jahresberichtSchritt4Frage08": {
+    "description": "Wizard step 4: question 08"
+  },
+  "jahresberichtSchritt4Frage09": "Bundeswettbewerb",
+  "@jahresberichtSchritt4Frage09": {
+    "description": "Wizard step 4: question 09"
+  },
+  "jahresberichtSchritt4Frage10": "Leistungsspange",
+  "@jahresberichtSchritt4Frage10": {
+    "description": "Wizard step 4: question 10"
+  },
+  "jahresberichtSchritt4Frage11": "CTIF",
+  "@jahresberichtSchritt4Frage11": {
+    "description": "Wizard step 4: question 11"
+  },
+  "jahresberichtSchritt4Frage12": "Landesspezifischer Wettbewerb",
+  "@jahresberichtSchritt4Frage12": {
+    "description": "Wizard step 4: question 12"
+  },
+  "jahresberichtSchritt4Frage13": "Die JF/KF hat mehr Interessierte, als sie aufnehmen kann",
+  "@jahresberichtSchritt4Frage13": {
+    "description": "Wizard step 4: question 13"
+  },
+  "jahresberichtSchritt4Frage14": "Die JF/KF hat Nachwuchssorgen",
+  "@jahresberichtSchritt4Frage14": {
+    "description": "Wizard step 4: question 14"
+  },
+  "jahresberichtSchritt4Frage15": "Die JF/KF hat zu wenig Betreuer",
+  "@jahresberichtSchritt4Frage15": {
+    "description": "Wizard step 4: question 15"
+  },
+  "jahresberichtSchritt4Frage16": "Die JF/KF hat einen eigenen Sprecher",
+  "@jahresberichtSchritt4Frage16": {
+    "description": "Wizard step 4: question 16"
+  },
+  "jahresberichtSchritt4Ja": "Ja",
+  "@jahresberichtSchritt4Ja": {
+    "description": "Wizard step 4: answer yes"
+  },
+  "jahresberichtSchritt4Nein": "Nein",
+  "@jahresberichtSchritt4Nein": {
+    "description": "Wizard step 4: answer no"
+  },
+  "jahresberichtSchritt4Offen": "Offen",
+  "@jahresberichtSchritt4Offen": {
+    "description": "Wizard step 4: mark of an unanswered question"
+  },
+  "jahresberichtSchritt4OffenAnzahl": "{anzahl, plural, =1{1 Frage noch offen} other{{anzahl} Fragen noch offen}}",
+  "@jahresberichtSchritt4OffenAnzahl": {
+    "description": "Wizard step 4: number of unanswered questions",
+    "placeholders": {
+      "anzahl": {
+        "type": "int"
+      }
+    }
+  },
+  "jahresberichtSchritt4AlleBeantwortet": "Alle Fragen beantwortet",
+  "@jahresberichtSchritt4AlleBeantwortet": {
+    "description": "Wizard step 4: all questions answered"
+  },
+
+  "jahresberichtSchritt5Titel": "Einsatzabteilung",
+  "@jahresberichtSchritt5Titel": {
+    "description": "Wizard step 5 title"
+  },
+  "jahresberichtSchritt5Einleitung": "Gib an, wie viele unter 27-Jährige zur Einsatzabteilung gehören, getrennt nach männlich, weiblich und divers. Der Wert des Vorjahres ist, wenn es ihn gibt, als Vorschlag eingetragen; prüfe ihn und passe ihn an. Die Eingabe bleibt im Entwurf.",
+  "@jahresberichtSchritt5Einleitung": {
+    "description": "Wizard step 5: intro"
+  },
+  "jahresberichtSchritt5Maennlich": "Männlich",
+  "@jahresberichtSchritt5Maennlich": {
+    "description": "Wizard step 5: field M"
+  },
+  "jahresberichtSchritt5Weiblich": "Weiblich",
+  "@jahresberichtSchritt5Weiblich": {
+    "description": "Wizard step 5: field W"
+  },
+  "jahresberichtSchritt5Divers": "Divers",
+  "@jahresberichtSchritt5Divers": {
+    "description": "Wizard step 5: field D"
+  },
+  "jahresberichtSchritt5Offen": "Noch nicht angegeben",
+  "@jahresberichtSchritt5Offen": {
+    "description": "Wizard step 5: helper text of an empty field"
+  },
+  "jahresberichtSchritt5FehlerZahl": "Bitte eine ganze Zahl ab 0 eingeben.",
+  "@jahresberichtSchritt5FehlerZahl": {
+    "description": "Wizard step 5: invalid number input"
+  },
+
+  "jahresberichtSchritt6Titel": "Zusammenfassung und Export",
+  "@jahresberichtSchritt6Titel": {
+    "description": "Wizard step 6 title"
+  },
+  "jahresberichtSchritt6Einleitung": "Prüfe hier alle Werte des Berichts. Werte, die du überschrieben hast, sind markiert. Sind alle Angaben vollständig, kannst du die XML-Datei exportieren und im Jahresberichtstool hochladen.",
+  "@jahresberichtSchritt6Einleitung": {
+    "description": "Wizard step 6: introduction"
+  },
+  "jahresberichtSchritt6Unvollstaendig": "Der Bericht ist noch nicht vollständig, der Export ist gesperrt. Das fehlt:",
+  "@jahresberichtSchritt6Unvollstaendig": {
+    "description": "Wizard step 6: heading of the list of missing parts"
+  },
+  "jahresberichtSchritt6Fehlt": "Schritt {nummer} ({titel}): {was}",
+  "@jahresberichtSchritt6Fehlt": {
+    "description": "Wizard step 6: one missing part and the step where it is entered",
+    "placeholders": {
+      "nummer": {
+        "type": "int"
+      },
+      "titel": {
+        "type": "String"
+      },
+      "was": {
+        "type": "String"
+      }
+    }
+  },
+  "jahresberichtSchritt6FehltKategorien": "Kein Berichtsthema für: {kategorien}",
+  "@jahresberichtSchritt6FehltKategorien": {
+    "description": "Wizard step 6: categories used in the year without Berichtsthema",
+    "placeholders": {
+      "kategorien": {
+        "type": "String"
+      }
+    }
+  },
+  "jahresberichtSchritt6FehltVorbereitung": "Durchschnittliche Vor- und Nachbereitungszeit fehlt",
+  "@jahresberichtSchritt6FehltVorbereitung": {
+    "description": "Wizard step 6: Arbeit_Wert_11 is missing"
+  },
+  "jahresberichtSchritt6FehltSonstigeArbeit": "Stunden für sonstige Arbeit fehlen",
+  "@jahresberichtSchritt6FehltSonstigeArbeit": {
+    "description": "Wizard step 6: Arbeit_Wert_20 is missing"
+  },
+  "jahresberichtSchritt6FehltFragen": "Fragen ohne Antwort: {nummern}",
+  "@jahresberichtSchritt6FehltFragen": {
+    "description": "Wizard step 6: unanswered questions",
+    "placeholders": {
+      "nummern": {
+        "type": "String"
+      }
+    }
+  },
+  "jahresberichtSchritt6FehltEinsatzabteilung": "Unter 27-Jährige in der Einsatzabteilung fehlen für: {geschlechter}",
+  "@jahresberichtSchritt6FehltEinsatzabteilung": {
+    "description": "Wizard step 6: missing Einsatzabteilung numbers",
+    "placeholders": {
+      "geschlechter": {
+        "type": "String"
+      }
+    }
+  },
+  "jahresberichtSchritt6Vollstaendig": "Alle Angaben sind vollständig. Der Bericht kann exportiert werden.",
+  "@jahresberichtSchritt6Vollstaendig": {
+    "description": "Wizard step 6: nothing is missing"
+  },
+  "jahresberichtSchritt6ZaehlwerteTitel": "Zählwerte",
+  "@jahresberichtSchritt6ZaehlwerteTitel": {
+    "description": "Wizard step 6: section title of the computed counts"
+  },
+  "jahresberichtSchritt6ArbeitswerteTitel": "Arbeitswerte",
+  "@jahresberichtSchritt6ArbeitswerteTitel": {
+    "description": "Wizard step 6: section title of the work values"
+  },
+  "jahresberichtSchritt6AngabenTitel": "Eigene Angaben",
+  "@jahresberichtSchritt6AngabenTitel": {
+    "description": "Wizard step 6: section title of the manual answers"
+  },
+  "jahresberichtSchritt6Einsatzabteilung": "Unter 27-Jährige in der Einsatzabteilung",
+  "@jahresberichtSchritt6Einsatzabteilung": {
+    "description": "Wizard step 6: label of Alter_Anz_EA_bis_27"
+  },
+  "jahresberichtSchritt6Frage": "Frage {nummer}",
+  "@jahresberichtSchritt6Frage": {
+    "description": "Wizard step 6: label of a yes/no question",
+    "placeholders": {
+      "nummer": {
+        "type": "int"
+      }
+    }
+  },
+  "jahresberichtSchritt6Ja": "Ja",
+  "@jahresberichtSchritt6Ja": {
+    "description": "Wizard step 6: answer yes"
+  },
+  "jahresberichtSchritt6Nein": "Nein",
+  "@jahresberichtSchritt6Nein": {
+    "description": "Wizard step 6: answer no"
+  },
+  "jahresberichtSchritt6Offen": "Offen",
+  "@jahresberichtSchritt6Offen": {
+    "description": "Wizard step 6: question not answered yet"
+  },
+  "jahresberichtSchritt6Exportieren": "Als XML exportieren",
+  "@jahresberichtSchritt6Exportieren": {
+    "description": "Wizard step 6: export button"
+  },
+  "jahresberichtSchritt6ErneutExportieren": "Erneut exportieren",
+  "@jahresberichtSchritt6ErneutExportieren": {
+    "description": "Wizard step 6: export button after an earlier export"
+  },
+  "jahresberichtSchritt6ZuletztExportiert": "Zuletzt exportiert am {datum}",
+  "@jahresberichtSchritt6ZuletztExportiert": {
+    "description": "Wizard step 6: date of the last export",
+    "placeholders": {
+      "datum": {
+        "type": "DateTime",
+        "format": "yMd"
+      }
+    }
+  },
+  "jahresberichtSchritt6ExportErfolg": "Exportiert nach {pfad}",
+  "@jahresberichtSchritt6ExportErfolg": {
+    "description": "Wizard step 6: export succeeded",
+    "placeholders": {
+      "pfad": {
+        "type": "String"
+      }
+    }
+  },
+  "jahresberichtSchritt6ExportStatusFehler": "Der Bericht wurde nach {pfad} exportiert, aber der Status \"exportiert\" konnte nicht gespeichert werden: {fehler}",
+  "@jahresberichtSchritt6ExportStatusFehler": {
+    "description": "Wizard step 6: the file was written, but saving the exported status failed",
+    "placeholders": {
+      "pfad": {
+        "type": "String"
+      },
+      "fehler": {
+        "type": "String"
+      }
+    }
+  },
+  "jahresberichtSchritt6ExportBestaetigen": "Exportieren",
+  "@jahresberichtSchritt6ExportBestaetigen": {
+    "description": "Wizard step 6: confirm button of the save dialog"
+  },
+  "jahresberichtFehler": "Fehler: {fehler}",
+  "@jahresberichtFehler": {
+    "description": "Jahresbericht screens: loading the data failed",
+    "placeholders": {
+      "fehler": {
+        "type": "String"
+      }
+    }
+  },
+  "jahresberichtSchritt6ExportFehler": "Der Bericht konnte nicht exportiert werden: {fehler}",
+  "@jahresberichtSchritt6ExportFehler": {
+    "description": "Wizard step 6: export failed",
+    "placeholders": {
+      "fehler": {
+        "type": "String"
       }
     }
   }

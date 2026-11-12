@@ -37,6 +37,12 @@ enum Destination {
       icon: Icon(Icons.label),
       label: Text('Kategorien'),
     ),
+  ),
+  jahresbericht(
+    NavigationRailDestination(
+      icon: Icon(Icons.summarize),
+      label: Text('Jahresbericht'),
+    ),
   );
 
   GoRouteData route() {
@@ -47,6 +53,7 @@ enum Destination {
       Destination.identities => const IdentityRoute(),
       Destination.betreuer => const BetreuerRoute(),
       Destination.kategorien => const KategorieRoute(),
+      Destination.jahresbericht => const JahresberichtRoute(),
     };
   }
 

@@ -8,6 +8,19 @@ import 'package:jlcore/jlcore.dart';
 
 const jldbCompatibleSinceVersion = 3;
 
+/// Thrown (as [Failure]) when renaming a Kategorie that is used by a signed
+/// Eintrag. See ADR-0012.
+final class KategorieNameGesperrtException implements Exception {
+  final UUID kategorieId;
+
+  KategorieNameGesperrtException(this.kategorieId);
+
+  @override
+  String toString() =>
+      'Kategorie $kategorieId wird von einem signierten Eintrag verwendet '
+      'und kann nicht umbenannt werden.';
+}
+
 final class Jldb {
   static const _getAllEintraegeSql = '''
     select
@@ -76,6 +89,8 @@ final class Jldb {
   WorkerStatement? _getIdentityStmnt;
   WorkerStatement? _getJugendlicherStmnt;
   WorkerStatement? _getKategorieStmnt;
+  WorkerStatement? _updateKategorieStmnt;
+  WorkerStatement? _isKategorieNameGesperrtStmnt;
   WorkerStatement? _setConfigStmnt;
   WorkerStatement? _getAllBetreuerStmnt;
   WorkerStatement? _insertNewJugendlicherStmnt;
@@ -270,21 +285,19 @@ final class Jldb {
     KategorieApiModel kategorie,
   ) async {
     const sql = '''
-      insert into kategorien (id, name) 
-      values (?, ?)
-      returning id, name;
+      insert into kategorien (id, name, berichtsthema) 
+      values (?, ?, ?)
+      returning id, name, berichtsthema;
     ''';
     return Result.safeAsync(() async {
       _createKategorieStmnt ??= await _database.prepare(sql, peristent: true);
       final result = await _createKategorieStmnt!.select([
         kategorie.id.toString(),
         kategorie.name,
+        kategorie.reportTopic?.toInt(),
       ]);
       final row = result.first;
-      final kat = KategorieApiModel(
-        id: row[0].toString().toUUID(),
-        name: row[1].toString(),
-      );
+      final kat = _kategorieFromRow(row);
       return kat;
     });
   }
@@ -425,16 +438,11 @@ final class Jldb {
   }
 
   AsyncResult<List<KategorieApiModel>> getAllKategorien() async {
-    const sql = 'select id, name from kategorien;';
+    const sql = 'select id, name, berichtsthema from kategorien;';
     return Result.safeAsync(() async {
       _getAllKategorienStmnt ??= await _database.prepare(sql, peristent: true);
       final result = await _getAllKategorienStmnt!.select([]);
-      final kategorien = result.map((row) {
-        return KategorieApiModel(
-          id: row[0].toString().toUUID(),
-          name: row[1].toString(),
-        );
-      }).toList();
+      final kategorien = result.map(_kategorieFromRow).toList();
       return kategorien;
     });
   }
@@ -729,19 +737,87 @@ final class Jldb {
   }
 
   AsyncResultOptional<KategorieApiModel> getKategorie(UUID id) async {
-    const sql = 'select id, name from kategorien where id = ?;';
+    const sql = 'select id, name, berichtsthema from kategorien where id = ?;';
     return Result.safeNullableAsync(() async {
       _getKategorieStmnt ??= await _database.prepare(sql, peristent: true);
       final result = await _getKategorieStmnt!.select([id.toString()]);
       if (result.isEmpty) {
         return null;
       }
-      final row = result.first;
-      final kat = KategorieApiModel(
+      return _kategorieFromRow(result.first);
+    });
+  }
+
+  static KategorieApiModel _kategorieFromRow(List<Object?> row) =>
+      KategorieApiModel(
         id: row[0].toString().toUUID(),
         name: row[1].toString(),
+        reportTopic: row[2] != null ? ReportTopic.fromInt(row[2] as int) : null,
       );
-      return kat;
+
+  /// Changes name and [reportTopic] of an existing Kategorie.
+  ///
+  /// The name is part of the signing payload (see [signV4Query]), so it cannot
+  /// be changed once a signed Eintrag uses the Kategorie (ADR-0012). In that
+  /// case the result is a [Failure] holding a
+  /// [KategorieNameGesperrtException] and nothing is changed. The
+  /// [reportTopic] is not part of any signing payload and stays editable.
+  AsyncVoidResult updateKategorie(
+    UUID id, {
+    required String name,
+    ReportTopic? reportTopic,
+  }) {
+    // The guard and the update are one statement: the update does not touch
+    // a Kategorie whose name would change while a signed Eintrag uses it.
+    const sql = '''
+      update kategorien
+      set name = ?, berichtsthema = ?
+      where id = ?
+        and (
+          name = ?
+          or not exists(
+            select 1
+            from eintrag as e
+            join signature as s on s.eintrag_id = e.id
+            where e.kategorie_id = kategorien.id
+          )
+        )
+      returning id;
+    ''';
+    return Result.voidSafeAsync(() async {
+      _updateKategorieStmnt ??= await _database.prepare(sql, peristent: true);
+      final updated = await _updateKategorieStmnt!.select([
+        name,
+        reportTopic?.toInt(),
+        id.toString(),
+        name,
+      ]);
+      if (updated.isEmpty && await getKategorie(id).unwrap() is Some) {
+        throw KategorieNameGesperrtException(id);
+      }
+    });
+  }
+
+  /// Whether the name of the Kategorie [id] is locked, i.e. at least one
+  /// signed Eintrag (any Signatur, see ADR-0008) uses it.
+  AsyncResult<bool> isKategorieNameGesperrt(UUID id) {
+    const sql = '''
+      select exists(
+        select 1
+        from eintrag as e
+        join signature as s on s.eintrag_id = e.id
+        where e.kategorie_id = ?
+      );
+    ''';
+    return Result.safeAsync(() async {
+      _isKategorieNameGesperrtStmnt ??= await _database.prepare(
+        sql,
+        peristent: true,
+      );
+      final result = await _isKategorieNameGesperrtStmnt!.select([
+        id.toString(),
+      ]);
+      return result.first.first == 1;
     });
   }
 
@@ -776,6 +852,129 @@ final class Jldb {
         );
       }).toList();
     });
+  }
+
+  static const _berichtsentwurfSelect = '''
+    select year, angaben, ueberschreibungen, status, exported_at
+    from berichtsentwurf
+  ''';
+
+  /// Creates the Berichtsentwurf for [year], fails if one already exists.
+  ///
+  /// The manual answers (`angaben`) are taken over from the previous year as
+  /// a proposal: the draft with the largest year below [year], which is the
+  /// draft of `year - 1` when that exists. Overrides and status are not taken
+  /// over. Without an earlier draft the new one starts empty.
+  AsyncResult<BerichtsentwurfApiModel> createBerichtsentwurf(int year) {
+    const insertSql = '''
+      insert into berichtsentwurf (year, angaben)
+      select ?, coalesce(
+        (select angaben from berichtsentwurf
+          where year < ? order by year desc limit 1),
+        '{}'
+      );
+    ''';
+    return Result.safeAsync(() async {
+      return await _database.transaction((db) async {
+        final existing = await db.select(
+          'select 1 from berichtsentwurf where year = ?;',
+          [year],
+        );
+        if (existing.isNotEmpty) {
+          throw Exception('Berichtsentwurf für $year existiert bereits.');
+        }
+        await db.execute(insertSql, [year, year]);
+        final rows = await db.select(
+          '$_berichtsentwurfSelect where year = ?;',
+          [year],
+        );
+        return _berichtsentwurfFromRow(rows.first);
+      });
+    });
+  }
+
+  AsyncResultOptional<BerichtsentwurfApiModel> getBerichtsentwurf(int year) {
+    return Result.safeNullableAsync(() async {
+      final rows = await _database.select(
+        '$_berichtsentwurfSelect where year = ?;',
+        [year],
+      );
+      return rows.isEmpty ? null : _berichtsentwurfFromRow(rows.first);
+    });
+  }
+
+  /// All Berichtsentwuerfe, the most recent year first.
+  AsyncResult<List<BerichtsentwurfApiModel>> getAllBerichtsentwuerfe() {
+    return Result.safeAsync(() async {
+      final rows = await _database.select(
+        '$_berichtsentwurfSelect order by year desc;',
+      );
+      return rows.map(_berichtsentwurfFromRow).toList();
+    });
+  }
+
+  /// Replaces angaben and ueberschreibungen of the draft for [year]. Status
+  /// and export date are kept. Fails if there is no draft for [year].
+  AsyncVoidResult updateBerichtsentwurf(
+    int year, {
+    required Map<String, Object> angaben,
+    required Map<String, int> ueberschreibungen,
+  }) {
+    const sql = '''
+      update berichtsentwurf
+      set angaben = ?, ueberschreibungen = ?
+      where year = ?
+      returning year;
+    ''';
+    return Result.voidSafeAsync(() async {
+      final updated = await _database.select(sql, [
+        jsonEncode(angaben),
+        jsonEncode(ueberschreibungen),
+        year,
+      ]);
+      if (updated.isEmpty) {
+        throw Exception('Berichtsentwurf für $year nicht gefunden.');
+      }
+    });
+  }
+
+  /// Sets the status of the draft for [year] to exportiert and stores
+  /// [exportedAt]. Marking again only updates the date. Fails if there is no
+  /// draft for [year].
+  AsyncVoidResult markBerichtsentwurfExported(int year, DateTime exportedAt) {
+    const sql = '''
+      update berichtsentwurf
+      set status = ?, exported_at = ?
+      where year = ?
+      returning year;
+    ''';
+    return Result.voidSafeAsync(() async {
+      final updated = await _database.select(sql, [
+        BerichtsentwurfStatus.exportiert.toInt(),
+        exportedAt.millisecondsSinceEpoch,
+        year,
+      ]);
+      if (updated.isEmpty) {
+        throw Exception('Berichtsentwurf für $year nicht gefunden.');
+      }
+    });
+  }
+
+  static BerichtsentwurfApiModel _berichtsentwurfFromRow(List<Object?> row) {
+    final angaben = (jsonDecode(row[1] as String) as Map<String, dynamic>)
+        .cast<String, Object>();
+    final ueberschreibungen =
+        (jsonDecode(row[2] as String) as Map<String, dynamic>)
+            .cast<String, int>();
+    return BerichtsentwurfApiModel(
+      year: row[0] as int,
+      angaben: angaben,
+      ueberschreibungen: ueberschreibungen,
+      status: BerichtsentwurfStatus.fromInt(row[3] as int),
+      exportedAt: row[4] != null
+          ? DateTime.fromMillisecondsSinceEpoch(row[4] as int)
+          : null,
+    );
   }
 
   Future<int> getVersion() async {

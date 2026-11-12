@@ -8,24 +8,57 @@ import '../repository_base.dart';
 
 part 'repository.g.dart';
 
-typedef KategorieCreate = ({String name});
+typedef KategorieCreate = ({String name, Berichtsthema? berichtsthema});
 
-class _KategorieRepository
+typedef KategorieEditData = ({
+  String id,
+  String name,
+  Berichtsthema? berichtsthema,
+});
+
+class KategorieRepository
     extends JulogRepository<Kategorie, KategorieApiModel, KategorieCreate> {
   final Jldb _jldb;
 
-  _KategorieRepository({required Jldb jldb}) : _jldb = jldb;
+  KategorieRepository({required Jldb jldb}) : _jldb = jldb;
 
   @override
   AsyncResult<Kategorie> createInJldb(KategorieCreate data) {
     return _jldb
         .createKategorie(
-          KategorieApiModel(id: UUID.generate(), name: data.name),
+          KategorieApiModel(
+            id: UUID.generate(),
+            name: data.name,
+            reportTopic: data.berichtsthema?.toReportTopic(),
+          ),
         )
         .map((savedRecord) {
           return Kategorie.fromJldbRecord(savedRecord);
         });
   }
+
+  /// Changes name and Berichtsthema of an existing Kategorie.
+  ///
+  /// Fails with a [KategorieNameGesperrtException] if the name changes while
+  /// a signed Eintrag uses the Kategorie (ADR-0012); the Berichtsthema stays
+  /// editable.
+  AsyncVoidResult edit(KategorieEditData data) async {
+    final result = await _jldb.updateKategorie(
+      UUID.fromString(data.id),
+      name: data.name,
+      reportTopic: data.berichtsthema?.toReportTopic(),
+    );
+    if (result is Failure<Unit>) {
+      return Failure(result.error);
+    }
+    invalidateCache();
+    return Result.voidSuccess();
+  }
+
+  /// Whether the name of the Kategorie [id] cannot be changed because a signed
+  /// Eintrag uses it (ADR-0012).
+  AsyncResult<bool> isNameGesperrt(String id) =>
+      _jldb.isKategorieNameGesperrt(UUID.fromString(id));
 
   @override
   Kategorie fromJldbRecord(KategorieApiModel record) =>
@@ -41,11 +74,10 @@ class _KategorieRepository
 }
 
 @Riverpod(keepAlive: true)
-JulogRepository<Kategorie, KategorieApiModel, KategorieCreate>
-kategorieRepository(Ref ref) {
+KategorieRepository kategorieRepository(Ref ref) {
   final jldb = ref.watch(julogServiceProvider);
   if (jldb is! JulogFileLoaded) {
     throw StateError('Julog file is not loaded');
   }
-  return _KategorieRepository(jldb: jldb.jldb);
+  return KategorieRepository(jldb: jldb.jldb);
 }

@@ -4,7 +4,8 @@
 library;
 
 export 'src/attendance_rate_calculator.dart';
-export 'src/jldb.dart' show Jldb, jldbCompatibleSinceVersion;
+export 'src/jldb.dart'
+    show Jldb, KategorieNameGesperrtException, jldbCompatibleSinceVersion;
 export 'src/models/models.dart'
     hide
         eintragApiModelFromDbArray,

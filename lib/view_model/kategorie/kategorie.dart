@@ -21,9 +21,29 @@ class KategorieViewModel extends _$KategorieViewModel {
     }
   }
 
-  Future<String> addKategorie(String name) async {
+  Future<void> editKategorie({
+    required String id,
+    required String name,
+    Berichtsthema? berichtsthema,
+  }) async {
     final repo = ref.read(kategorieRepositoryProvider);
-    final result = await repo.save((name: name));
+    final result = await repo.edit((
+      id: id,
+      name: name,
+      berichtsthema: berichtsthema,
+    ));
+    if (result is Failure<Unit>) {
+      throw Exception('Failed to edit Kategorie: ${result.error}');
+    }
+    ref.invalidateSelf();
+  }
+
+  Future<String> addKategorie(
+    String name, {
+    Berichtsthema? berichtsthema,
+  }) async {
+    final repo = ref.read(kategorieRepositoryProvider);
+    final result = await repo.save((name: name, berichtsthema: berichtsthema));
     if (result is Failure<Kategorie>) {
       throw Exception('Failed to save Kategorie: ${result.error}');
     } else {
@@ -34,4 +54,12 @@ class KategorieViewModel extends _$KategorieViewModel {
       return kategorie.id;
     }
   }
+}
+
+/// Whether the name of the Kategorie [id] is locked because a signed Eintrag
+/// uses it (ADR-0012).
+@riverpod
+Future<bool> kategorieNameGesperrt(Ref ref, String id) {
+  final repo = ref.watch(kategorieRepositoryProvider);
+  return repo.isNameGesperrt(id).unwrap();
 }
